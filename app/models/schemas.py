@@ -1,7 +1,70 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 
+# ==============================================================================
+# TELEMETRY & RECOMMENDATION SCHEMAS
+# ==============================================================================
+
+class DwellInteraction(BaseModel):
+    """Telemetry payload representing user dwell time on a specific catalog item."""
+    product_id: int = Field(..., description="Unique product ID")
+    dwell_time_seconds: float = Field(
+        ..., ge=0.0, description="Dwell time in seconds spent actively viewing product details"
+    )
+
+
+class RecommendationRequest(BaseModel):
+    """Request payload for dense vector dwell-weighted recommendations."""
+    user_id: Optional[str] = Field(None, description="Optional user ID for session tracking")
+    query_text: Optional[str] = Field(None, description="Search query text or keywords")
+    recent_interactions: List[DwellInteraction] = Field(
+        default_factory=list,
+        description="Chronological or recent interactions with dwell telemetry"
+    )
+    top_k: int = Field(5, ge=1, le=100, description="Number of items to return")
+    category_filter: Optional[str] = Field(None, description="Optional category filter")
+    min_price: Optional[float] = Field(None, ge=0.0, description="Minimum price filter")
+    max_price: Optional[float] = Field(None, ge=0.0, description="Maximum price filter")
+    
+    # Backwards compatibility attributes
+    user_interests: Optional[List[str]] = Field(None, description="Legacy interest tags")
+    candidate_items: Optional[List[Any]] = Field(None, description="Legacy custom items")
+
+
+class ProductItem(BaseModel):
+    """Serialized catalog product representation."""
+    id: int
+    external_id: Optional[int] = None
+    title: str
+    category: str
+    brand: Optional[str] = None
+    description: Optional[str] = ""
+    price: float = 0.0
+    image_url: Optional[str] = None
+    score: Optional[float] = None
+    rank: Optional[int] = None
+    match_breakdown: Optional[Dict[str, Any]] = None
+
+
+class RecommendationResult(BaseModel):
+    """Individual item result for backwards compatibility."""
+    item_id: int
+    name: str
+    category: str
+    score: float
+
+
+class RecommendationResponse(BaseModel):
+    """Response payload returning ranked recommendations with scoring metadata."""
+    user_id: Optional[str] = None
+    query_text: Optional[str] = None
+    recommendations: List[ProductItem]
+    total_returned: int
+    scoring_metadata: Optional[Dict[str, Any]] = None
+
+
+# Legacy alias for backwards compatibility
 class Item(BaseModel):
     id: int
     name: str
@@ -16,21 +79,73 @@ class UserPreference(BaseModel):
     interacted_item_ids: List[int] = Field(default_factory=list)
 
 
-class RecommendationRequest(BaseModel):
-    user_id: int
-    top_k: int = Field(default=5, ge=1, le=50)
-    user_interests: List[str] = Field(default_factory=list)
-    candidate_items: Optional[List[Item]] = None
+# ==============================================================================
+# VISUAL SEARCH SCHEMAS
+# ==============================================================================
+
+class BoundingBox(BaseModel):
+    """Primary detected object bounding box coordinates and detection confidence."""
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+    width: float
+    height: float
+    confidence: float
+    label: str
 
 
-class RecommendationResult(BaseModel):
-    item_id: int
-    name: str
-    category: str
-    score: float
+class VisualSearchResponse(BaseModel):
+    """Response payload for visual feature search."""
+    detection_found: bool
+    bounding_box: Optional[BoundingBox] = None
+    detected_label: Optional[str] = None
+    status_message: str
+    cropped_image_base64: Optional[str] = None
+    recommendations: List[ProductItem]
 
 
-class RecommendationResponse(BaseModel):
-    user_id: int
-    recommendations: List[RecommendationResult]
-    total_returned: int
+# ==============================================================================
+# AGENT & ESCALATION WORKFLOW SCHEMAS
+# ==============================================================================
+
+class AgentChatRequest(BaseModel):
+    """Request payload for customer ticket chat handling."""
+    thread_id: str = Field(..., description="Unique thread or ticket identifier")
+    message: str = Field(..., description="Customer inquiry or message text")
+
+
+class EscalationDecisionRequest(BaseModel):
+    """Request payload for operations manager policy resolution."""
+    thread_id: str = Field(..., description="Ticket or thread ID to resolve")
+    approved: bool = Field(..., description="Manager decision: True=Approve, False=Reject")
+    manager_id: str = Field(..., description="Supervisor/Manager identity")
+    notes: Optional[str] = Field(None, description="Manager operational notes or rationale")
+
+
+class ChatMessageRecord(BaseModel):
+    role: str
+    content: str
+    timestamp: Optional[str] = None
+
+
+class AgentChatResponse(BaseModel):
+    """Response payload returned by the support & escalation workflow."""
+    thread_id: str
+    status: str  # "completed", "escalation_needed", "in_progress", "resolved"
+    intent: Optional[str] = None
+    refund_amount: Optional[float] = None
+    escalation_needed: bool = False
+    manager_approved: Optional[bool] = None
+    response: str
+    history: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class EscalationDecisionResponse(BaseModel):
+    """Response payload returned upon resolving a manager review gate."""
+    thread_id: str
+    approved: bool
+    manager_id: str
+    notes: Optional[str] = None
+    status: str
+    response: str

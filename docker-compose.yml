@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  recsys-operations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: enterprise-recsys-ops:latest
+    container_name: enterprise_recsys_app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=Enterprise Catalog & Operations Desk
+      - DATABASE_URL=sqlite:////app/recsys.db
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Live reload volume mounts for local development
+      - ./app:/app/app
+      - ./recsys.db:/app/recsys.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+

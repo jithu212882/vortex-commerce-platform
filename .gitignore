@@ -55,3 +55,7 @@ secrets/
 models_cache/
 data/raw/
 data/processed/
+*.pt
+*.pth
+*.bin
+*.log
