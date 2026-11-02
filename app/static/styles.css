@@ -333,6 +333,47 @@ button {
   border-radius: 10px;
 }
 
+/* Universal Header Navigation Action Clusters */
+.vx-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.vx-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #94A3B8;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  background: transparent;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.vx-nav-btn:hover {
+  background-color: #1E293B;
+  border-color: #334155;
+  color: #FFFFFF;
+}
+
+.vx-nav-btn.active {
+  background-color: #1E293B;
+  border-color: #334155;
+  color: #FFFFFF;
+}
+
+.vx-nav-btn:active {
+  transform: scale(0.97);
+}
+
 /* ==============================================================================
    2. SECONDARY CATEGORY STRIP (40px, #1E293B)
    ============================================================================== */

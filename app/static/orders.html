@@ -14,54 +14,47 @@
   <!-- Shared Design System CSS -->
   <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body style="background-color: #F8FAFC; color: #0F172A; min-height: 100vh;">
+<body style="background-color: #F1F3F6; color: #0F172A; min-height: 100vh;">
 
   <!-- =========================================================================
-       1. TOP BRAND NAVIGATION BAR (60px, #0F172A)
+       1. TOP BRAND NAVIGATION BAR (64px, #0F172A)
        ========================================================================= -->
-  <header class="vx-top-header">
-    <div class="vx-header-left">
-      <!-- Brand Logo -->
-      <a href="/" class="vx-brand-lockup" aria-label="VORTEX Home">
-        <span class="vx-brand-logo">VORTEX</span>
-        <span class="vx-brand-badge">GLOBAL</span>
+  <header class="vx-header">
+    <a href="/" class="vx-logo-cluster" title="VORTEX Global Store">
+      <div class="vx-logo-text">VORTEX</div>
+      <div class="vx-logo-dot">&#9679;</div>
+      <div class="vx-logo-badge">MARKETPLACE</div>
+    </a>
+
+    <div class="vx-delivery-selector" title="Current Delivery Address">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div class="vx-delivery-text">
+        <span class="vx-deliver-label">Deliver to Sreejith</span>
+        <span class="vx-deliver-sub">Marthandam 629165 &bull; Express</span>
+      </div>
+    </div>
+
+    <div class="vx-search-bar" style="flex: 1; max-width: 580px; margin: 0 20px;">
+      <input type="text" id="headerSearchInput" class="vx-search-input" placeholder="Search orders, products, brands..." autocomplete="off">
+      <button type="button" class="btn-vx-search-submit" id="btnHeaderSearch" aria-label="Search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </button>
+    </div>
+
+    <div class="vx-nav-actions">
+      <a href="/" class="vx-nav-btn" title="Back to Marketplace">
+        <span>&larr; Marketplace</span>
       </a>
-
-      <!-- Location Pin -->
-      <div class="vx-delivery-cluster" title="Change delivery location">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="vx-pin-icon">
-          <path d="M12 21s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 7.2c0 7.3-8 11.8-8 11.8z"></path>
-          <circle cx="12" cy="9" r="2.5"></circle>
-        </svg>
-        <div class="vx-pin-text">
-          <span class="vx-pin-sub">Deliver to Sreejith</span>
-          <span class="vx-pin-main">Marthandam 629165</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Integrated Search Box -->
-    <div class="vx-search-container">
-      <div class="vx-search-shell">
-        <input type="search" id="headerSearchInput" class="vx-search-input" placeholder="Search products, brands, and categories..." autocomplete="off">
-        <button type="button" class="vx-search-btn" id="btnHeaderSearch" aria-label="Search">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Right Header Actions -->
-    <div class="vx-header-right">
-      <a href="/orders" class="vx-nav-link active" title="Order History" style="color: #60A5FA;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <a href="/orders" class="vx-nav-btn active" title="My Orders" style="background-color: #1E293B; border-color: #334155; color: #FFFFFF;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
         <span>Orders</span>
       </a>
-      <a href="/account" class="vx-nav-link" title="Customer Profile">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      <a href="/account" class="vx-nav-btn" title="My Account">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         <span>Account</span>
       </a>
-      <button type="button" class="vx-nav-link" id="btnCartTrigger" title="Shopping Cart">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <button type="button" class="vx-nav-btn" id="btnCartTrigger" title="Shopping Cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
         <span>Cart</span>
         <span class="vx-cart-badge" id="cartCountBadge">0</span>
       </button>

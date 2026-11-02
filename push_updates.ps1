@@ -7,7 +7,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$RepoDir = "d:\USer REccomendation"
+$RepoDir = $PSScriptRoot
+if (-not $RepoDir) { $RepoDir = "D:\weekly task complete assignment" }
 Set-Location $RepoDir
 
 Write-Host "==========================================================" -ForegroundColor Cyan
