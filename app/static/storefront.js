@@ -218,6 +218,18 @@
     if (el.btnTriggerHeroVisualSearch) {
       el.btnTriggerHeroVisualSearch.addEventListener("click", openVisualModal);
     }
+    document.querySelectorAll(".btn-trigger-specs").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat") || "";
+        if (cat) {
+          state.activeCategory = cat;
+          if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
+          updateCategoryStripActive(cat);
+          fetchCatalog();
+        }
+        smoothScrollTo("#catalog");
+      });
+    });
     el.btnCloseVisualModal.addEventListener("click", () => el.visualSearchModal.classList.remove("open"));
     el.visualSearchModal.addEventListener("click", (e) => {
       if (e.target === el.visualSearchModal) el.visualSearchModal.classList.remove("open");
@@ -552,9 +564,9 @@
   function renderCatalogGrid(items) {
     if (!items || items.length === 0) {
       el.storeCatalogGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--vx-text-muted);">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--vx-text-secondary);">
           <div style="font-size: 16px; font-weight: 700; color: var(--vx-text); margin-bottom: 6px;">No products found for "${state.searchQuery}"</div>
-          <div>Try adjusting keywords or selecting an alternate collection filter.</div>
+          <div style="font-size: 13px;">Try adjusting keywords or selecting an alternate collection filter.</div>
         </div>`;
       return;
     }
@@ -564,44 +576,61 @@
         const thumb = it.image_url || FALLBACK_THUMB;
         const inr = formatInr(it.price);
         const mrp = formatMrp(it.price);
-        const badge = idx % 3 === 0
-          ? '<span class="badge-pill-fast">Fast Delivery</span>'
-          : idx % 2 === 0
-          ? '<span class="badge-pill-deal">20% Off</span>'
+        const brand = it.brand || (it.category || 'VORTEX').toUpperCase();
+        
+        // Minimalist stock or prime dispatch badges
+        const stockBadge = (idx % 5 === 1)
+          ? '<span class="badge-stock-low">Only 3 Left</span>'
+          : (idx % 2 === 0)
+          ? '<span class="badge-prime-dispatch"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Prime Dispatch</span>'
           : '';
 
-        return `
-        <article class="vx-product-card card-hover" data-id="${it.id}">
-          <div>
-            ${badge ? `<div class="vx-badge-row">${badge}</div>` : ''}
-            <div class="vx-product-img-box btn-open-quickview" data-id="${it.id}">
-              <img src="${thumb}" alt="${it.title}" class="vx-product-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
-            </div>
+        const ratingScore = (4.4 + ((it.id * 7) % 6) / 10).toFixed(1);
+        const reviewCount = (850 + it.id * 39).toLocaleString('en-IN');
+        const discountPct = 20 + ((it.id * 3) % 15);
 
-            <div class="vx-card-brand">${it.brand || (it.category || 'VORTEX').toUpperCase()}</div>
-            <h3 class="vx-card-title btn-open-quickview" data-id="${it.id}" title="${it.title}">
+        return `
+        <article class="vx-product-card product-card group" data-id="${it.id}">
+          <!-- Top Aspect Image Frame -->
+          <div class="card-img-frame btn-open-quickview" data-id="${it.id}">
+            ${stockBadge ? `<div class="card-badge-container">${stockBadge}</div>` : ''}
+            <button type="button" class="btn-card-wishlist" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+              </svg>
+            </button>
+            <img src="${thumb}" alt="${it.title}" class="card-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+          </div>
+
+          <!-- Product Details & Pricing -->
+          <div class="card-content-wrap">
+            <div class="card-brand">${brand}</div>
+            <h3 class="card-title btn-open-quickview" data-id="${it.id}" title="${it.title}">
               ${it.title}
             </h3>
 
-            <div class="vx-rating-row">
-              <span class="vx-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-              <span style="font-weight: 600; color: var(--vx-text);">4.8</span>
-              <span class="vx-review-count">(${(1200 + it.id * 31).toLocaleString('en-IN')})</span>
+            <div class="card-rating-inline">
+              <span class="rating-star">&#9733;</span>
+              <span class="rating-score">${ratingScore}</span>
+              <span class="rating-count">(${reviewCount})</span>
             </div>
 
-            <div class="vx-price-row">
-              <span class="vx-price-main">&#8377;${inr}</span>
-              <span class="vx-mrp-strikethrough">&#8377;${mrp}</span>
-              <span class="vx-savings-tag">Save 26%</span>
+            <div class="card-price-row">
+              <span class="card-price-bold">&#8377;${inr}</span>
+              <span class="card-price-mrp">&#8377;${mrp}</span>
+              <span class="badge-discount-subtle">${discountPct}% OFF</span>
             </div>
           </div>
 
-          <div class="vx-card-actions">
-            <button type="button" class="btn-vx-card-cart btn-add-bag" data-id="${it.id}">
-              Add to Cart
-            </button>
-            <button type="button" class="btn-vx-card-quicklook btn-open-quickview" data-id="${it.id}" title="Quick Look">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <!-- Streamlined Light Action Button (No Black Bricks) -->
+          <div class="card-actions-wrap">
+            <button type="button" class="btn-product-card-cart btn-add-bag" data-id="${it.id}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                <path d="M3 6h18"></path>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              <span>Add to Cart</span>
             </button>
           </div>
         </article>
@@ -624,6 +653,13 @@
         const id = parseInt(btn.getAttribute("data-id"), 10);
         const product = state.catalog.find((p) => p.id === id);
         if (product) addToCart(product);
+      });
+    });
+
+    el.storeCatalogGrid.querySelectorAll(".btn-card-wishlist").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        btn.classList.toggle("active");
       });
     });
   }
@@ -741,32 +777,49 @@
       .map((it) => {
         const thumb = it.image_url || FALLBACK_THUMB;
         const inr = formatInr(it.price);
+        const mrp = formatMrp(it.price);
+        const brand = it.brand || (it.category || 'ESSENTIAL').toUpperCase();
 
         return `
-        <div class="vx-rec-item btn-rec-card card-hover" data-id="${it.id}">
-          <div class="vx-rec-thumb-box">
-            <img src="${thumb}" alt="${it.title}" class="vx-rec-thumb" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+        <div class="vx-rec-item btn-rec-card group" data-id="${it.id}">
+          <div class="card-img-frame btn-open-rec" data-id="${it.id}" style="aspect-ratio: 4 / 3; margin-bottom: 8px;">
+            <img src="${thumb}" alt="${it.title}" class="card-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
           </div>
-          <div class="vx-rec-title" title="${it.title}">${it.title}</div>
-          <div style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
-            ${(it.category || 'ESSENTIAL').toUpperCase()}
+          <div class="card-brand" style="margin-bottom: 2px;">${brand}</div>
+          <div class="card-title btn-open-rec" data-id="${it.id}" title="${it.title}" style="height: 32px; font-size: 12.5px; margin-bottom: 4px;">
+            ${it.title}
           </div>
-          <div style="font-size: 15px; font-weight: 700; color: var(--vx-text); margin-bottom: 8px;">
-            &#8377;${inr}
+          <div class="card-price-row" style="margin-bottom: 10px;">
+            <span class="card-price-bold" style="font-size: 15px;">&#8377;${inr}</span>
+            <span class="card-price-mrp" style="font-size: 11px;">&#8377;${mrp}</span>
           </div>
-          <button type="button" class="btn-vx-card-cart" style="height: 32px; font-size: 11.5px; margin-top: auto;">
-            Add to Cart
+          <button type="button" class="btn-product-card-cart btn-rec-add-bag" data-id="${it.id}" style="height: 32px; font-size: 11.5px; margin-top: auto;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+              <path d="M3 6h18"></path>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>Add to Cart</span>
           </button>
         </div>
       `;
       })
       .join("");
 
-    el.recommendedGrid.querySelectorAll(".btn-rec-card").forEach((card) => {
-      card.addEventListener("click", () => {
-        const id = parseInt(card.getAttribute("data-id"), 10);
+    el.recommendedGrid.querySelectorAll(".btn-open-rec").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        const id = parseInt(trigger.getAttribute("data-id"), 10);
         const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
         if (product) openQuickView(product);
+      });
+    });
+
+    el.recommendedGrid.querySelectorAll(".btn-rec-add-bag").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
+        if (product) addToCart(product);
       });
     });
   }
