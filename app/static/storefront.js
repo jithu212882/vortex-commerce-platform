@@ -85,6 +85,7 @@
     navOrdersBtn: document.getElementById("navOrdersBtn"),
     footerTrackOrders: document.getElementById("footerTrackOrders"),
     footerReturnsHelp: document.getElementById("footerReturnsHelp"),
+    footerCustomerCare: document.getElementById("footerCustomerCare"),
   };
 
   const FALLBACK_THUMB = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80";
@@ -180,10 +181,10 @@
 
     el.btnCheckoutCart.addEventListener("click", () => {
       if (state.cartItems.length === 0) {
-        alert("Your bag is empty. Please add items before proceeding.");
+        alert("Your cart is empty. Please add items before proceeding.");
         return;
       }
-      alert("Proceeding to Vortex Encrypted Payment Gateway. Thank you!");
+      alert("Proceeding to Secure Checkout. Thank you!");
     });
 
     // Quick View Modal
@@ -196,9 +197,9 @@
     el.btnAddToCartModal.addEventListener("click", () => {
       if (state.currentQuickViewProduct) {
         addToCart(state.currentQuickViewProduct);
-        el.btnAddToCartModal.textContent = "Added to Bag ✓";
+        el.btnAddToCartModal.textContent = "Added to Cart ✓";
         setTimeout(() => {
-          el.btnAddToCartModal.textContent = "Add to Bag";
+          el.btnAddToCartModal.textContent = "Add to Cart";
         }, 1200);
       }
     });
@@ -243,6 +244,7 @@
     };
     el.btnOpenSupportDrawer.addEventListener("click", openSupportDrawer);
     if (el.navOrdersBtn) el.navOrdersBtn.addEventListener("click", openSupportDrawer);
+    if (el.footerCustomerCare) el.footerCustomerCare.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
     if (el.footerTrackOrders) el.footerTrackOrders.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
     if (el.footerReturnsHelp) el.footerReturnsHelp.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
     el.btnCloseSupportDrawer.addEventListener("click", () => el.supportDrawer.classList.remove("open"));
@@ -252,15 +254,15 @@
 
     // Support Quick Chips
     el.chipTrackOrder.addEventListener("click", () => {
-      el.drawerChatInput.value = "What is the status of my order #ORD-98214 dispatched to Marthandam?";
+      el.drawerChatInput.value = "Where is my package #ORD-98214?";
       el.drawerChatForm.dispatchEvent(new Event("submit"));
     });
     el.chipRefundPrompt.addEventListener("click", () => {
-      el.drawerChatInput.value = "I would like to request an authorized refund of ₹450 for a damaged shipment.";
+      el.drawerChatInput.value = "I would like to request a refund of ₹450 for my recent order.";
       el.drawerChatInput.focus();
     });
     el.chipCheckStock.addEventListener("click", () => {
-      el.drawerChatInput.value = "Please check active stock levels for premium workstation laptops and headphones.";
+      el.drawerChatInput.value = "Can you check stock availability for laptops and wireless headphones?";
       el.drawerChatForm.dispatchEvent(new Event("submit"));
     });
 
@@ -321,7 +323,7 @@
     if (state.cartItems.length === 0) {
       el.cartItemsStream.innerHTML = `
         <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
-          Your shopping bag is empty.
+          Your cart is empty.
         </div>`;
       el.cartSubtotalVal.textContent = "₹0";
       return;
@@ -467,7 +469,7 @@
 
           <div class="vx-card-actions">
             <button type="button" class="btn-vx-card-cart btn-add-bag" data-id="${it.id}">
-              Add to Bag
+              Add to Cart
             </button>
             <button type="button" class="btn-vx-card-quicklook btn-open-quickview" data-id="${it.id}" title="Quick Look">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -511,7 +513,7 @@
     el.modalTitle.textContent = product.title;
     el.modalPrice.textContent = `₹${formatInr(product.price)}`;
     el.modalMrp.textContent = `₹${formatMrp(product.price)}`;
-    el.modalDesc.textContent = product.description || "Precision engineered essential constructed with premium industrial standards.";
+    el.modalDesc.textContent = product.description || "Premium quality product backed by manufacturer warranty and 7-day easy returns.";
 
     el.quickViewModal.classList.add("open");
   }
@@ -545,7 +547,10 @@
 
   async function dispatchDwellTelemetry() {
     try {
-      el.recsFreshIndicator.textContent = "[CALIBRATING DENSE VECTORS...]";
+      if (el.recsFreshIndicator) {
+        el.recsFreshIndicator.style.display = "inline-block";
+        el.recsFreshIndicator.textContent = "Updating...";
+      }
 
       const payload = {
         user_id: state.userId,
@@ -565,9 +570,16 @@
 
       state.recommended = data.recommendations;
       renderRecommendedTrack(data.recommendations);
-      el.recsFreshIndicator.textContent = "[DWELL-WEIGHTED EMBEDDINGS ACTIVE]";
+      if (el.recsFreshIndicator) {
+        el.recsFreshIndicator.textContent = "Updated for you";
+        setTimeout(() => {
+          if (el.recsFreshIndicator) el.recsFreshIndicator.style.display = "none";
+        }, 2000);
+      }
     } catch (err) {
-      el.recsFreshIndicator.textContent = "[DWELL-WEIGHTED EMBEDDINGS ACTIVE]";
+      if (el.recsFreshIndicator) {
+        el.recsFreshIndicator.style.display = "none";
+      }
     }
   }
 
@@ -614,7 +626,7 @@
             &#8377;${inr}
           </div>
           <button type="button" class="btn-vx-card-cart" style="height: 32px; font-size: 11.5px; margin-top: auto;">
-            Add to Bag
+            Add to Cart
           </button>
         </div>
       `;
@@ -641,7 +653,7 @@
   }
 
   async function uploadPhotoForVisualMatch(file) {
-    el.visualStatusNotice.textContent = "Ultralytics YOLOv8 segmenting image bounding box...";
+    el.visualStatusNotice.textContent = "Analyzing image and finding visually matching products...";
     el.visualInspectionBox.style.display = "block";
     el.visualMatchesContainer.style.display = "none";
 
@@ -664,8 +676,8 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      el.visualLabelNotice.textContent = `Detected Class: ${data.detected_label || 'Focal Object'}`;
-      el.visualStatusNotice.textContent = `${data.status_message} (Latency: 32.5ms)`;
+      el.visualLabelNotice.textContent = `Detected: ${data.detected_label || 'Product'}`;
+      el.visualStatusNotice.textContent = "Matching products found in catalog.";
 
       if (data.cropped_image_base64) {
         el.visualPreviewImg.src = `data:image/jpeg;base64,${data.cropped_image_base64}`;
@@ -691,7 +703,7 @@
           .join("");
       }
     } catch (err) {
-      el.visualStatusNotice.textContent = "Visual search error: " + err.message;
+      el.visualStatusNotice.textContent = "Unable to process photo: " + err.message;
     }
   }
 
@@ -707,7 +719,7 @@
     appendChatBubble("user", msg);
     el.drawerChatInput.value = "";
 
-    const typingId = appendChatBubble("concierge", "Evaluating inquiry against policy rules...");
+    const typingId = appendChatBubble("concierge", "Looking into that for you...");
 
     try {
       const res = await fetch("/api/v1/support/chat", {
@@ -726,13 +738,13 @@
 
       let responseText = data.response;
       if (data.escalation_needed) {
-        responseText += `\n\n[POLICY CHECKPOINT] High-value claim detected (> ₹1,000 threshold). This ticket has been routed to the Operations Cockpit (/admin) for supervisor authorization.`;
+        responseText += `\n\nNote: For refund requests exceeding ₹1,000, your claim has been forwarded to our Senior Support Team for manual verification and approval. You will receive confirmation shortly.`;
       }
 
       appendChatBubble("concierge", responseText);
     } catch (err) {
       removeChatBubble(typingId);
-      appendChatBubble("concierge", "Our customer operations queue is currently experiencing high load. Please retry shortly.");
+      appendChatBubble("concierge", "Our customer support team is currently assisting other shoppers. Please retry in a moment.");
     }
   }
 

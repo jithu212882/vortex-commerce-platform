@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0F172A">
   <meta name="application-name" content="Vortex Commerce">
-  <meta name="description" content="Precision engineering, lifestyle goods, and curated daily essentials. Powered by dense vector embeddings and real-time dwell telemetry.">
-  <title>Vortex Commerce &bull; Global Store &amp; Curated Essentials</title>
+  <meta name="description" content="Shop audio, computing, smart wearables, home essentials, and lifestyle goods at Vortex Commerce. Enjoy verified quality, express delivery, and easy returns.">
+  <title>Vortex Commerce &bull; Modern Retail &amp; Daily Essentials</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -31,7 +31,7 @@
     <!-- High-Utility Search Bar -->
     <div class="vx-search-bar">
       <select class="vx-search-category" id="categorySelectDropdown" aria-label="Filter category">
-        <option value="">All Collections</option>
+        <option value="">All Categories</option>
         <option value="electronics">Electronics &amp; Computing</option>
         <option value="audio">Audio &amp; Acoustics</option>
         <option value="wearables">Smart Wearables</option>
@@ -44,7 +44,7 @@
       <input type="text" id="storeSearchInput" class="vx-search-input" placeholder="Search across 10,000+ curated products, brands, models..." autocomplete="off">
 
       <!-- Camera button inside search bar (YOLOv8 Visual Search) -->
-      <button type="button" class="btn-vx-camera" id="btnSearchPhotoTrigger" title="Visual Camera Search (YOLOv8)">
+      <button type="button" class="btn-vx-camera" id="btnSearchPhotoTrigger" title="Search by Photo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
       </button>
 
@@ -67,16 +67,11 @@
       </div>
 
       <!-- Slide-Out Cart Trigger -->
-      <button type="button" class="vx-cart-pill-btn" id="btnCartTrigger" title="View Shopping Bag">
+      <button type="button" class="vx-cart-pill-btn" id="btnCartTrigger" title="View Shopping Cart">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span>Bag</span>
+        <span>Cart</span>
         <span class="vx-cart-badge" id="cartCountBadge">0</span>
       </button>
-
-      <!-- Ops Portal Link -->
-      <a href="/admin" class="vx-ops-link" title="Open Engineering &amp; Operations Cockpit">
-        [Ops Portal &rarr;]
-      </a>
     </div>
 
   </header>
@@ -85,7 +80,7 @@
        2. SECONDARY CATEGORY STRIP (42px, #1E293B)
        ========================================================================= -->
   <nav class="vx-category-strip">
-    <div class="vx-cat-pill active" data-cat="">All Collections</div>
+    <div class="vx-cat-pill active" data-cat="">All Categories</div>
     <div class="vx-cat-pill" data-cat="audio">Audio &amp; Acoustics</div>
     <div class="vx-cat-pill" data-cat="wearables">Smart Wearables</div>
     <div class="vx-cat-pill" data-cat="electronics">Workspace &amp; Computing</div>
@@ -105,34 +100,34 @@
   <section class="vx-hero">
     <div class="vx-hero-banner">
       <div class="vx-hero-content">
-        <span class="vx-hero-pill">2026 Curated Collection</span>
-        <h1 class="vx-hero-title">Precision Engineering &amp; Everyday Essentials.</h1>
+        <span class="vx-hero-pill">FESTIVAL SALE &bull; LIVE NOW</span>
+        <h1 class="vx-hero-title">Up to 50% Off | Audio, Electronics &amp; Daily Essentials</h1>
         <p class="vx-hero-subtitle">
-          Experience authentic commercial commerce. Every item is verified for build integrity, sourced through authorized channels, and backed by automated resolution guarantees.
+          Shop top brands with verified 1-year warranty, free delivery on orders above &#8377;499, and hassle-free 7-day returns.
         </p>
 
         <div class="vx-hero-actions">
           <a href="#catalog" class="btn-vx-primary" id="btnExploreCollection">
-            Explore Collection &rarr;
+            Shop Deals &rarr;
           </a>
           <button type="button" class="btn-vx-secondary" id="btnTriggerHeroVisualSearch">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            Search with Image
+            Photo Search
           </button>
         </div>
 
         <div class="vx-hero-guarantees">
           <div class="guarantee-item">
             <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Guaranteed Authenticity</span>
+            <span>&check; 100% Original Products</span>
           </div>
           <div class="guarantee-item">
             <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Express Tracked Shipping</span>
+            <span>&check; Free Express Delivery</span>
           </div>
           <div class="guarantee-item">
             <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Policy Protected Returns</span>
+            <span>&check; 7-Day Easy Returns</span>
           </div>
         </div>
       </div>
@@ -145,8 +140,8 @@
   <section class="vx-bento-section">
     <div class="vx-section-title-row">
       <div>
-        <h2 class="vx-section-title">Curated Sectors</h2>
-        <div class="vx-section-sub">Direct access to our most sought-after categories</div>
+        <h2 class="vx-section-title">Shop by Category</h2>
+        <div class="vx-section-sub">Explore top collections across tech, home, and essentials</div>
       </div>
     </div>
 
@@ -232,17 +227,17 @@
     <div class="vx-card-container">
       <div class="vx-section-title-row">
         <div>
-          <h2 class="vx-section-title">Personalized Recommendations</h2>
+          <h2 class="vx-section-title">Recommended For You</h2>
           <div class="vx-section-sub">
-            Ranked by multi-term query match and weighted implicit dwell telemetry.
+            Based on items you've viewed and explored
           </div>
         </div>
-        <span class="vx-dwell-indicator" id="recsFreshIndicator">[DWELL-WEIGHTED EMBEDDINGS ACTIVE]</span>
+        <span class="vx-dwell-indicator" id="recsFreshIndicator" style="display: none;"></span>
       </div>
 
       <div class="vx-rec-track" id="recommendedGrid">
         <div style="padding: 24px; color: var(--vx-text-muted); font-size: 13px;">
-          Actively browsing products will calibrate real-time vector recommendations.
+          Explore products to view recommendations tailored to your interests.
         </div>
       </div>
     </div>
@@ -254,8 +249,8 @@
   <main class="vx-catalog-section" id="catalog">
     <div class="vx-section-title-row">
       <div>
-        <h2 class="vx-section-title">Curated Catalog</h2>
-        <div class="vx-section-sub" id="catalogCountNote">Displaying curated essentials</div>
+        <h2 class="vx-section-title">All Products</h2>
+        <div class="vx-section-sub" id="catalogCountNote">Displaying all products</div>
       </div>
     </div>
 
@@ -267,12 +262,12 @@
   </main>
 
   <!-- =========================================================================
-       7. PRODUCT QUICK-VIEW MODAL (WITH DWELL TELEMETRY)
+       7. PRODUCT QUICK-VIEW MODAL
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="quickViewModal">
     <div class="modal-content-smooth">
       <div class="vx-modal-header">
-        <span class="vx-modal-title">Product Specifications &bull; Instant View</span>
+        <span class="vx-modal-title">Product Overview</span>
         <button type="button" class="vx-close-btn" id="btnCloseQuickView" aria-label="Close modal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -302,7 +297,7 @@
               <span class="vx-savings-tag" id="modalDiscount">SAVE 25%</span>
             </div>
             <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">
-              Inclusive of all import tariffs and taxes &bull; Free express delivery to Marthandam
+              Inclusive of all taxes &bull; Free express delivery to Marthandam
             </div>
           </div>
 
@@ -313,7 +308,7 @@
           <ul class="vx-modal-bullets">
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>100% Genuine guaranteed with verified manufacturer serial number</span>
+              <span>100% Genuine guaranteed with verified manufacturer warranty</span>
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -321,13 +316,13 @@
             </li>
             <li>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>Hassle-free 30-day return policy backed by automated supervisor gate</span>
+              <span>Hassle-free 7-day return policy on all eligible purchases</span>
             </li>
           </ul>
 
           <div class="vx-modal-cta-row">
             <button type="button" class="btn-vx-primary" id="btnAddToCartModal" style="flex: 1; height: 42px;">
-              Add to Bag
+              Add to Cart
             </button>
             <button type="button" class="btn-vx-secondary" id="btnDismissModal" style="color: var(--vx-text); border-color: var(--vx-border); background-color: var(--vx-surface-subtle); height: 42px;">
               Done
@@ -345,7 +340,7 @@
     <div class="vx-drawer-head">
       <div style="display: flex; align-items: center; gap: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span class="vx-drawer-title">Shopping Bag</span>
+        <span class="vx-drawer-title">Your Cart</span>
       </div>
       <button type="button" class="vx-close-btn" id="btnCloseCartDrawer" style="color: #FFFFFF;" aria-label="Close cart">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -355,13 +350,13 @@
     <!-- Free Delivery Progress Pill -->
     <div style="padding: 12px 20px; background-color: var(--vx-emerald-subtle); border-bottom: 1px solid var(--vx-emerald-border); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--vx-emerald);">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      <span>Free Express Tracked Delivery Unlocked!</span>
+      <span>Free Express Delivery Unlocked!</span>
     </div>
 
     <!-- Cart Items Stream -->
     <div class="vx-cart-items-stream" id="cartItemsStream">
       <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
-        Your shopping bag is empty.
+        Your cart is empty.
       </div>
     </div>
 
@@ -372,7 +367,7 @@
         <span id="cartSubtotalVal">&#8377;0</span>
       </div>
       <p style="font-size: 11.5px; color: var(--vx-text-muted); margin-bottom: 14px;">
-        Taxes, duties, and express carrier insurance calculated at payment.
+        Applicable taxes and express delivery calculated at checkout.
       </p>
       <button type="button" class="btn-vx-primary" id="btnCheckoutCart" style="width: 100%; height: 44px; font-size: 14px;">
         Proceed to Secure Checkout &rarr;
@@ -386,7 +381,7 @@
   <div class="modal-backdrop-smooth" id="visualSearchModal">
     <div class="modal-content-smooth" style="max-width: 620px;">
       <div class="vx-modal-header">
-        <span class="vx-modal-title">Visual Feature Search &bull; YOLOv8</span>
+        <span class="vx-modal-title">Search by Photo</span>
         <button type="button" class="vx-close-btn" id="btnCloseVisualModal" aria-label="Close modal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -394,14 +389,14 @@
 
       <div style="padding: 24px;">
         <p style="font-size: 13px; color: var(--vx-text-secondary); margin-bottom: 16px;">
-          Upload or drop an image. Ultralytics YOLOv8 extracts the primary candidate bounding box and retrieves visually aligned catalog items.
+          Upload or drop an image to find visually matching products across our catalog.
         </p>
 
         <div class="vx-dropzone" id="storefrontDropzone">
           <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
           <svg style="width: 40px; height: 40px; color: var(--vx-blue); margin-bottom: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
           <div style="font-weight: 700; font-size: 14px; color: var(--vx-text);">Drag &amp; drop product photo here</div>
-          <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">Supports JPG, PNG, WEBP files</div>
+          <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">Supports JPG, PNG, and WEBP formats</div>
           <button type="button" class="btn-vx-primary" id="btnTriggerBrowsePhoto" style="margin-top: 14px; height: 36px; padding: 0 18px; font-size: 12.5px;">
             Select from Device
           </button>
@@ -410,16 +405,16 @@
         <!-- YOLOv8 Inference Output Preview -->
         <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
           <div style="display: flex; gap: 14px; align-items: center; background-color: var(--vx-surface-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--vx-border);">
-            <img id="visualPreviewImg" src="" alt="YOLOv8 Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--vx-border);">
+            <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--vx-border);">
             <div style="flex: 1;">
               <div style="font-size: 13px; font-weight: 700; color: var(--vx-text);" id="visualLabelNotice">Detected: Object</div>
-              <div style="font-size: 12px; color: var(--vx-text-secondary);" id="visualStatusNotice">Analysis complete. Correlated matches retrieved below.</div>
+              <div style="font-size: 12px; color: var(--vx-text-secondary);" id="visualStatusNotice">Finding visually matching items...</div>
             </div>
           </div>
         </div>
 
         <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
-          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--vx-text); text-transform: uppercase; letter-spacing: 0.05em;">Correlated Catalog Matches</div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--vx-text); text-transform: uppercase; letter-spacing: 0.05em;">Matching Products</div>
           <div class="vx-product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
         </div>
       </div>
@@ -427,13 +422,13 @@
   </div>
 
   <!-- =========================================================================
-       10. CUSTOMER SERVICE & ESCALATION DRAWER (LANGGRAPH AGENT)
+       10. CUSTOMER SERVICE DRAWER (LANGGRAPH AGENT)
        ========================================================================= -->
   <aside class="vx-drawer" id="supportDrawer">
     <div class="vx-drawer-head">
       <div style="display: flex; align-items: center; gap: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        <span class="vx-drawer-title">Vortex Customer Operations</span>
+        <span class="vx-drawer-title">Vortex Customer Support</span>
       </div>
       <button type="button" class="vx-close-btn" id="btnCloseSupportDrawer" style="color: #FFFFFF;" aria-label="Close support">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -443,7 +438,7 @@
     <!-- Conversation Stream -->
     <div class="vx-chat-stream" id="drawerChatStream">
       <div class="chat-bubble concierge">
-        Hello Sreejith! Welcome to Vortex Customer Operations. How can we assist you with catalog specifications, order status, or return claims today?
+        Hi Sreejith, welcome to Vortex Support! How can we help you today with your orders, returns, or product questions?
       </div>
     </div>
 
@@ -451,75 +446,74 @@
     <div style="padding: 10px 16px; background-color: #FFFFFF; border-top: 1px solid var(--vx-border); display: flex; flex-wrap: wrap; gap: 6px;">
       <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipTrackOrder">Track package #ORD-98214</button>
       <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipRefundPrompt">Request a refund</button>
-      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipCheckStock">Hardware stock check</button>
+      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipCheckStock">Check stock availability</button>
     </div>
 
     <!-- Input Form -->
     <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: #F8FAFC; border-top: 1px solid var(--vx-border);" id="drawerChatForm">
-      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--vx-border-strong); border-radius: 6px; padding: 0 12px; font-size: 13px; outline: none;" placeholder="Type your inquiry or refund request..." autocomplete="off" required>
+      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--vx-border-strong); border-radius: 6px; padding: 0 12px; font-size: 13px; outline: none;" placeholder="Type your message..." autocomplete="off" required>
       <button type="submit" class="btn-vx-primary" style="height: 38px; padding: 0 16px; font-size: 13px;">Send</button>
     </form>
   </aside>
 
   <!-- Floating Customer Support Trigger Button (Bottom Right) -->
-  <button type="button" class="vx-floating-support-btn" id="btnOpenSupportDrawer" title="Support &amp; Policy Escalations">
+  <button type="button" class="vx-floating-support-btn" id="btnOpenSupportDrawer" title="Customer Service">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    <span>Support &amp; Escalations</span>
+    <span>Customer Service</span>
   </button>
 
   <!-- =========================================================================
-       11. MODERN 4-COLUMN FOOTER
+       11. REAL RETAIL 4-COLUMN FOOTER
        ========================================================================= -->
   <footer class="vx-footer">
     <div class="vx-footer-grid">
       <div>
-        <div class="vx-footer-col-title">Shop Collections</div>
+        <div class="vx-footer-col-title">Get to Know Us</div>
         <ul class="vx-footer-list">
-          <li><a href="#catalog" class="footer-cat-link" data-cat="electronics">Workspace &amp; Computing</a></li>
-          <li><a href="#catalog" class="footer-cat-link" data-cat="audio">Audio &amp; Studio Acoustics</a></li>
-          <li><a href="#catalog" class="footer-cat-link" data-cat="wearables">Smart Wearables</a></li>
-          <li><a href="#catalog" class="footer-cat-link" data-cat="furniture">Home &amp; Ergonomics</a></li>
-          <li><a href="#catalog" class="footer-cat-link" data-cat="fragrances">Fine Fragrances</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press Releases</a></li>
+          <li><a href="#">Vortex Science</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">Customer Experience</div>
+        <div class="vx-footer-col-title">Customer Care</div>
         <ul class="vx-footer-list">
-          <li><a href="#" id="footerTrackOrders">Track Shipment</a></li>
-          <li><a href="#" id="footerReturnsHelp">Return Policy &amp; Claims</a></li>
-          <li><a href="#">Delivery Coverage (Marthandam)</a></li>
-          <li><a href="#">Security &amp; Buyer Guarantee</a></li>
+          <li><a href="#" id="footerCustomerCare">Help &amp; Support</a></li>
+          <li><a href="#" id="footerTrackOrders">Track Order</a></li>
+          <li><a href="#" id="footerReturnsHelp">Return &amp; Replacement</a></li>
+          <li><a href="#">Shipping Rates &amp; Policies</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">Operations &amp; Logistics</div>
+        <div class="vx-footer-col-title">Policies</div>
         <ul class="vx-footer-list">
-          <li><a href="/admin">Operations Cockpit</a></li>
-          <li><a href="/admin">Real-Time Telemetry Feed</a></li>
-          <li><a href="/admin">Supervisor Approval Queue</a></li>
-          <li><a href="/docs">FastAPI Swagger Specs</a></li>
+          <li><a href="#">Privacy Notice</a></li>
+          <li><a href="#">Terms of Sale</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Grievance Officer</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">About Vortex</div>
+        <div class="vx-footer-col-title">Connect</div>
         <ul class="vx-footer-list">
-          <li><a href="#">Global Architecture</a></li>
-          <li><a href="#">Dense Vector Recommendation</a></li>
-          <li><a href="#">YOLOv8 Visual Pipelines</a></li>
-          <li><a href="#">LangGraph Policy Machines</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">LinkedIn</a></li>
         </ul>
       </div>
     </div>
 
     <div class="vx-footer-bottom">
       <div>
-        &copy; 2026 Vortex Commerce Inc. All rights reserved. &bull; Privacy Policy &bull; Terms of Service &bull; <a href="/admin" style="color: #60A5FA;">Telemetry Console</a>
+        &copy; 2026 Vortex Retail Pvt Ltd. All rights reserved. &bull; <a href="#">Privacy Policy</a> &bull; <a href="#">Terms of Sale</a> &bull; <a href="#">Security</a> &bull; <a href="/admin" class="staff-console-link" title="Staff Management Console">Staff Console</a>
       </div>
       <div>
-        Engineered with FastAPI &bull; SentenceTransformers &bull; YOLOv8 &bull; LangGraph
+        100% Secure Payments &bull; Verified Merchants &bull; Fast Delivery
       </div>
     </div>
   </footer>
