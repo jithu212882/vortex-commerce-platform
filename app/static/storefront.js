@@ -442,7 +442,7 @@
           : '';
 
         return `
-        <article class="vx-product-card" data-id="${it.id}">
+        <article class="vx-product-card card-hover" data-id="${it.id}">
           <div>
             ${badge ? `<div class="vx-badge-row">${badge}</div>` : ''}
             <div class="vx-product-img-box btn-open-quickview" data-id="${it.id}">
@@ -614,12 +614,12 @@
         const inr = formatInr(it.price);
 
         return `
-        <div class="vx-rec-item btn-rec-card" data-id="${it.id}">
+        <div class="vx-rec-item btn-rec-card card-hover" data-id="${it.id}">
           <div class="vx-rec-thumb-box">
             <img src="${thumb}" alt="${it.title}" class="vx-rec-thumb" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
           </div>
           <div class="vx-rec-title" title="${it.title}">${it.title}</div>
-          <div style="font-size: 11px; font-weight: 700; color: var(--vx-blue); margin-bottom: 4px;">
+          <div style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
             ${(it.category || 'ESSENTIAL').toUpperCase()}
           </div>
           <div style="font-size: 15px; font-weight: 700; color: var(--vx-text); margin-bottom: 8px;">
