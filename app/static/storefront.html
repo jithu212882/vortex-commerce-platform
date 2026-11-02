@@ -3,438 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#131921">
-  <meta name="application-name" content="Amazon.in Online Shopping">
-  <meta name="architecture" content="MERIDIAN RecSys &amp; Customer Operations Engine">
-  <title>Online Shopping site in India: Shop Online for Mobiles, Books, Watches, Shoes and More - Amazon.in</title>
+  <meta name="theme-color" content="#0F172A">
+  <meta name="application-name" content="Vortex Commerce">
+  <meta name="description" content="Precision engineering, lifestyle goods, and curated daily essentials. Powered by dense vector embeddings and real-time dwell telemetry.">
+  <title>Vortex Commerce &bull; Global Store &amp; Curated Essentials</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
   <!-- =========================================================================
-       1. AMAZON TOP BAR HEADER (#131921)
+       1. GLOBAL HEADER (64px, #0F172A)
        ========================================================================= -->
-  <header class="amz-header-top">
+  <header class="vx-header">
 
-    <!-- Amazon Logo with Signature Curved Orange Smile -->
-    <a href="/" class="amz-logo-link" title="Amazon.in Home">
-      <svg class="amz-logo-svg" viewBox="0 0 130 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 'amazon' text -->
-        <path d="M12.8 19.3c0-1.8-.4-3.2-1.3-4.1-.9-.9-2.1-1.4-3.7-1.4-1.8 0-3.3.6-4.5 1.7l1.5 2.1c.9-.8 2-1.3 3.1-1.3 1 0 1.7.3 2.1.8.4.5.7 1.3.7 2.3v.4c-1.1-.3-2.3-.4-3.6-.4-2.1 0-3.7.5-4.8 1.5-1.1 1-1.6 2.3-1.6 3.9 0 1.5.5 2.7 1.5 3.6 1 .9 2.3 1.3 3.9 1.3 1.8 0 3.3-.6 4.4-1.9v1.6h2.9v-10.1zm-3 5.4c0 1.1-.4 2-1.1 2.7-.8.7-1.7 1-2.9 1-1 0-1.8-.3-2.4-.8-.6-.6-.9-1.3-.9-2.3 0-1 .4-1.8 1.1-2.4.7-.6 1.8-.9 3.2-.9.9 0 1.9.1 3 .3v2.4zm16.5-10.5c-1.4 0-2.6.5-3.6 1.4-1 .9-1.5 2.1-1.5 3.6v9.8h3v-9.5c0-1 .3-1.8.9-2.3.6-.5 1.4-.8 2.3-.8 1 0 1.7.3 2.2.8.5.5.8 1.3.8 2.3v9.5h3v-9.5c0-1 .3-1.8.9-2.3.6-.5 1.4-.8 2.3-.8 1 0 1.7.3 2.2.8.5.5.8 1.3.8 2.3v9.5h3v-10c0-2-1.2-3.5-3.6-4.4-.9-.3-1.9-.5-3.1-.5-1.6 0-3 .5-4.2 1.4-1-1-2.4-1.4-4-1.4zm23.2.3c-2.3 0-4.2.8-5.7 2.3-1.5 1.5-2.2 3.6-2.2 6.1 0 2.5.7 4.5 2.2 6.1 1.5 1.5 3.4 2.3 5.7 2.3 2.3 0 4.2-.8 5.7-2.3 1.5-1.5 2.2-3.6 2.2-6.1 0-2.5-.7-4.5-2.2-6.1-1.5-1.5-3.4-2.3-5.7-2.3zm0 2.8c1.5 0 2.6.5 3.5 1.6.9 1.1 1.3 2.6 1.3 4.4 0 1.8-.4 3.3-1.3 4.4-.9 1.1-2 1.6-3.5 1.6-1.5 0-2.6-.5-3.5-1.6-.9-1.1-1.3-2.6-1.3-4.4 0-1.8.4-3.3 1.3-4.4.9-1.1 2.1-1.6 3.5-1.6zm14.8-2.8v3h7.7l-7.9 10.7v2.8h12.5v-3h-8.7l8-10.7v-2.8h-11.6zm22.4 0c-1.8 0-3.3.6-4.5 1.7l1.5 2.1c.9-.8 2-1.3 3.1-1.3 1 0 1.7.3 2.1.8.4.5.7 1.3.7 2.3v.4c-1.1-.3-2.3-.4-3.6-.4-2.1 0-3.7.5-4.8 1.5-1.1 1-1.6 2.3-1.6 3.9 0 1.5.5 2.7 1.5 3.6 1 .9 2.3 1.3 3.9 1.3 1.8 0 3.3-.6 4.4-1.9v1.6h2.9v-10.1c0-1.8-.4-3.2-1.3-4.1-.9-.9-2.1-1.4-3.7-1.4zm-3 5.4c0 1.1-.4 2-1.1 2.7-.8.7-1.7 1-2.9 1-1 0-1.8-.3-2.4-.8-.6-.6-.9-1.3-.9-2.3 0-1 .4-1.8 1.1-2.4.7-.6 1.8-.9 3.2-.9.9 0 1.9.1 3 .3v2.4zm16.5-5.4c-1.5 0-2.8.5-3.8 1.5v-1.2h-2.9v16.4h3v-9.6c0-1.2.4-2.2 1.1-2.9.8-.7 1.7-1 2.8-1 1.2 0 2.2.4 2.8 1.2.7.8 1 1.8 1 3.1v9.2h3v-9.6c0-2-1.2-3.6-3.4-4.5-.9-.4-2.1-.6-3.6-.6z" fill="#FFFFFF"/>
-        <!-- '.in' tag -->
-        <text x="103" y="19" fill="#CCCCCC" font-size="11" font-weight="700" font-family="sans-serif">.in</text>
-        <!-- Signature Curved Orange Smile (from 'a' to 'z') with Arrowhead -->
-        <path d="M7 26.5c22.5 7.8 54 8 72-5.5 1.5-1.1 2.2.8 1.5 1.6-19 14.2-54 13.5-74.5 4.8-.8-.4-.2-1.3 1-1z" fill="#FF9900"/>
-        <path d="M80.5 20.8c.8 1.8 2.4 5.3 4 7-1.5-.3-4.9-1.2-6.5-1.7 1-1.3 2-3.4 2.5-5.3z" fill="#FF9900"/>
-      </svg>
+    <!-- Logo: VORTEX. GLOBAL STORE -->
+    <a href="/" class="vx-logo-cluster" title="Vortex Commerce Home">
+      <span class="vx-logo-text">VORTEX<span class="vx-logo-dot">.</span></span>
+      <span class="vx-logo-badge">GLOBAL</span>
     </a>
 
-    <!-- Delivery Pin: "Deliver to Sreejith / Marthandam 629165" -->
-    <div class="amz-delivery-pin" id="amzDeliveryPin" title="Change delivery location">
-      <svg class="pin-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      <div>
-        <div class="pin-text-sub">Deliver to Sreejith</div>
-        <div class="pin-text-main">Marthandam 629165</div>
-      </div>
+    <!-- Delivery Selector -->
+    <div class="vx-delivery-selector" id="vxDeliverySelector" title="Delivery Destination">
+      <svg class="vx-delivery-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div>Deliver to <span class="vx-delivery-bold">Sreejith</span> &bull; Marthandam 629165</div>
     </div>
 
-    <!-- Integrated Search Bar with Dropdown, Input, Camera, & Yellow Submit -->
-    <div class="amz-search-container">
-      <select class="amz-search-dropdown" id="categorySelectDropdown" aria-label="Search in">
-        <option value="">All Categories</option>
-        <option value="beauty">Beauty &amp; Grooming</option>
-        <option value="fragrances">Luxury Fragrances</option>
-        <option value="furniture">Home &amp; Furniture</option>
-        <option value="groceries">Groceries &amp; Gourmet</option>
-        <option value="electronics">Electronics &amp; Workstations</option>
-        <option value="audio">Audio &amp; Headphones</option>
-        <option value="wearables">Wearables &amp; Smartwatches</option>
+    <!-- High-Utility Search Bar -->
+    <div class="vx-search-bar">
+      <select class="vx-search-category" id="categorySelectDropdown" aria-label="Filter category">
+        <option value="">All Collections</option>
+        <option value="electronics">Electronics &amp; Computing</option>
+        <option value="audio">Audio &amp; Acoustics</option>
+        <option value="wearables">Smart Wearables</option>
+        <option value="furniture">Home &amp; Living</option>
+        <option value="beauty">Beauty &amp; Daily Care</option>
+        <option value="fragrances">Fine Fragrances</option>
+        <option value="groceries">Pantry &amp; Gourmet</option>
       </select>
 
-      <input type="text" id="storeSearchInput" class="amz-search-input" placeholder="Search Amazon.in" autocomplete="off">
+      <input type="text" id="storeSearchInput" class="vx-search-input" placeholder="Search across 10,000+ curated products, brands, models..." autocomplete="off">
 
-      <!-- Camera button inside right end of search bar (YOLOv8 Visual Search) -->
-      <button type="button" class="btn-amz-lens" id="btnSearchPhotoTrigger" title="Search by image with Amazon Lens (YOLOv8)">
+      <!-- Camera button inside search bar (YOLOv8 Visual Search) -->
+      <button type="button" class="btn-vx-camera" id="btnSearchPhotoTrigger" title="Visual Camera Search (YOLOv8)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
       </button>
 
-      <!-- Submit Search Button -->
-      <button type="button" class="btn-amz-search-submit" id="btnSearchSubmit" title="Execute Search">
+      <!-- Search Trigger Button -->
+      <button type="button" class="btn-vx-search-submit" id="btnSearchSubmit" title="Execute Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
     </div>
 
-    <!-- Right Nav: Language Switcher -->
-    <div class="amz-nav-item" title="Language selection">
-      <div style="display: flex; align-items: center; gap: 4px;">
-        <span style="font-size: 15px;">🇮🇳</span>
-        <span class="amz-nav-line-2">EN ▾</span>
+    <!-- Header Right Controls -->
+    <div class="vx-header-right">
+      <div class="vx-nav-pill-btn" title="Account profile">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Account</span>
       </div>
-    </div>
 
-    <!-- Right Nav: Hello, Sreejith / Account & Lists -->
-    <div class="amz-nav-item" title="Account settings &amp; wishlists">
-      <span class="amz-nav-line-1">Hello, Sreejith</span>
-      <span class="amz-nav-line-2">Account &amp; Lists ▾</span>
-    </div>
-
-    <!-- Right Nav: Returns & Orders -->
-    <div class="amz-nav-item" id="navReturnsOrders" title="Check order tracking &amp; refunds">
-      <span class="amz-nav-line-1">Returns</span>
-      <span class="amz-nav-line-2">&amp; Orders</span>
-    </div>
-
-    <!-- Right Nav: Cart Icon with Badge -->
-    <div class="amz-cart-btn" id="btnCartTrigger" title="Shopping Cart">
-      <div class="cart-icon-wrapper">
-        <svg viewBox="0 0 38 28"><path d="M3 2h5l3.8 17.5a2 2 0 0 0 2 1.5h16.4a2 2 0 0 0 2-1.6L35 7H9.2"/><circle cx="14" cy="24" r="2.5" fill="#ffffff"/><circle cx="28" cy="24" r="2.5" fill="#ffffff"/></svg>
-        <span class="cart-badge-number" id="cartCountBadge">0</span>
+      <div class="vx-nav-pill-btn" id="navOrdersBtn" title="Track active orders">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <span>Orders</span>
       </div>
-      <span class="amz-nav-line-2" style="margin-bottom: 2px;">Cart</span>
-    </div>
 
-    <!-- Operations & Telemetry Cockpit Link -->
-    <a href="/admin" class="amz-ops-link" title="Open Enterprise Telemetry &amp; Operations Cockpit">
-      <span>Ops Cockpit &nearr;</span>
-    </a>
+      <!-- Slide-Out Cart Trigger -->
+      <button type="button" class="vx-cart-pill-btn" id="btnCartTrigger" title="View Shopping Bag">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span>Bag</span>
+        <span class="vx-cart-badge" id="cartCountBadge">0</span>
+      </button>
+
+      <!-- Ops Portal Link -->
+      <a href="/admin" class="vx-ops-link" title="Open Engineering &amp; Operations Cockpit">
+        [Ops Portal &rarr;]
+      </a>
+    </div>
 
   </header>
 
   <!-- =========================================================================
-       2. SECONDARY SUB-NAVBAR (#232f3e)
+       2. SECONDARY CATEGORY STRIP (42px, #1E293B)
        ========================================================================= -->
-  <nav class="amz-subnav-bar">
-    <div class="amz-subnav-btn-all" id="btnHamburgerAll">
-      <span style="font-size: 16px;">☰</span>
-      <span>All</span>
-    </div>
-    <a href="#results" class="amz-subnav-link" data-cat="">All Products</a>
-    <a href="#results" class="amz-subnav-link" data-cat="electronics">Electronics</a>
-    <a href="#results" class="amz-subnav-link" data-cat="audio">Audio &amp; Speakers</a>
-    <a href="#results" class="amz-subnav-link" data-cat="wearables">Smartwatches</a>
-    <a href="#results" class="amz-subnav-link" data-cat="beauty">Beauty &amp; Care</a>
-    <a href="#results" class="amz-subnav-link" data-cat="fragrances">Luxury Fragrances</a>
-    <a href="#results" class="amz-subnav-link" data-cat="furniture">Home &amp; Furniture</a>
-    <a href="#results" class="amz-subnav-link" data-cat="groceries">Groceries</a>
-    <a href="#recommended" class="amz-subnav-link">Recommended For You</a>
-    <div class="amz-subnav-promo-banner">
-      ⚡ Great Indian Festival | Mega Deals Live
+  <nav class="vx-category-strip">
+    <div class="vx-cat-pill active" data-cat="">All Collections</div>
+    <div class="vx-cat-pill" data-cat="audio">Audio &amp; Acoustics</div>
+    <div class="vx-cat-pill" data-cat="wearables">Smart Wearables</div>
+    <div class="vx-cat-pill" data-cat="electronics">Workspace &amp; Computing</div>
+    <div class="vx-cat-pill" data-cat="furniture">Home &amp; Living</div>
+    <div class="vx-cat-pill" data-cat="beauty">Daily Care</div>
+    <div class="vx-cat-pill" data-cat="fragrances">Fine Fragrances</div>
+    <div class="vx-cat-pill" data-cat="groceries">Pantry &amp; Gourmet</div>
+    <div class="vx-strip-right-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>Verified 24h Dispatch to Marthandam</span>
     </div>
   </nav>
 
   <!-- =========================================================================
-       3. HERO PROMOTIONAL BANNER CAROUSEL
+       3. EDITORIAL HERO BANNER
        ========================================================================= -->
-  <section class="amz-hero-section">
-    <div class="amz-hero-slider">
+  <section class="vx-hero">
+    <div class="vx-hero-banner">
+      <div class="vx-hero-content">
+        <span class="vx-hero-pill">2026 Curated Collection</span>
+        <h1 class="vx-hero-title">Precision Engineering &amp; Everyday Essentials.</h1>
+        <p class="vx-hero-subtitle">
+          Experience authentic commercial commerce. Every item is verified for build integrity, sourced through authorized channels, and backed by automated resolution guarantees.
+        </p>
 
-      <!-- Slide 1: Electronics Deals -->
-      <div class="hero-slide active" id="heroSlide1">
-        <div class="hero-slide-content">
-          <span class="hero-sale-badge">Great Indian Festival Deals</span>
-          <h1 class="hero-slide-title">Up to 60% off | Flagship Laptops, Audio &amp; Workstations</h1>
-          <p class="hero-slide-subtitle">Ultra-fast M3 chips, noise-cancelling headphones, and smart wearable accessories with No Cost EMI.</p>
-          <a href="#results" class="btn-hero-cta" data-cat="electronics">Shop Tech Deals</a>
+        <div class="vx-hero-actions">
+          <a href="#catalog" class="btn-vx-primary" id="btnExploreCollection">
+            Explore Collection &rarr;
+          </a>
+          <button type="button" class="btn-vx-secondary" id="btnTriggerHeroVisualSearch">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Search with Image
+          </button>
         </div>
-        <div class="hero-slide-visual">
-          <img src="https://cdn.dummyjson.com/products/images/laptops/Apple%20MacBook%20Pro%2014%20Inch%20Space%20Grey/thumbnail.png" alt="Hero Laptop" class="hero-visual-img">
-        </div>
-      </div>
 
-      <!-- Slide 2: Luxury Fragrance & Beauty -->
-      <div class="hero-slide" id="heroSlide2">
-        <div class="hero-slide-content">
-          <span class="hero-sale-badge" style="background-color: #007185;">Curated Personal Luxury</span>
-          <h1 class="hero-slide-title">Starting ₹499 | World-Class Perfumes &amp; Beauty Essentials</h1>
-          <p class="hero-slide-subtitle">Iconic fragrances from Chanel, Dior, Calvin Klein, and professional cosmetics.</p>
-          <a href="#results" class="btn-hero-cta" data-cat="fragrances">Explore Fragrances</a>
-        </div>
-        <div class="hero-slide-visual">
-          <img src="https://cdn.dummyjson.com/products/images/fragrances/Chanel%20Coco%20Noir%20Eau%20De%20Parfum/thumbnail.png" alt="Hero Fragrance" class="hero-visual-img">
-        </div>
-      </div>
-
-      <!-- Slide 3: Furniture & Ergonomics -->
-      <div class="hero-slide" id="heroSlide3">
-        <div class="hero-slide-content">
-          <span class="hero-sale-badge" style="background-color: #b45309;">Work From Home Upgrade</span>
-          <h1 class="hero-slide-title">Revamp your space | Ergonomic Desks &amp; Handcrafted Beds</h1>
-          <p class="hero-slide-subtitle">Solid oak furniture, posture-supporting modular seating, and modern bedside storage.</p>
-          <a href="#results" class="btn-hero-cta" data-cat="furniture">Shop Home &amp; Living</a>
-        </div>
-        <div class="hero-slide-visual">
-          <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Hero Furniture" class="hero-visual-img">
+        <div class="vx-hero-guarantees">
+          <div class="guarantee-item">
+            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Guaranteed Authenticity</span>
+          </div>
+          <div class="guarantee-item">
+            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Express Tracked Shipping</span>
+          </div>
+          <div class="guarantee-item">
+            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Policy Protected Returns</span>
+          </div>
         </div>
       </div>
-
-      <!-- Arrow Controls -->
-      <button type="button" class="hero-nav-arrow left" id="btnHeroPrev" aria-label="Previous banner">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-      <button type="button" class="hero-nav-arrow right" id="btnHeroNext" aria-label="Next banner">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-
-      <!-- Bottom Gradient Mask -->
-      <div class="amz-hero-gradient-overlay"></div>
-    </div>
-
-    <!-- =========================================================================
-         4. AMAZON 4-ITEM FEATURE GRID CARDS (OVERLAPPING HERO)
-         ========================================================================= -->
-    <div class="amz-feature-grid-row">
-
-      <!-- Card 1: Appliances for your home -->
-      <div class="amz-quad-card">
-        <h2 class="amz-quad-card-title">Appliances for your home | Up to 55% off</h2>
-        <div class="quad-2x2-grid">
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Bed/thumbnail.png" alt="Air Conditioners" class="quad-img">
-            </div>
-            <div class="quad-label">Air Conditioners</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Bedside%20Table%20Two%20Drawer/thumbnail.png" alt="Refrigerators" class="quad-img">
-            </div>
-            <div class="quad-label">Refrigerators</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Sofa/thumbnail.png" alt="Microwaves" class="quad-img">
-            </div>
-            <div class="quad-label">Microwaves</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Washing Machines" class="quad-img">
-            </div>
-            <div class="quad-label">Washing machines</div>
-          </div>
-        </div>
-        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="furniture">See more appliances &rarr;</a>
-      </div>
-
-      <!-- Card 2: Revamp your home in style -->
-      <div class="amz-quad-card">
-        <h2 class="amz-quad-card-title">Revamp your home in style</h2>
-        <div class="quad-2x2-grid">
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Sofa/thumbnail.png" alt="Cushion covers" class="quad-img">
-            </div>
-            <div class="quad-label">Cushion covers &amp; bedsheets</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="fragrances">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/fragrances/Dolce%20Shine%20Eau%20de%20Parfum/thumbnail.png" alt="Figurines" class="quad-img">
-            </div>
-            <div class="quad-label">Figurines &amp; vases</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Bedside%20Table%20Two%20Drawer/thumbnail.png" alt="Home storage" class="quad-img">
-            </div>
-            <div class="quad-label">Home storage</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="furniture">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Lighting solutions" class="quad-img">
-            </div>
-            <div class="quad-label">Lighting solutions</div>
-          </div>
-        </div>
-        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="furniture">Explore home decor &rarr;</a>
-      </div>
-
-      <!-- Card 3: Starting ₹199 | Amazon Brands & more -->
-      <div class="amz-quad-card">
-        <h2 class="amz-quad-card-title">Starting ₹199 | Amazon Brands &amp; more</h2>
-        <div class="quad-2x2-grid">
-          <div class="quad-item filter-trigger" data-cat="beauty">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/thumbnail.png" alt="Professional tools" class="quad-img">
-            </div>
-            <div class="quad-label">Professional beauty</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="beauty">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Eyeshadow%20Palette%20with%20Mirror/thumbnail.png" alt="Daily wear" class="quad-img">
-            </div>
-            <div class="quad-label">Daily care palettes</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="groceries">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Powder%20Canister/thumbnail.png" alt="Kitchen essentials" class="quad-img">
-            </div>
-            <div class="quad-label">Kitchen essentials</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="groceries">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Nail%20Polish/thumbnail.png" alt="Storage containers" class="quad-img">
-            </div>
-            <div class="quad-label">Pantry &amp; grocery</div>
-          </div>
-        </div>
-        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="beauty">Shop Amazon brands &rarr;</a>
-      </div>
-
-      <!-- Card 4: Trending Electronics -->
-      <div class="amz-quad-card">
-        <h2 class="amz-quad-card-title">Trending Electronics &amp; Personal Tech</h2>
-        <div class="quad-2x2-grid">
-          <div class="quad-item filter-trigger" data-cat="electronics">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/laptops/Apple%20MacBook%20Pro%2014%20Inch%20Space%20Grey/thumbnail.png" alt="Workstation Laptops" class="quad-img">
-            </div>
-            <div class="quad-label">Workstation Laptops</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="wearables">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/fragrances/Calvin%20Klein%20CK%20One/thumbnail.png" alt="Smartwatches" class="quad-img">
-            </div>
-            <div class="quad-label">Smartwatches</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="audio">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Powder%20Canister/thumbnail.png" alt="Audio & Headphones" class="quad-img">
-            </div>
-            <div class="quad-label">Noise-Cancelling Audio</div>
-          </div>
-          <div class="quad-item filter-trigger" data-cat="electronics">
-            <div class="quad-img-wrapper">
-              <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Lipstick/thumbnail.png" alt="Mobile Accessories" class="quad-img">
-            </div>
-            <div class="quad-label">Fast Chargers &amp; Cables</div>
-          </div>
-        </div>
-        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="electronics">Discover all tech &rarr;</a>
-      </div>
-
     </div>
   </section>
 
   <!-- =========================================================================
-       5. DYNAMIC DWELL-TIME RECOMMENDATIONS STRIP
+       4. CURATED MULTI-SECTOR BENTO GRID (HIGH-RES RELIABLE IMAGERY)
        ========================================================================= -->
-  <main class="amz-section-container" id="recommended">
-    <div class="amz-white-strip-card">
-      <div class="amz-strip-header">
-        <div>
-          <h2 class="amz-strip-title">Related to items you've viewed</h2>
-          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;">
-            Recommendations automatically calibrate in real-time as you explore products.
-          </div>
-        </div>
-        <span class="amz-badge-live" id="recsFreshIndicator">Live Dwell Telemetry Active</span>
-      </div>
-
-      <div class="amz-carousel-track" id="recommendedGrid">
-        <div style="padding: 20px; color: var(--amz-text-secondary); font-size: 13px;">
-          Explore products below to activate personalized vector recommendations.
-        </div>
+  <section class="vx-bento-section">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Curated Sectors</h2>
+        <div class="vx-section-sub">Direct access to our most sought-after categories</div>
       </div>
     </div>
 
-    <!-- =========================================================================
-         6. MAIN SEARCH & BROWSE RESULTS GRID
-         ========================================================================= -->
-    <section class="amz-white-strip-card" id="results">
-      <div class="amz-strip-header">
-        <div>
-          <h2 class="amz-strip-title">Results &bull; Amazon.in Curated Catalog</h2>
-          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;" id="catalogCountNote">
-            Displaying prime products with fast delivery options
-          </div>
+    <div class="vx-bento-grid">
+      <!-- 1. Audio / Sony Headphones -->
+      <div class="bento-card bento-filter-trigger" data-cat="audio">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80" alt="Audio & Acoustics" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Acoustics</div>
+          <div class="bento-title">Audio &amp; Studio</div>
+          <div class="bento-cta">Explore &rarr;</div>
         </div>
       </div>
 
-      <div class="amz-results-grid" id="storeCatalogGrid">
-        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--amz-text-secondary);">
-          Loading Amazon Catalog...
+      <!-- 2. Computing / Dell Laptop -->
+      <div class="bento-card bento-filter-trigger" data-cat="electronics">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600&q=80" alt="Workstations & Computing" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Workstation</div>
+          <div class="bento-title">Computing &amp; Laptops</div>
+          <div class="bento-cta">Explore &rarr;</div>
         </div>
       </div>
-    </section>
+
+      <!-- 3. Wearables / Apple Watch -->
+      <div class="bento-card bento-filter-trigger" data-cat="wearables">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="Smart Wearables" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Wearables</div>
+          <div class="bento-title">Smart Devices</div>
+          <div class="bento-cta">Explore &rarr;</div>
+        </div>
+      </div>
+
+      <!-- 4. Fine Jewellery -->
+      <div class="bento-card bento-filter-trigger" data-cat="fragrances">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=80" alt="Fine Jewellery & Fragrances" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Luxury</div>
+          <div class="bento-title">Fine Accents</div>
+          <div class="bento-cta">Explore &rarr;</div>
+        </div>
+      </div>
+
+      <!-- 5. Living / Modern Kitchen -->
+      <div class="bento-card bento-filter-trigger" data-cat="furniture">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=600&q=80" alt="Modern Kitchen & Living" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Living</div>
+          <div class="bento-title">Home &amp; Space</div>
+          <div class="bento-cta">Explore &rarr;</div>
+        </div>
+      </div>
+
+      <!-- 6. Daily Care / Minimalist Serum -->
+      <div class="bento-card bento-filter-trigger" data-cat="beauty">
+        <div class="bento-img-box">
+          <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&q=80" alt="Beauty & Daily Care" class="bento-img" loading="lazy">
+        </div>
+        <div class="bento-body">
+          <div class="bento-category-tag">Self Care</div>
+          <div class="bento-title">Daily Formulations</div>
+          <div class="bento-cta">Explore &rarr;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       5. DYNAMIC DWELL-TIME RECOMMENDATIONS (VECTOR EMBEDDINGS)
+       ========================================================================= -->
+  <section class="vx-dwell-strip" id="recommended">
+    <div class="vx-card-container">
+      <div class="vx-section-title-row">
+        <div>
+          <h2 class="vx-section-title">Personalized Recommendations</h2>
+          <div class="vx-section-sub">
+            Ranked by multi-term query match and weighted implicit dwell telemetry.
+          </div>
+        </div>
+        <span class="vx-dwell-indicator" id="recsFreshIndicator">[DWELL-WEIGHTED EMBEDDINGS ACTIVE]</span>
+      </div>
+
+      <div class="vx-rec-track" id="recommendedGrid">
+        <div style="padding: 24px; color: var(--vx-text-muted); font-size: 13px;">
+          Actively browsing products will calibrate real-time vector recommendations.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       6. PRIMARY PRODUCT CATALOG GRID
+       ========================================================================= -->
+  <main class="vx-catalog-section" id="catalog">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Curated Catalog</h2>
+        <div class="vx-section-sub" id="catalogCountNote">Displaying curated essentials</div>
+      </div>
+    </div>
+
+    <div class="vx-product-grid" id="storeCatalogGrid">
+      <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
+        Loading catalog inventory...
+      </div>
+    </div>
   </main>
 
   <!-- =========================================================================
-       7. PRODUCT QUICK-VIEW MODAL (AMAZON FLYOUT WITH DWELL TELEMETRY)
+       7. PRODUCT QUICK-VIEW MODAL (WITH DWELL TELEMETRY)
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="quickViewModal">
     <div class="modal-content-smooth">
-      <div class="amz-flyout-header">
-        <span class="amz-flyout-title">Amazon.in Quick Look &bull; Product Overview</span>
-        <button type="button" class="amz-close-btn" id="btnCloseQuickView" aria-label="Close modal">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="vx-modal-header">
+        <span class="vx-modal-title">Product Specifications &bull; Instant View</span>
+        <button type="button" class="vx-close-btn" id="btnCloseQuickView" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
 
-      <div class="amz-flyout-body">
-        <!-- Left: Image Gallery & Active View -->
-        <div class="flyout-gallery-col">
-          <div class="flyout-active-img-box">
-            <img id="modalImg" src="" alt="Product Image" class="flyout-active-img">
-          </div>
-          <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
-            <span class="amz-prime-badge"><span class="amz-prime-check">&#10003;</span>prime</span>
-            <span style="font-size: 12px; color: var(--amz-text-secondary);">FREE Delivery by <strong>Tomorrow, 11 AM</strong></span>
-          </div>
+      <div class="vx-modal-body">
+        <!-- Left: Product Image -->
+        <div class="vx-modal-img-box">
+          <img id="modalImg" src="" alt="Product view" class="vx-modal-img">
         </div>
 
-        <!-- Right: Details, Ratings, Pricing, Offers & CTAs -->
-        <div class="flyout-details-col">
-          <a href="#" class="flyout-brand-link" id="modalBrand">Visit the Brand Store</a>
-          <h3 class="flyout-product-title" id="modalTitle">Product Title</h3>
+        <!-- Right: Specifications & Pricing -->
+        <div style="display: flex; flex-direction: column;">
+          <div class="vx-modal-brand-tag" id="modalBrand">VORTEX SELECT</div>
+          <h3 class="vx-modal-product-title" id="modalTitle">Product Title</h3>
 
-          <div class="amz-rating-row">
-            <span class="amz-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
-            <span class="amz-rating-count">4.5 out of 5 stars (3,412 ratings)</span>
+          <div class="vx-rating-row">
+            <span class="vx-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span style="font-weight: 600; color: var(--vx-text);">4.8</span>
+            <span class="vx-review-count">&bull; (3,420 customer ratings)</span>
           </div>
 
-          <div style="margin-bottom: 10px;">
-            <span class="badge-best-seller" id="modalCategory">#1 BEST SELLER</span>
-          </div>
-
-          <!-- Price Box -->
-          <div class="amz-price-cluster" style="border-top: 1px solid var(--amz-border); padding-top: 10px;">
-            <div>
-              <span class="amz-discount-tag" id="modalDiscount">-40%</span>
-              <span class="amz-price-main"><span class="amz-price-symbol">&#8377;</span><span id="modalPrice">0</span></span>
+          <div class="vx-modal-price-box">
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+              <span class="vx-price-main" style="font-size: 24px;" id="modalPrice">&#8377;0</span>
+              <span class="vx-mrp-strikethrough" style="font-size: 14px;" id="modalMrp">&#8377;0</span>
+              <span class="vx-savings-tag" id="modalDiscount">SAVE 25%</span>
             </div>
-            <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;">
-              M.R.P.: <span class="amz-mrp-strikethrough" id="modalMrp">&#8377;0</span> Inclusive of all taxes
-            </div>
-            <div style="font-size: 12px; color: var(--amz-text); margin-top: 4px;">
-              <strong>EMI</strong> starts at &#8377;125/month. No Cost EMI available.
+            <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">
+              Inclusive of all import tariffs and taxes &bull; Free express delivery to Marthandam
             </div>
           </div>
 
-          <!-- Offers Box -->
-          <div class="amz-offers-box">
-            <div class="offers-box-title">&#127991; Available Offers</div>
-            <div class="offer-item">&bull; <strong>Bank Offer:</strong> Up to &#8377;1,500 instant discount on HDFC/ICICI Credit Cards.</div>
-            <div class="offer-item">&bull; <strong>Partner Offer:</strong> Get GST invoice and save up to 28% on business purchases.</div>
-          </div>
+          <p style="font-size: 13px; color: var(--vx-text-secondary); line-height: 1.5; margin-bottom: 12px;" id="modalDesc">
+            Product specifications and description.
+          </p>
 
-          <!-- Specifications Bullet Points -->
-          <div style="font-size: 13px; font-weight: 700; color: var(--amz-text); margin-top: 6px;">About this item:</div>
-          <ul class="amz-bullets-list" id="modalDescBullets">
-            <li id="modalDesc">Genuine manufacturer certified product with standard warranty.</li>
-            <li>Premium construction engineered for longevity and exceptional durability.</li>
-            <li>Eligible for 7-day replacement and hassle-free return protection.</li>
+          <ul class="vx-modal-bullets">
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>100% Genuine guaranteed with verified manufacturer serial number</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Complimentary 24-hour dispatch with live delivery tracking</span>
+            </li>
+            <li>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--vx-emerald)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Hassle-free 30-day return policy backed by automated supervisor gate</span>
+            </li>
           </ul>
 
-          <!-- CTA Buttons -->
-          <div class="flyout-cta-row">
-            <button type="button" class="amz-btn-add-cart" id="btnAddToCartModal" style="flex: 1; height: 40px; font-size: 14px;">
-              Add to Cart
+          <div class="vx-modal-cta-row">
+            <button type="button" class="btn-vx-primary" id="btnAddToCartModal" style="flex: 1; height: 42px;">
+              Add to Bag
             </button>
-            <button type="button" class="btn-amz-buy-now" id="btnBuyNowModal">
-              Buy Now
-            </button>
-            <button type="button" class="amz-btn-quick-look" id="btnDismissModal" style="width: auto; padding: 0 16px; height: 40px; margin-top: 0;">
-              Close
+            <button type="button" class="btn-vx-secondary" id="btnDismissModal" style="color: var(--vx-text); border-color: var(--vx-border); background-color: var(--vx-surface-subtle); height: 42px;">
+              Done
             </button>
           </div>
         </div>
@@ -443,151 +339,187 @@
   </div>
 
   <!-- =========================================================================
-       8. AMAZON LENS (YOLOV8 VISUAL SEARCH MODAL)
+       8. INTERACTIVE SHOPPING CART DRAWER
+       ========================================================================= -->
+  <aside class="vx-drawer" id="cartDrawer">
+    <div class="vx-drawer-head">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span class="vx-drawer-title">Shopping Bag</span>
+      </div>
+      <button type="button" class="vx-close-btn" id="btnCloseCartDrawer" style="color: #FFFFFF;" aria-label="Close cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Free Delivery Progress Pill -->
+    <div style="padding: 12px 20px; background-color: var(--vx-emerald-subtle); border-bottom: 1px solid var(--vx-emerald-border); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--vx-emerald);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>Free Express Tracked Delivery Unlocked!</span>
+    </div>
+
+    <!-- Cart Items Stream -->
+    <div class="vx-cart-items-stream" id="cartItemsStream">
+      <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
+        Your shopping bag is empty.
+      </div>
+    </div>
+
+    <!-- Cart Footer & Checkout CTA -->
+    <div class="vx-cart-footer">
+      <div class="vx-cart-total-row">
+        <span>Order Subtotal:</span>
+        <span id="cartSubtotalVal">&#8377;0</span>
+      </div>
+      <p style="font-size: 11.5px; color: var(--vx-text-muted); margin-bottom: 14px;">
+        Taxes, duties, and express carrier insurance calculated at payment.
+      </p>
+      <button type="button" class="btn-vx-primary" id="btnCheckoutCart" style="width: 100%; height: 44px; font-size: 14px;">
+        Proceed to Secure Checkout &rarr;
+      </button>
+    </div>
+  </aside>
+
+  <!-- =========================================================================
+       9. YOLOv8 VISUAL SEARCH MODAL
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="visualSearchModal">
-    <div class="modal-content-smooth" style="max-width: 600px;">
-      <div class="amz-flyout-header">
-        <span class="amz-flyout-title">Search by Image with Amazon Lens (YOLOv8)</span>
-        <button type="button" class="amz-close-btn" id="btnCloseVisualModal" aria-label="Close modal">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    <div class="modal-content-smooth" style="max-width: 620px;">
+      <div class="vx-modal-header">
+        <span class="vx-modal-title">Visual Feature Search &bull; YOLOv8</span>
+        <button type="button" class="vx-close-btn" id="btnCloseVisualModal" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
 
       <div style="padding: 24px;">
-        <p style="font-size: 13px; color: var(--amz-text-secondary); margin-bottom: 16px;">
-          Upload a photo of an item you want to find. Ultralytics YOLOv8 extracts the primary bounding box and retrieves visually matched catalog products.
+        <p style="font-size: 13px; color: var(--vx-text-secondary); margin-bottom: 16px;">
+          Upload or drop an image. Ultralytics YOLOv8 extracts the primary candidate bounding box and retrieves visually aligned catalog items.
         </p>
 
-        <div class="lens-dropzone" id="storefrontDropzone">
+        <div class="vx-dropzone" id="storefrontDropzone">
           <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
-          <svg style="width: 44px; height: 44px; color: #767676; margin-bottom: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <div style="font-weight: 700; font-size: 14px; color: var(--amz-text);">Drag photo here or tap to upload</div>
-          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 4px;">Supports JPG, PNG, WEBP</div>
-          <button type="button" class="amz-btn-add-cart" id="btnTriggerBrowsePhoto" style="width: auto; padding: 0 24px; margin-top: 14px; height: 36px;">
-            Select Photo from Device
+          <svg style="width: 40px; height: 40px; color: var(--vx-blue); margin-bottom: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <div style="font-weight: 700; font-size: 14px; color: var(--vx-text);">Drag &amp; drop product photo here</div>
+          <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">Supports JPG, PNG, WEBP files</div>
+          <button type="button" class="btn-vx-primary" id="btnTriggerBrowsePhoto" style="margin-top: 14px; height: 36px; padding: 0 18px; font-size: 12.5px;">
+            Select from Device
           </button>
         </div>
 
         <!-- YOLOv8 Inference Output Preview -->
         <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
-          <div style="display: flex; gap: 16px; align-items: center; background-color: #f7f9fa; padding: 12px; border-radius: 6px; border: 1px solid var(--amz-border);">
-            <img id="visualPreviewImg" src="" alt="YOLOv8 Cropped Preview" style="width: 76px; height: 76px; object-fit: cover; border-radius: 4px; border: 1px solid var(--amz-border);">
+          <div style="display: flex; gap: 14px; align-items: center; background-color: var(--vx-surface-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--vx-border);">
+            <img id="visualPreviewImg" src="" alt="YOLOv8 Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--vx-border);">
             <div style="flex: 1;">
-              <div style="font-size: 13px; font-weight: 700; color: var(--amz-text);" id="visualLabelNotice">Detected Item: cell phone</div>
-              <div style="font-size: 12px; color: var(--amz-text-secondary);" id="visualStatusNotice">Analysis complete. Retrieved top matches below.</div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--vx-text);" id="visualLabelNotice">Detected: Object</div>
+              <div style="font-size: 12px; color: var(--vx-text-secondary);" id="visualStatusNotice">Analysis complete. Correlated matches retrieved below.</div>
             </div>
           </div>
         </div>
 
         <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
-          <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--amz-text);">MATCHING PRODUCTS FROM CATALOG</div>
-          <div class="amz-results-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--vx-text); text-transform: uppercase; letter-spacing: 0.05em;">Correlated Catalog Matches</div>
+          <div class="vx-product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- =========================================================================
-       9. CUSTOMER SERVICE & RETURNS DRAWER (AMAZON CS)
+       10. CUSTOMER SERVICE & ESCALATION DRAWER (LANGGRAPH AGENT)
        ========================================================================= -->
-  <aside class="support-drawer-sheet" id="supportDrawer">
-    <div class="amz-cs-header">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 20px;">&#128172;</span>
-        <div>
-          <div style="font-size: 14px; font-weight: 700; color: #ffffff;">Amazon Customer Service</div>
-          <div style="font-size: 11px; color: #fbd690;">Returns, Orders &amp; AI Policy Gate</div>
-        </div>
+  <aside class="vx-drawer" id="supportDrawer">
+    <div class="vx-drawer-head">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span class="vx-drawer-title">Vortex Customer Operations</span>
       </div>
-      <button type="button" class="amz-close-btn" id="btnCloseDrawer" style="color: #ffffff;" aria-label="Close customer service">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <button type="button" class="vx-close-btn" id="btnCloseSupportDrawer" style="color: #FFFFFF;" aria-label="Close support">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
     </div>
 
-    <!-- Chat Stream -->
-    <div class="drawer-chat-stream" id="drawerChatStream">
+    <!-- Conversation Stream -->
+    <div class="vx-chat-stream" id="drawerChatStream">
       <div class="chat-bubble concierge">
-        Hello Sreejith! Welcome to Amazon Customer Service. How can we assist you with your orders, sizing, or refund claims today?
+        Hello Sreejith! Welcome to Vortex Customer Operations. How can we assist you with catalog specifications, order status, or return claims today?
       </div>
     </div>
 
     <!-- Quick Prompt Chips -->
-    <div style="padding: 10px 16px; background-color: #ffffff; border-top: 1px solid var(--amz-border); display: flex; flex-wrap: wrap; gap: 6px;">
-      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipTrackOrder">Track my package</button>
-      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipRefundPrompt">Request a refund</button>
-      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipCheckStock">Product availability</button>
+    <div style="padding: 10px 16px; background-color: #FFFFFF; border-top: 1px solid var(--vx-border); display: flex; flex-wrap: wrap; gap: 6px;">
+      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipTrackOrder">Track package #ORD-98214</button>
+      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipRefundPrompt">Request a refund</button>
+      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipCheckStock">Hardware stock check</button>
     </div>
 
-    <!-- Chat Input Form -->
-    <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: #f0f2f2; border-top: 1px solid var(--amz-border);" id="drawerChatForm">
-      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--amz-border-subtle); border-radius: 4px; padding: 0 12px; font-size: 13.5px; outline: none;" placeholder="Type your inquiry or refund request..." autocomplete="off" required>
-      <button type="submit" class="amz-btn-add-cart" style="width: auto; padding: 0 16px; height: 38px; border-radius: 4px;">Send</button>
+    <!-- Input Form -->
+    <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: #F8FAFC; border-top: 1px solid var(--vx-border);" id="drawerChatForm">
+      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--vx-border-strong); border-radius: 6px; padding: 0 12px; font-size: 13px; outline: none;" placeholder="Type your inquiry or refund request..." autocomplete="off" required>
+      <button type="submit" class="btn-vx-primary" style="height: 38px; padding: 0 16px; font-size: 13px;">Send</button>
     </form>
   </aside>
 
-  <!-- Floating Customer Service Button (Bottom Right) -->
-  <button type="button" class="amz-cs-floating-btn" id="btnOpenSupportDrawer" title="Customer Service &amp; Returns Assistance">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    <span>Customer Service &amp; Returns</span>
+  <!-- Floating Customer Support Trigger Button (Bottom Right) -->
+  <button type="button" class="vx-floating-support-btn" id="btnOpenSupportDrawer" title="Support &amp; Policy Escalations">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Support &amp; Escalations</span>
   </button>
 
   <!-- =========================================================================
-       10. AUTHENTIC AMAZON FOOTER
+       11. MODERN 4-COLUMN FOOTER
        ========================================================================= -->
-  <footer style="margin-top: 40px;">
-    <div class="amz-back-to-top" id="btnBackToTop">
-      Back to top
-    </div>
+  <footer class="vx-footer">
+    <div class="vx-footer-grid">
+      <div>
+        <div class="vx-footer-col-title">Shop Collections</div>
+        <ul class="vx-footer-list">
+          <li><a href="#catalog" class="footer-cat-link" data-cat="electronics">Workspace &amp; Computing</a></li>
+          <li><a href="#catalog" class="footer-cat-link" data-cat="audio">Audio &amp; Studio Acoustics</a></li>
+          <li><a href="#catalog" class="footer-cat-link" data-cat="wearables">Smart Wearables</a></li>
+          <li><a href="#catalog" class="footer-cat-link" data-cat="furniture">Home &amp; Ergonomics</a></li>
+          <li><a href="#catalog" class="footer-cat-link" data-cat="fragrances">Fine Fragrances</a></li>
+        </ul>
+      </div>
 
-    <div class="amz-footer-middle">
-      <div class="amz-footer-grid">
-        <div>
-          <div class="footer-col-title">Get to Know Us</div>
-          <ul class="footer-link-list">
-            <li><a href="#">About Amazon</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press Releases</a></li>
-            <li><a href="#">Amazon Science</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Connect with Us</div>
-          <ul class="footer-link-list">
-            <li><a href="#">Facebook</a></li>
-            <li><a href="#">Twitter</a></li>
-            <li><a href="#">Instagram</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Make Money with Us</div>
-          <ul class="footer-link-list">
-            <li><a href="#">Sell on Amazon</a></li>
-            <li><a href="#">Protect and Build Your Brand</a></li>
-            <li><a href="#">Amazon Global Selling</a></li>
-            <li><a href="#">Become an Affiliate</a></li>
-            <li><a href="#">Fulfilment by Amazon</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Let Us Help You</div>
-          <ul class="footer-link-list">
-            <li><a href="#">COVID-19 and Amazon</a></li>
-            <li><a href="#">Your Account</a></li>
-            <li><a href="#">Returns Centre</a></li>
-            <li><a href="#">100% Purchase Protection</a></li>
-            <li><a href="#">Help</a></li>
-          </ul>
-        </div>
+      <div>
+        <div class="vx-footer-col-title">Customer Experience</div>
+        <ul class="vx-footer-list">
+          <li><a href="#" id="footerTrackOrders">Track Shipment</a></li>
+          <li><a href="#" id="footerReturnsHelp">Return Policy &amp; Claims</a></li>
+          <li><a href="#">Delivery Coverage (Marthandam)</a></li>
+          <li><a href="#">Security &amp; Buyer Guarantee</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="vx-footer-col-title">Operations &amp; Logistics</div>
+        <ul class="vx-footer-list">
+          <li><a href="/admin">Operations Cockpit</a></li>
+          <li><a href="/admin">Real-Time Telemetry Feed</a></li>
+          <li><a href="/admin">Supervisor Approval Queue</a></li>
+          <li><a href="/docs">FastAPI Swagger Specs</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="vx-footer-col-title">About Vortex</div>
+        <ul class="vx-footer-list">
+          <li><a href="#">Global Architecture</a></li>
+          <li><a href="#">Dense Vector Recommendation</a></li>
+          <li><a href="#">YOLOv8 Visual Pipelines</a></li>
+          <li><a href="#">LangGraph Policy Machines</a></li>
+        </ul>
       </div>
     </div>
 
-    <div class="amz-footer-bottom">
-      <div style="margin-bottom: 10px;">
-        <span style="font-weight: 700; color: #ffffff;">Amazon.in</span> &bull; Condition of Use &amp; Sale &bull; Privacy Notice &bull; Interest-Based Ads
+    <div class="vx-footer-bottom">
+      <div>
+        &copy; 2026 Vortex Commerce Inc. All rights reserved. &bull; Privacy Policy &bull; Terms of Service &bull; <a href="/admin" style="color: #60A5FA;">Telemetry Console</a>
       </div>
       <div>
-        &copy; 1996-2026, Amazon.com, Inc. or its affiliates. Enterprise RecSys &amp; Customer Operations Platform.
+        Engineered with FastAPI &bull; SentenceTransformers &bull; YOLOv8 &bull; LangGraph
       </div>
     </div>
   </footer>

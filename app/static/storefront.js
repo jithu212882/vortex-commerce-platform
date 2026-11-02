@@ -1,9 +1,10 @@
 /**
- * AMAZON.IN PRODUCTION STOREFRONT CLIENT ENGINE
- * - High-density Amazon desktop & mobile interface
- * - Real-time implicit dwell-time telemetry tracking
- * - Amazon Lens (YOLOv8) visual product search
- * - Customer service chat powered by LangGraph policy checkpoint graph
+ * VORTEX COMMERCE & GLOBAL STORE CLIENT ENGINE
+ * Modern 2026 E-Commerce Architecture
+ * - Implicit real-time dwell-time telemetry tracking
+ * - YOLOv8 visual crop & spatial object matching
+ * - Interactive slide-out cart drawer with live subtotal
+ * - Customer support ticket management with LangGraph policy gates
  */
 
 (function () {
@@ -12,17 +13,15 @@
   // Session State
   const state = {
     userId: "sreejith_cust_" + Math.random().toString(36).substring(2, 8),
-    threadId: "ticket_amz_" + Math.floor(1000 + Math.random() * 9000),
+    threadId: "ticket_vx_" + Math.floor(1000 + Math.random() * 9000),
     catalog: [],
     recommended: [],
+    cartItems: [], // [{ id, title, price, image_url, quantity }]
     recentInteractions: [], // [{ product_id, dwell_time_seconds }]
     activeCategory: "",
     searchQuery: "",
     currentQuickViewProduct: null,
     dwellStartTimestamp: 0,
-    cartCount: 0,
-    heroSlideIndex: 0,
-    heroAutoTimer: null,
   };
 
   // DOM Elements
@@ -34,37 +33,34 @@
     storeSearchInput: document.getElementById("storeSearchInput"),
     btnSearchSubmit: document.getElementById("btnSearchSubmit"),
     categorySelectDropdown: document.getElementById("categorySelectDropdown"),
-    cartCountBadge: document.getElementById("cartCountBadge"),
+    btnSearchPhotoTrigger: document.getElementById("btnSearchPhotoTrigger"),
+    btnTriggerHeroVisualSearch: document.getElementById("btnTriggerHeroVisualSearch"),
+    btnExploreCollection: document.getElementById("btnExploreCollection"),
+
+    // Cart Drawer
+    cartDrawer: document.getElementById("cartDrawer"),
     btnCartTrigger: document.getElementById("btnCartTrigger"),
-    btnBackToTop: document.getElementById("btnBackToTop"),
+    btnCloseCartDrawer: document.getElementById("btnCloseCartDrawer"),
+    cartItemsStream: document.getElementById("cartItemsStream"),
+    cartSubtotalVal: document.getElementById("cartSubtotalVal"),
+    cartCountBadge: document.getElementById("cartCountBadge"),
+    btnCheckoutCart: document.getElementById("btnCheckoutCart"),
 
-    // Hero Carousel
-    btnHeroPrev: document.getElementById("btnHeroPrev"),
-    btnHeroNext: document.getElementById("btnHeroNext"),
-    heroSlides: [
-      document.getElementById("heroSlide1"),
-      document.getElementById("heroSlide2"),
-      document.getElementById("heroSlide3"),
-    ],
-
-    // Quick View Modal (Flyout)
+    // Quick View Modal
     quickViewModal: document.getElementById("quickViewModal"),
     btnCloseQuickView: document.getElementById("btnCloseQuickView"),
     btnDismissModal: document.getElementById("btnDismissModal"),
     modalImg: document.getElementById("modalImg"),
-    modalCategory: document.getElementById("modalCategory"),
-    modalTitle: document.getElementById("modalTitle"),
     modalBrand: document.getElementById("modalBrand"),
+    modalTitle: document.getElementById("modalTitle"),
     modalPrice: document.getElementById("modalPrice"),
     modalMrp: document.getElementById("modalMrp"),
     modalDiscount: document.getElementById("modalDiscount"),
     modalDesc: document.getElementById("modalDesc"),
     btnAddToCartModal: document.getElementById("btnAddToCartModal"),
-    btnBuyNowModal: document.getElementById("btnBuyNowModal"),
 
-    // Amazon Lens Visual Search
+    // Visual Search Modal (YOLOv8)
     visualSearchModal: document.getElementById("visualSearchModal"),
-    btnSearchPhotoTrigger: document.getElementById("btnSearchPhotoTrigger"),
     btnCloseVisualModal: document.getElementById("btnCloseVisualModal"),
     storefrontDropzone: document.getElementById("storefrontDropzone"),
     storefrontFileInput: document.getElementById("storefrontFileInput"),
@@ -76,28 +72,30 @@
     visualMatchesContainer: document.getElementById("visualMatchesContainer"),
     visualMatchesGrid: document.getElementById("visualMatchesGrid"),
 
-    // Customer Service Drawer
+    // Support Drawer
     supportDrawer: document.getElementById("supportDrawer"),
     btnOpenSupportDrawer: document.getElementById("btnOpenSupportDrawer"),
-    btnCloseDrawer: document.getElementById("btnCloseDrawer"),
-    navReturnsOrders: document.getElementById("navReturnsOrders"),
+    btnCloseSupportDrawer: document.getElementById("btnCloseSupportDrawer"),
     drawerChatStream: document.getElementById("drawerChatStream"),
     drawerChatForm: document.getElementById("drawerChatForm"),
     drawerChatInput: document.getElementById("drawerChatInput"),
     chipTrackOrder: document.getElementById("chipTrackOrder"),
     chipRefundPrompt: document.getElementById("chipRefundPrompt"),
     chipCheckStock: document.getElementById("chipCheckStock"),
+    navOrdersBtn: document.getElementById("navOrdersBtn"),
+    footerTrackOrders: document.getElementById("footerTrackOrders"),
+    footerReturnsHelp: document.getElementById("footerReturnsHelp"),
   };
 
   const FALLBACK_THUMB = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80";
 
-  // Currency Formatter Helper (USD to INR conversion display)
+  // Helpers for INR currency display
   function formatInr(usdPrice) {
     const inr = Math.round(Number(usdPrice) * 83);
     return inr.toLocaleString("en-IN");
   }
   function formatMrp(usdPrice) {
-    const inr = Math.round(Number(usdPrice) * 83 * 1.45);
+    const inr = Math.round(Number(usdPrice) * 83 * 1.35);
     return inr.toLocaleString("en-IN");
   }
 
@@ -107,7 +105,6 @@
 
   function init() {
     bindEvents();
-    startHeroAutoRotate();
     fetchCatalog();
     fetchInitialRecommendations();
   }
@@ -117,58 +114,76 @@
   // ============================================================================
 
   function bindEvents() {
-    // Search input execution
+    // Search input
     el.btnSearchSubmit.addEventListener("click", () => {
       state.searchQuery = el.storeSearchInput.value.trim();
       fetchCatalog();
-      smoothScrollTo("#results");
+      smoothScrollTo("#catalog");
     });
 
     el.storeSearchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         state.searchQuery = el.storeSearchInput.value.trim();
         fetchCatalog();
-        smoothScrollTo("#results");
+        smoothScrollTo("#catalog");
       }
     });
 
-    // Category Select Dropdown
+    // Category dropdown
     el.categorySelectDropdown.addEventListener("change", (e) => {
       state.activeCategory = e.target.value;
+      updateCategoryStripActive(state.activeCategory);
       fetchCatalog();
-      smoothScrollTo("#results");
+      smoothScrollTo("#catalog");
     });
 
-    // Sub-navbar category links
-    document.querySelectorAll(".amz-subnav-link[data-cat]").forEach((link) => {
+    // Category strip pills
+    document.querySelectorAll(".vx-cat-pill[data-cat]").forEach((pill) => {
+      pill.addEventListener("click", () => {
+        const cat = pill.getAttribute("data-cat");
+        state.activeCategory = cat;
+        el.categorySelectDropdown.value = cat;
+        updateCategoryStripActive(cat);
+        fetchCatalog();
+        smoothScrollTo("#catalog");
+      });
+    });
+
+    // Bento Card filters
+    document.querySelectorAll(".bento-filter-trigger").forEach((card) => {
+      card.addEventListener("click", () => {
+        const cat = card.getAttribute("data-cat") || "";
+        state.activeCategory = cat;
+        el.categorySelectDropdown.value = cat;
+        updateCategoryStripActive(cat);
+        fetchCatalog();
+        smoothScrollTo("#catalog");
+      });
+    });
+
+    // Footer category links
+    document.querySelectorAll(".footer-cat-link").forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        const cat = link.getAttribute("data-cat");
+        const cat = link.getAttribute("data-cat") || "";
         state.activeCategory = cat;
         el.categorySelectDropdown.value = cat;
+        updateCategoryStripActive(cat);
         fetchCatalog();
-        smoothScrollTo("#results");
+        smoothScrollTo("#catalog");
       });
     });
 
-    // 4-Item Feature Grid triggers
-    document.querySelectorAll(".filter-trigger").forEach((elem) => {
-      elem.addEventListener("click", (e) => {
-        const cat = elem.getAttribute("data-cat") || "";
-        state.activeCategory = cat;
-        el.categorySelectDropdown.value = cat;
-        fetchCatalog();
-        smoothScrollTo("#results");
-      });
-    });
+    // Cart Drawer Toggle
+    el.btnCartTrigger.addEventListener("click", () => el.cartDrawer.classList.add("open"));
+    el.btnCloseCartDrawer.addEventListener("click", () => el.cartDrawer.classList.remove("open"));
 
-    // Hero Carousel controls
-    el.btnHeroPrev.addEventListener("click", () => changeHeroSlide(-1));
-    el.btnHeroNext.addEventListener("click", () => changeHeroSlide(1));
-
-    // Back to top smooth scroll
-    el.btnBackToTop.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    el.btnCheckoutCart.addEventListener("click", () => {
+      if (state.cartItems.length === 0) {
+        alert("Your bag is empty. Please add items before proceeding.");
+        return;
+      }
+      alert("Proceeding to Vortex Encrypted Payment Gateway. Thank you!");
     });
 
     // Quick View Modal
@@ -178,24 +193,22 @@
       if (e.target === el.quickViewModal) closeQuickViewAndTrackDwell();
     });
 
-    // Cart Button Trigger
     el.btnAddToCartModal.addEventListener("click", () => {
-      incrementCart();
-      el.btnAddToCartModal.textContent = "Added to Cart ✓";
-      setTimeout(() => {
-        el.btnAddToCartModal.textContent = "Add to Cart";
-      }, 1400);
+      if (state.currentQuickViewProduct) {
+        addToCart(state.currentQuickViewProduct);
+        el.btnAddToCartModal.textContent = "Added to Bag ✓";
+        setTimeout(() => {
+          el.btnAddToCartModal.textContent = "Add to Bag";
+        }, 1200);
+      }
     });
 
-    el.btnBuyNowModal.addEventListener("click", () => {
-      incrementCart();
-      closeQuickViewAndTrackDwell();
-      alert("Proceeding to Amazon Secure Checkout (1-Click Buy Now).");
-    });
-
-    // Amazon Lens Visual Search Modal
+    // Visual Search Modal (YOLOv8)
     const openVisualModal = () => el.visualSearchModal.classList.add("open");
     el.btnSearchPhotoTrigger.addEventListener("click", openVisualModal);
+    if (el.btnTriggerHeroVisualSearch) {
+      el.btnTriggerHeroVisualSearch.addEventListener("click", openVisualModal);
+    }
     el.btnCloseVisualModal.addEventListener("click", () => el.visualSearchModal.classList.remove("open"));
     el.visualSearchModal.addEventListener("click", (e) => {
       if (e.target === el.visualSearchModal) el.visualSearchModal.classList.remove("open");
@@ -223,49 +236,53 @@
       }
     });
 
-    // Customer Service Support Drawer
+    // Support Drawer
     const openSupportDrawer = () => {
       el.supportDrawer.classList.add("open");
       el.drawerChatInput.focus();
     };
     el.btnOpenSupportDrawer.addEventListener("click", openSupportDrawer);
-    el.navReturnsOrders.addEventListener("click", openSupportDrawer);
-    el.btnCloseDrawer.addEventListener("click", () => el.supportDrawer.classList.remove("open"));
+    if (el.navOrdersBtn) el.navOrdersBtn.addEventListener("click", openSupportDrawer);
+    if (el.footerTrackOrders) el.footerTrackOrders.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
+    if (el.footerReturnsHelp) el.footerReturnsHelp.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
+    el.btnCloseSupportDrawer.addEventListener("click", () => el.supportDrawer.classList.remove("open"));
 
     // Support Form Submission
     el.drawerChatForm.addEventListener("submit", handleSupportChatSubmit);
 
     // Support Quick Chips
     el.chipTrackOrder.addEventListener("click", () => {
-      el.drawerChatInput.value = "What is the status of my order #ORD-98214 to Marthandam?";
+      el.drawerChatInput.value = "What is the status of my order #ORD-98214 dispatched to Marthandam?";
       el.drawerChatForm.dispatchEvent(new Event("submit"));
     });
     el.chipRefundPrompt.addEventListener("click", () => {
-      el.drawerChatInput.value = "I would like to request a refund of ₹450 for damaged packaging.";
+      el.drawerChatInput.value = "I would like to request an authorized refund of ₹450 for a damaged shipment.";
       el.drawerChatInput.focus();
     });
     el.chipCheckStock.addEventListener("click", () => {
-      el.drawerChatInput.value = "Do you have Apple MacBook Pro workstations with M3 chip in stock?";
+      el.drawerChatInput.value = "Please check active stock levels for premium workstation laptops and headphones.";
       el.drawerChatForm.dispatchEvent(new Event("submit"));
     });
 
-    // Keyboard ESC to close modals/drawers
+    // Keyboard ESC to close any open modal/drawer
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (el.quickViewModal.classList.contains("open")) closeQuickViewAndTrackDwell();
         if (el.visualSearchModal.classList.contains("open")) el.visualSearchModal.classList.remove("open");
         if (el.supportDrawer.classList.contains("open")) el.supportDrawer.classList.remove("open");
+        if (el.cartDrawer.classList.contains("open")) el.cartDrawer.classList.remove("open");
       }
     });
   }
 
-  function incrementCart() {
-    state.cartCount++;
-    el.cartCountBadge.textContent = state.cartCount;
-    el.cartCountBadge.style.transform = "scale(1.3)";
-    setTimeout(() => {
-      el.cartCountBadge.style.transform = "scale(1)";
-    }, 200);
+  function updateCategoryStripActive(category) {
+    document.querySelectorAll(".vx-cat-pill").forEach((pill) => {
+      if (pill.getAttribute("data-cat") === category) {
+        pill.classList.add("active");
+      } else {
+        pill.classList.remove("active");
+      }
+    });
   }
 
   function smoothScrollTo(selector) {
@@ -276,19 +293,105 @@
   }
 
   // ============================================================================
-  // HERO CAROUSEL ENGINE
+  // SHOPPING CART MANAGEMENT
   // ============================================================================
 
-  function changeHeroSlide(direction) {
-    el.heroSlides[state.heroSlideIndex].classList.remove("active");
-    state.heroSlideIndex = (state.heroSlideIndex + direction + el.heroSlides.length) % el.heroSlides.length;
-    el.heroSlides[state.heroSlideIndex].classList.add("active");
+  function addToCart(product) {
+    const existing = state.cartItems.find((item) => item.id === product.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      state.cartItems.push({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image_url: product.image_url || FALLBACK_THUMB,
+        quantity: 1,
+      });
+    }
+
+    updateCartUI();
+    el.cartDrawer.classList.add("open");
   }
 
-  function startHeroAutoRotate() {
-    state.heroAutoTimer = setInterval(() => {
-      changeHeroSlide(1);
-    }, 6000);
+  function updateCartUI() {
+    const totalCount = state.cartItems.reduce((acc, it) => acc + it.quantity, 0);
+    el.cartCountBadge.textContent = totalCount;
+
+    if (state.cartItems.length === 0) {
+      el.cartItemsStream.innerHTML = `
+        <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
+          Your shopping bag is empty.
+        </div>`;
+      el.cartSubtotalVal.textContent = "₹0";
+      return;
+    }
+
+    let subtotalInr = 0;
+    el.cartItemsStream.innerHTML = state.cartItems
+      .map((item) => {
+        const itemInr = Math.round(Number(item.price) * 83 * item.quantity);
+        subtotalInr += itemInr;
+
+        return `
+        <div class="vx-cart-item-card">
+          <img src="${item.image_url}" alt="${item.title}" class="vx-cart-item-thumb" onerror="this.src='${FALLBACK_THUMB}'">
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="font-size: 13px; font-weight: 600; color: var(--vx-text); line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${item.title}
+            </div>
+            <div style="font-size: 13.5px; font-weight: 700; color: var(--vx-text);">
+              &#8377;${itemInr.toLocaleString('en-IN')}
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--vx-border); border-radius: 4px; padding: 2px 6px;">
+                <button type="button" class="btn-qty-minus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&minus;</button>
+                <span style="font-size: 12px; font-weight: 600;">${item.quantity}</span>
+                <button type="button" class="btn-qty-plus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&plus;</button>
+              </div>
+              <button type="button" class="btn-remove-item" data-id="${item.id}" style="font-size: 11px; color: var(--vx-coral); font-weight: 600;">Remove</button>
+            </div>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+
+    el.cartSubtotalVal.textContent = `₹${subtotalInr.toLocaleString('en-IN')}`;
+
+    // Bind Cart Item Buttons
+    el.cartItemsStream.querySelectorAll(".btn-qty-minus").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        const item = state.cartItems.find((i) => i.id === id);
+        if (item) {
+          item.quantity -= 1;
+          if (item.quantity <= 0) {
+            state.cartItems = state.cartItems.filter((i) => i.id !== id);
+          }
+          updateCartUI();
+        }
+      });
+    });
+
+    el.cartItemsStream.querySelectorAll(".btn-qty-plus").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        const item = state.cartItems.find((i) => i.id === id);
+        if (item) {
+          item.quantity += 1;
+          updateCartUI();
+        }
+      });
+    });
+
+    el.cartItemsStream.querySelectorAll(".btn-remove-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        state.cartItems = state.cartItems.filter((i) => i.id !== id);
+        updateCartUI();
+      });
+    });
   }
 
   // ============================================================================
@@ -306,11 +409,11 @@
       const items = await res.json();
       state.catalog = items;
       renderCatalogGrid(items);
-      el.catalogCountNote.textContent = `1-48 of over ${items.length} results for "${state.searchQuery || state.activeCategory || 'All Products'}"`;
+      el.catalogCountNote.textContent = `Displaying ${items.length} curated essentials in "${state.searchQuery || state.activeCategory || 'All Collections'}"`;
     } catch (err) {
       el.storeCatalogGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--amz-text-secondary);">
-          Unable to retrieve Amazon catalog products right now.
+        <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
+          Unable to retrieve inventory catalog right now.
         </div>`;
     }
   }
@@ -318,9 +421,9 @@
   function renderCatalogGrid(items) {
     if (!items || items.length === 0) {
       el.storeCatalogGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--amz-text-secondary);">
-          <div style="font-size: 18px; font-weight: 700; color: var(--amz-text); margin-bottom: 6px;">No results found for "${state.searchQuery}"</div>
-          <div>Try checking your spelling or use more general keywords.</div>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--vx-text-muted);">
+          <div style="font-size: 16px; font-weight: 700; color: var(--vx-text); margin-bottom: 6px;">No products found for "${state.searchQuery}"</div>
+          <div>Try adjusting keywords or selecting an alternate collection filter.</div>
         </div>`;
       return;
     }
@@ -330,49 +433,44 @@
         const thumb = it.image_url || FALLBACK_THUMB;
         const inr = formatInr(it.price);
         const mrp = formatMrp(it.price);
-        const badgeHtml = idx % 3 === 0
-          ? '<span class="badge-best-seller">#1 Best Seller</span>'
+        const badge = idx % 3 === 0
+          ? '<span class="badge-pill-fast">Fast Delivery</span>'
           : idx % 2 === 0
-          ? '<span class="badge-limited-deal">Limited time deal</span>'
+          ? '<span class="badge-pill-deal">20% Off</span>'
           : '';
 
         return `
-        <article class="amz-product-card" data-id="${it.id}">
+        <article class="vx-product-card" data-id="${it.id}">
           <div>
-            ${badgeHtml ? `<div class="badge-tag-row">${badgeHtml}</div>` : ''}
-            <div class="amz-product-img-box btn-open-quickview" data-id="${it.id}">
-              <img src="${thumb}" alt="${it.title}" class="amz-product-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+            ${badge ? `<div class="vx-badge-row">${badge}</div>` : ''}
+            <div class="vx-product-img-box btn-open-quickview" data-id="${it.id}">
+              <img src="${thumb}" alt="${it.title}" class="vx-product-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
             </div>
 
-            <h3 class="amz-product-meta-title btn-open-quickview" data-id="${it.id}" title="${it.title}">
+            <div class="vx-card-brand">${it.brand || (it.category || 'VORTEX').toUpperCase()}</div>
+            <h3 class="vx-card-title btn-open-quickview" data-id="${it.id}" title="${it.title}">
               ${it.title}
             </h3>
 
-            <div class="amz-rating-row">
-              <span class="amz-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
-              <span class="amz-rating-count">${(1200 + it.id * 37).toLocaleString('en-IN')}</span>
+            <div class="vx-rating-row">
+              <span class="vx-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+              <span style="font-weight: 600; color: var(--vx-text);">4.8</span>
+              <span class="vx-review-count">(${(1200 + it.id * 31).toLocaleString('en-IN')})</span>
             </div>
 
-            <div class="amz-bought-count">${(100 + it.id * 15)}+ bought in past month</div>
-
-            <div class="amz-price-cluster">
-              <span class="amz-discount-tag">-31%</span>
-              <span class="amz-price-main"><span class="amz-price-symbol">&#8377;</span>${inr}</span>
-              <span class="amz-mrp-strikethrough">&#8377;${mrp}</span>
-            </div>
-
-            <div class="amz-prime-delivery-row">
-              <span class="amz-prime-badge"><span class="amz-prime-check">&#10003;</span>prime</span>
-              <span>FREE Delivery by Tomorrow</span>
+            <div class="vx-price-row">
+              <span class="vx-price-main">&#8377;${inr}</span>
+              <span class="vx-mrp-strikethrough">&#8377;${mrp}</span>
+              <span class="vx-savings-tag">Save 26%</span>
             </div>
           </div>
 
-          <div>
-            <button type="button" class="amz-btn-add-cart btn-add-cart-action" data-id="${it.id}">
-              Add to Cart
+          <div class="vx-card-actions">
+            <button type="button" class="btn-vx-card-cart btn-add-bag" data-id="${it.id}">
+              Add to Bag
             </button>
-            <button type="button" class="amz-btn-quick-look btn-open-quickview" data-id="${it.id}">
-              Quick look
+            <button type="button" class="btn-vx-card-quicklook btn-open-quickview" data-id="${it.id}" title="Quick Look">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
           </div>
         </article>
@@ -380,7 +478,7 @@
       })
       .join("");
 
-    // Attach Click Handlers
+    // Attach click triggers
     el.storeCatalogGrid.querySelectorAll(".btn-open-quickview").forEach((trigger) => {
       trigger.addEventListener("click", () => {
         const id = parseInt(trigger.getAttribute("data-id"), 10);
@@ -389,20 +487,18 @@
       });
     });
 
-    el.storeCatalogGrid.querySelectorAll(".btn-add-cart-action").forEach((btn) => {
+    el.storeCatalogGrid.querySelectorAll(".btn-add-bag").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        incrementCart();
-        btn.textContent = "Added ✓";
-        setTimeout(() => {
-          btn.textContent = "Add to Cart";
-        }, 1200);
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        const product = state.catalog.find((p) => p.id === id);
+        if (product) addToCart(product);
       });
     });
   }
 
   // ============================================================================
-  // INVISIBLE DWELL-TIME TRACKING & FLYOUT MODAL ENGINE
+  // INVISIBLE DWELL-TIME TRACKING & QUICK-VIEW FLYOUT
   // ============================================================================
 
   function openQuickView(product) {
@@ -411,12 +507,11 @@
     state.dwellStartTimestamp = performance.now();
 
     el.modalImg.src = product.image_url || FALLBACK_THUMB;
-    el.modalCategory.textContent = `#1 BEST SELLER IN ${(product.category || "ELECTRONICS").toUpperCase()}`;
+    el.modalBrand.textContent = (product.brand || (product.category || 'VORTEX SELECT')).toUpperCase();
     el.modalTitle.textContent = product.title;
-    el.modalBrand.textContent = `Visit the ${product.brand || "Amazon"} Store`;
-    el.modalPrice.textContent = formatInr(product.price);
+    el.modalPrice.textContent = `₹${formatInr(product.price)}`;
     el.modalMrp.textContent = `₹${formatMrp(product.price)}`;
-    el.modalDesc.textContent = product.description || "Amazon Certified refurbished & authentic retail packaging.";
+    el.modalDesc.textContent = product.description || "Precision engineered essential constructed with premium industrial standards.";
 
     el.quickViewModal.classList.add("open");
   }
@@ -431,7 +526,7 @@
     const elapsedSeconds = parseFloat(((performance.now() - state.dwellStartTimestamp) / 1000.0).toFixed(3));
     const viewedProduct = state.currentQuickViewProduct;
 
-    // Immediately close modal visually (0 UI delay)
+    // Immediately close modal visually (0 delay)
     el.quickViewModal.classList.remove("open");
     state.currentQuickViewProduct = null;
 
@@ -450,7 +545,7 @@
 
   async function dispatchDwellTelemetry() {
     try {
-      el.recsFreshIndicator.textContent = "Calibrating vector recommendations...";
+      el.recsFreshIndicator.textContent = "[CALIBRATING DENSE VECTORS...]";
 
       const payload = {
         user_id: state.userId,
@@ -469,10 +564,10 @@
       const data = await res.json();
 
       state.recommended = data.recommendations;
-      renderRecommendedCarousel(data.recommendations);
-      el.recsFreshIndicator.textContent = "Updated live based on dwell signals";
+      renderRecommendedTrack(data.recommendations);
+      el.recsFreshIndicator.textContent = "[DWELL-WEIGHTED EMBEDDINGS ACTIVE]";
     } catch (err) {
-      el.recsFreshIndicator.textContent = "Live Dwell Telemetry Active";
+      el.recsFreshIndicator.textContent = "[DWELL-WEIGHTED EMBEDDINGS ACTIVE]";
     }
   }
 
@@ -483,7 +578,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: state.userId,
-          query_text: "electronics accessories home lifestyle",
+          query_text: "audio laptops wearables living essentials",
           recent_interactions: [],
           top_k: 6,
         }),
@@ -492,51 +587,43 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       state.recommended = data.recommendations;
-      renderRecommendedCarousel(data.recommendations);
+      renderRecommendedTrack(data.recommendations);
     } catch (err) {
-      // Keep placeholder
+      // Keep initial placeholder
     }
   }
 
-  function renderRecommendedCarousel(recommendations) {
+  function renderRecommendedTrack(recommendations) {
     if (!recommendations || recommendations.length === 0) return;
 
     el.recommendedGrid.innerHTML = recommendations
       .map((it) => {
         const thumb = it.image_url || FALLBACK_THUMB;
         const inr = formatInr(it.price);
-        const mrp = formatMrp(it.price);
 
         return `
-        <div class="amz-carousel-item btn-rec-item" data-id="${it.id}">
-          <div class="amz-carousel-thumb-wrap">
-            <img src="${thumb}" alt="${it.title}" class="amz-carousel-thumb" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+        <div class="vx-rec-item btn-rec-card" data-id="${it.id}">
+          <div class="vx-rec-thumb-box">
+            <img src="${thumb}" alt="${it.title}" class="vx-rec-thumb" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
           </div>
-          <div class="amz-carousel-title" title="${it.title}">${it.title}</div>
-          <div class="amz-rating-row" style="margin-bottom: 2px;">
-            <span class="amz-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
-            <span class="amz-rating-count">${(900 + it.id * 23).toLocaleString('en-IN')}</span>
+          <div class="vx-rec-title" title="${it.title}">${it.title}</div>
+          <div style="font-size: 11px; font-weight: 700; color: var(--vx-blue); margin-bottom: 4px;">
+            ${(it.category || 'ESSENTIAL').toUpperCase()}
           </div>
-          <div class="amz-price-cluster" style="margin-bottom: 4px;">
-            <span class="amz-discount-tag" style="font-size: 14px;">-35%</span>
-            <span class="amz-price-main" style="font-size: 16px;"><span class="amz-price-symbol" style="font-size: 10px;">&#8377;</span>${inr}</span>
-            <span class="amz-mrp-strikethrough" style="font-size: 11px;">&#8377;${mrp}</span>
+          <div style="font-size: 15px; font-weight: 700; color: var(--vx-text); margin-bottom: 8px;">
+            &#8377;${inr}
           </div>
-          <div class="amz-prime-delivery-row" style="margin-bottom: 6px;">
-            <span class="amz-prime-badge"><span class="amz-prime-check">&#10003;</span>prime</span>
-            <span style="font-size: 11px;">FREE Delivery</span>
-          </div>
-          <button type="button" class="amz-btn-add-cart" style="height: 28px; font-size: 11.5px; margin-top: auto;">
-            Add to Cart
+          <button type="button" class="btn-vx-card-cart" style="height: 32px; font-size: 11.5px; margin-top: auto;">
+            Add to Bag
           </button>
         </div>
       `;
       })
       .join("");
 
-    el.recommendedGrid.querySelectorAll(".btn-rec-item").forEach((item) => {
-      item.addEventListener("click", () => {
-        const id = parseInt(item.getAttribute("data-id"), 10);
+    el.recommendedGrid.querySelectorAll(".btn-rec-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const id = parseInt(card.getAttribute("data-id"), 10);
         const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
         if (product) openQuickView(product);
       });
@@ -544,7 +631,7 @@
   }
 
   // ============================================================================
-  // AMAZON LENS (YOLOV8 VISUAL SEARCH)
+  // YOLOv8 VISUAL SEARCH
   // ============================================================================
 
   function handleVisualUpload(e) {
@@ -554,7 +641,7 @@
   }
 
   async function uploadPhotoForVisualMatch(file) {
-    el.visualStatusNotice.textContent = "Ultralytics YOLOv8 isolating object bounding boxes...";
+    el.visualStatusNotice.textContent = "Ultralytics YOLOv8 segmenting image bounding box...";
     el.visualInspectionBox.style.display = "block";
     el.visualMatchesContainer.style.display = "none";
 
@@ -590,8 +677,8 @@
           .map((it) => {
             const thumb = it.image_url || FALLBACK_THUMB;
             return `
-            <div class="amz-product-card" style="padding: 10px; cursor: pointer;" onclick="window.location.hash='results'">
-              <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+            <div class="vx-product-card" style="padding: 10px; cursor: pointer;" onclick="window.location.hash='catalog'">
+              <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
                 <img src="${thumb}" alt="${it.title}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
               </div>
               <div style="font-size: 11.5px; font-weight: 600; line-height: 1.25; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
@@ -609,7 +696,7 @@
   }
 
   // ============================================================================
-  // CUSTOMER SERVICE SUPPORT DRAWER (LANGGRAPH AGENT)
+  // CUSTOMER SUPPORT & ESCALATION DRAWER (LANGGRAPH AGENT)
   // ============================================================================
 
   async function handleSupportChatSubmit(e) {
@@ -617,12 +704,10 @@
     const msg = el.drawerChatInput.value.trim();
     if (!msg) return;
 
-    // Append user message
     appendChatBubble("user", msg);
     el.drawerChatInput.value = "";
 
-    // Show temporary typing indicator
-    const typingId = appendChatBubble("concierge", "Checking Amazon order records & policy...");
+    const typingId = appendChatBubble("concierge", "Evaluating inquiry against policy rules...");
 
     try {
       const res = await fetch("/api/v1/support/chat", {
@@ -641,13 +726,13 @@
 
       let responseText = data.response;
       if (data.escalation_needed) {
-        responseText += `\n\n[POLICY CHECKPOINT] This claim has been automatically queued for human authorization in the Operations Cockpit (/admin).`;
+        responseText += `\n\n[POLICY CHECKPOINT] High-value claim detected (> ₹1,000 threshold). This ticket has been routed to the Operations Cockpit (/admin) for supervisor authorization.`;
       }
 
       appendChatBubble("concierge", responseText);
     } catch (err) {
       removeChatBubble(typingId);
-      appendChatBubble("concierge", "Our customer service desk is currently operating under high volume. Please check back shortly.");
+      appendChatBubble("concierge", "Our customer operations queue is currently experiencing high load. Please retry shortly.");
     }
   }
 
