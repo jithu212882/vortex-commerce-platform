@@ -37,6 +37,13 @@
     btnTriggerHeroVisualSearch: document.getElementById("btnTriggerHeroVisualSearch"),
     btnExploreCollection: document.getElementById("btnExploreCollection"),
 
+    // Hero Carousel
+    heroCarousel: document.getElementById("heroCarousel"),
+    carouselTrack: document.getElementById("carouselTrack"),
+    btnCarouselPrev: document.getElementById("btnCarouselPrev"),
+    btnCarouselNext: document.getElementById("btnCarouselNext"),
+    carouselDots: document.querySelectorAll(".vx-carousel-dot"),
+
     // Cart Drawer
     cartDrawer: document.getElementById("cartDrawer"),
     btnCartTrigger: document.getElementById("btnCartTrigger"),
@@ -106,6 +113,7 @@
 
   function init() {
     bindEvents();
+    initCarousel();
     fetchCatalog();
     fetchInitialRecommendations();
   }
@@ -292,6 +300,127 @@
     if (target) {
       target.scrollIntoView({ behavior: "smooth" });
     }
+  }
+
+  // ============================================================================
+  // HERO CAROUSEL ENGINE (EMIL KOWALSKI FLUID TRANSITIONS & AUTOPLAY)
+  // ============================================================================
+
+  const carouselState = {
+    currentSlide: 0,
+    totalSlides: 4,
+    autoplayTimer: null,
+    isHovered: false,
+    intervalMs: 5000,
+  };
+
+  function initCarousel() {
+    if (!el.carouselTrack || !el.heroCarousel) return;
+
+    // Next button
+    if (el.btnCarouselNext) {
+      el.btnCarouselNext.addEventListener("click", () => {
+        goToSlide((carouselState.currentSlide + 1) % carouselState.totalSlides);
+        restartAutoplay();
+      });
+    }
+
+    // Prev button
+    if (el.btnCarouselPrev) {
+      el.btnCarouselPrev.addEventListener("click", () => {
+        const prev = (carouselState.currentSlide - 1 + carouselState.totalSlides) % carouselState.totalSlides;
+        goToSlide(prev);
+        restartAutoplay();
+      });
+    }
+
+    // Dot indicators
+    if (el.carouselDots) {
+      el.carouselDots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          const slideIdx = parseInt(dot.getAttribute("data-slide"), 10);
+          if (!isNaN(slideIdx)) {
+            goToSlide(slideIdx);
+            restartAutoplay();
+          }
+        });
+      });
+    }
+
+    // Slide CTA buttons
+    document.querySelectorAll(".hero-slide-cta").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat") || "";
+        state.activeCategory = cat;
+        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
+        updateCategoryStripActive(cat);
+        fetchCatalog();
+        smoothScrollTo("#catalog");
+      });
+    });
+
+    // Pause on hover, resume on mouse leave
+    el.heroCarousel.addEventListener("mouseenter", () => {
+      carouselState.isHovered = true;
+      pauseAutoplay();
+    });
+
+    el.heroCarousel.addEventListener("mouseleave", () => {
+      carouselState.isHovered = false;
+      startAutoplay();
+    });
+
+    // Arrow keys when inside carousel
+    el.heroCarousel.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") {
+        goToSlide((carouselState.currentSlide + 1) % carouselState.totalSlides);
+        restartAutoplay();
+      } else if (e.key === "ArrowLeft") {
+        const prev = (carouselState.currentSlide - 1 + carouselState.totalSlides) % carouselState.totalSlides;
+        goToSlide(prev);
+        restartAutoplay();
+      }
+    });
+
+    startAutoplay();
+  }
+
+  function goToSlide(index) {
+    if (!el.carouselTrack) return;
+    carouselState.currentSlide = index;
+    el.carouselTrack.style.transform = `translateX(-${index * 25}%)`;
+
+    if (el.carouselDots) {
+      el.carouselDots.forEach((dot, idx) => {
+        if (idx === index) {
+          dot.classList.add("active");
+        } else {
+          dot.classList.remove("active");
+        }
+      });
+    }
+  }
+
+  function startAutoplay() {
+    if (carouselState.autoplayTimer) clearInterval(carouselState.autoplayTimer);
+    carouselState.autoplayTimer = setInterval(() => {
+      if (!carouselState.isHovered) {
+        const next = (carouselState.currentSlide + 1) % carouselState.totalSlides;
+        goToSlide(next);
+      }
+    }, carouselState.intervalMs);
+  }
+
+  function pauseAutoplay() {
+    if (carouselState.autoplayTimer) {
+      clearInterval(carouselState.autoplayTimer);
+      carouselState.autoplayTimer = null;
+    }
+  }
+
+  function restartAutoplay() {
+    pauseAutoplay();
+    startAutoplay();
   }
 
   // ============================================================================

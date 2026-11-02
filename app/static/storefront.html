@@ -95,41 +95,109 @@
   </nav>
 
   <!-- =========================================================================
-       3. EDITORIAL HERO BANNER
+       3. SMOOTH HERO CAROUSEL (4 ROTATING SLIDES, EMIL KOWALSKI STANDARDS)
        ========================================================================= -->
-  <section class="vx-hero">
-    <div class="vx-hero-banner">
-      <div class="vx-hero-content">
-        <span class="vx-hero-pill">FESTIVAL SALE &bull; LIVE NOW</span>
-        <h1 class="vx-hero-title">Up to 50% Off | Audio, Electronics &amp; Daily Essentials</h1>
-        <p class="vx-hero-subtitle">
-          Shop top brands with verified 1-year warranty, free delivery on orders above &#8377;499, and hassle-free 7-day returns.
-        </p>
+  <section class="vx-hero" aria-label="Featured Promotions">
+    <div class="vx-carousel-container" id="heroCarousel">
+      <!-- Sliding Track -->
+      <div class="vx-carousel-track" id="carouselTrack">
 
-        <div class="vx-hero-actions">
-          <a href="#catalog" class="btn-vx-primary" id="btnExploreCollection">
-            Shop Deals &rarr;
-          </a>
-          <button type="button" class="btn-vx-secondary" id="btnTriggerHeroVisualSearch">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            Photo Search
-          </button>
-        </div>
+        <!-- Slide 1: Audio & Wireless Acoustics -->
+        <article class="vx-carousel-slide slide-audio" data-index="0" style="background-color: #F1F5F9;">
+          <div class="vx-slide-content">
+            <span class="vx-slide-tag">PREMIUM AUDIO</span>
+            <h2 class="vx-slide-title">Studio Quality Sound. Zero Distraction.</h2>
+            <p class="vx-slide-sub">
+              Active noise cancelling, 30-hour battery life, and high-fidelity wireless drivers.
+            </p>
+            <div class="vx-slide-actions">
+              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="audio">
+                Explore Headphones &rarr;
+              </button>
+              <button type="button" class="btn-vx-secondary" id="btnTriggerHeroVisualSearch">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                Photo Search
+              </button>
+            </div>
+          </div>
+          <div class="vx-slide-visual">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Studio Quality Headphones" class="vx-slide-img" loading="eager">
+          </div>
+        </article>
 
-        <div class="vx-hero-guarantees">
-          <div class="guarantee-item">
-            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>&check; 100% Original Products</span>
+        <!-- Slide 2: Workspace & Computing Performance -->
+        <article class="vx-carousel-slide slide-computing" data-index="1" style="background-color: #F8FAFC;">
+          <div class="vx-slide-content">
+            <span class="vx-slide-tag">WORKSPACE ESSENTIALS</span>
+            <h2 class="vx-slide-title">Engineered for Speed, Focus &amp; Power.</h2>
+            <p class="vx-slide-sub">
+              High-performance ultrabooks, mechanical peripherals, and fast NVMe storage.
+            </p>
+            <div class="vx-slide-actions">
+              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="electronics">
+                Upgrade Setup &rarr;
+              </button>
+            </div>
           </div>
-          <div class="guarantee-item">
-            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>&check; Free Express Delivery</span>
+          <div class="vx-slide-visual">
+            <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&q=80" alt="Workspace & Computing Setup" class="vx-slide-img" loading="lazy">
           </div>
-          <div class="guarantee-item">
-            <svg class="guarantee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>&check; 7-Day Easy Returns</span>
+        </article>
+
+        <!-- Slide 3: Fine Jewellery & Timeless Craft -->
+        <article class="vx-carousel-slide slide-jewellery" data-index="2" style="background-color: #FDFBF7;">
+          <div class="vx-slide-content">
+            <span class="vx-slide-tag">HERITAGE CRAFT</span>
+            <h2 class="vx-slide-title">Hallmarked Gold &amp; Precision Silver.</h2>
+            <p class="vx-slide-sub">
+              BIS 916 certified gold necklaces and handcrafted 925 sterling silver bracelets.
+            </p>
+            <div class="vx-slide-actions">
+              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="fragrances">
+                View Jewellery &rarr;
+              </button>
+            </div>
           </div>
-        </div>
+          <div class="vx-slide-visual">
+            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80" alt="Fine Gold & Silver Jewellery" class="vx-slide-img" loading="lazy">
+          </div>
+        </article>
+
+        <!-- Slide 4: Modern Living & Kitchen -->
+        <article class="vx-carousel-slide slide-kitchen" data-index="3" style="background-color: #F3F4F6;">
+          <div class="vx-slide-content">
+            <span class="vx-slide-tag">HOME LIVING</span>
+            <h2 class="vx-slide-title">Smarter Cooking. Minimal Footprint.</h2>
+            <p class="vx-slide-sub">
+              Digital rapid-air convection appliances and temperature-controlled gooseneck kettles.
+            </p>
+            <div class="vx-slide-actions">
+              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="furniture">
+                Shop Kitchen &rarr;
+              </button>
+            </div>
+          </div>
+          <div class="vx-slide-visual">
+            <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80" alt="Modern Living & Kitchen Appliances" class="vx-slide-img" loading="lazy">
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Navigation Arrows (Floating circular chevrons) -->
+      <button type="button" class="vx-carousel-arrow prev" id="btnCarouselPrev" aria-label="Previous Slide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" class="vx-carousel-arrow next" id="btnCarouselNext" aria-label="Next Slide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <!-- Bottom Pagination Indicators (Subtle dashes) -->
+      <div class="vx-carousel-pagination" id="carouselPagination" aria-label="Slide Selection">
+        <button type="button" class="vx-carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button type="button" class="vx-carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button type="button" class="vx-carousel-dot" data-slide="2" aria-label="Slide 3"></button>
+        <button type="button" class="vx-carousel-dot" data-slide="3" aria-label="Slide 4"></button>
       </div>
     </div>
   </section>
