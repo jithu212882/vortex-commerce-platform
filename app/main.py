@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router as api_router
 from app.core.config import settings
-from app.database.connection import Item, SessionLocal, init_db, seed_items_from_public_api
+from app.database import Item, SessionLocal, init_db, seed_catalog_database
 from app.services.recommender import recommender_service
 
 logging.basicConfig(
@@ -29,8 +29,8 @@ async def lifespan(app: FastAPI):
         with SessionLocal() as db:
             count = db.query(Item).count()
             if count < 194:
-                logger.info(f"Database contains {count} items. Seeding catalog from public API...")
-                seed_items_from_public_api()
+                logger.info(f"Database contains {count} items. Seeding catalog database...")
+                seed_catalog_database()
             else:
                 logger.info(f"Database contains full catalog ({count} items).")
     except Exception as e:

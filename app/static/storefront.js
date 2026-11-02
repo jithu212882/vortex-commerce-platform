@@ -520,3 +520,4 @@
   // Run on DOM Ready
   window.addEventListener("DOMContentLoaded", init);
 })();
+
