@@ -637,31 +637,42 @@
     const ratingScore = (4.4 + ((it.id * 7) % 6) / 10).toFixed(1);
     const reviewCount = (850 + it.id * 39).toLocaleString('en-IN');
     const discountPct = 20 + ((it.id * 3) % 15);
+    const isPrime = it.id % 2 === 0;
 
     return `
-    <article class="vx-card-showcase group" data-id="${it.id}">
-      <div class="card-square-visual">
-        <button type="button" class="btn-card-wishlist" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <article class="product-card vx-card-showcase group relative" data-id="${it.id}">
+      <!-- Upper Zone: The Framed Product Stage (#F8FAFC to #F1F5F9) -->
+      <div class="card-stage card-square-visual aspect-square bg-slate-100/80 rounded-xl p-4 flex items-center justify-center border border-slate-200/60 overflow-hidden relative">
+        ${isPrime ? `<span class="card-stage-tag absolute top-2.5 left-2.5 bg-white/95 text-slate-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-slate-200 shadow-xs z-10">Plus</span>` : ''}
+        <button type="button" class="btn-card-wishlist w-7 h-7 bg-white/90 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-white shadow-xs absolute top-2.5 right-2.5 z-10 transition-all duration-200" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
           </svg>
         </button>
-        <img src="${thumb}" alt="${it.title}" class="card-square-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+        <img src="${thumb}" alt="${it.title}" class="card-square-img object-contain max-h-40 w-auto group-hover:scale-105 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
       </div>
-      <div class="card-content-wrap">
-        <span class="card-brand-label">${brand}</span>
-        <h3 class="card-title-text" title="${it.title}">${it.title}</h3>
-        <div class="card-rating-pill">
-          <span class="card-rating-badge">${ratingScore} ★</span>
-          <span class="rating-count-sub">(${reviewCount})</span>
+
+      <!-- Lower Zone: High-Contrast Info Stage (#FFFFFF) -->
+      <div class="card-content-wrap card-info-stage mt-3 space-y-1.5 bg-white">
+        <span class="card-brand-label text-[11px] font-bold text-slate-500 uppercase tracking-wider block">${brand}</span>
+        <h3 class="card-title-text text-sm font-semibold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600 transition-colors" title="${it.title}">${it.title}</h3>
+        
+        <div class="card-rating-pill flex items-center gap-1.5">
+          <span class="rating-badge card-rating-badge bg-emerald-700 text-white font-bold text-[11px] px-1.5 py-0.5 rounded inline-flex items-center gap-0.5 leading-none">
+            ${ratingScore} ★
+          </span>
+          <span class="rating-count-sub text-slate-400 text-xs font-normal">(${reviewCount})</span>
         </div>
-        <div class="card-price-cluster">
-          <span class="card-price-curr">&#8377;${inr}</span>
-          <span class="card-price-orig">&#8377;${mrp}</span>
-          <span class="card-save-pill">${discountPct}% off</span>
+
+        <div class="card-price-cluster card-price-row flex items-baseline gap-2 pt-0.5">
+          <span class="text-price card-price-curr text-base font-extrabold text-slate-950">&#8377;${inr}</span>
+          <span class="card-price-orig card-price-mrp text-xs text-slate-400 line-through">&#8377;${mrp}</span>
+          <span class="badge-discount card-save-pill text-xs font-bold text-emerald-600">${discountPct}% off</span>
         </div>
       </div>
-      <button type="button" class="btn-shelf-add-cart btn-add-bag" data-id="${it.id}">
+
+      <!-- Action CTA -->
+      <button type="button" class="btn-shelf-add-cart btn-add-bag w-full mt-2 bg-slate-900 hover:bg-black text-white font-medium text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-id="${it.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
           <path d="M3 6h18"></path>

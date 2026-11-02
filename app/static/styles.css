@@ -11,28 +11,27 @@
   box-sizing: border-box;
 }
 
+/* Body Canvas */
 body {
   background-color: #F1F3F6 !important;
   color: #0F172A;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
 }
 
-/* Card Surface with Depth */
-.content-card, .product-card, .sidebar-card, .shelf-card, .vx-card-showcase, .vx-product-card {
+/* Dual-Tone Product Card */
+.product-card,
+.vx-card-showcase {
   background-color: #FFFFFF !important;
   border: 1px solid #E2E8F0 !important;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-}
-
-/* Emil Kowalski Spring Transitions */
-.product-card, .vx-card-showcase {
+  border-radius: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 14px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   will-change: transform, box-shadow;
   transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), 
               box-shadow 160ms ease, 
@@ -40,13 +39,19 @@ body {
   cursor: pointer;
 }
 
-.product-card:hover, .vx-card-showcase:hover {
+.product-card:hover,
+.vx-card-showcase:hover {
   transform: translateY(-3px);
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  border-color: #94A3B8 !important;
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
-.product-card:active, .vx-card-showcase:active, .btn-pdp-cart:active, .btn-pdp-buynow:active, .vx-nav-btn:active, .btn-add-bag:active {
+.product-card:active,
+.vx-card-showcase:active,
+.btn-pdp-cart:active,
+.btn-pdp-buynow:active,
+.vx-nav-btn:active,
+.btn-add-bag:active {
   transform: scale(0.98);
 }
 
@@ -1055,29 +1060,31 @@ button {
 .vx-card-showcase:hover,
 .vx-product-card:hover,
 .product-card:hover {
-  transform: translateY(-2px);
-  border-color: #CBD5E1;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  border-color: #94A3B8 !important;
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
 .vx-card-showcase:active,
-.vx-product-card:active {
+.vx-product-card:active,
+.product-card:active {
   transform: scale(0.98);
 }
 
-/* Aspect-Square Image Frame */
+/* Upper Zone: The Framed Product Stage (#F8FAFC to #F1F5F9) */
+.card-stage,
 .card-square-visual,
 .card-img-frame {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background-color: #F8FAFC;
-  border: 1px solid #F1F5F9;
+  background-color: #F1F5F9 !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -1086,7 +1093,7 @@ button {
 .card-square-img,
 .card-img {
   max-width: 100%;
-  max-height: 144px;
+  max-height: 160px;
   width: auto;
   object-fit: contain;
   transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -1099,6 +1106,63 @@ button {
   transform: scale(1.05);
 }
 
+.card-stage-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btn-card-wishlist {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-card-wishlist:hover {
+  color: #F43F5E;
+  background-color: #FFFFFF;
+  transform: scale(1.08);
+}
+
+.btn-card-wishlist.active {
+  color: #E11D48;
+  fill: #E11D48;
+  background-color: #FFFFFF;
+}
+
+/* Lower Zone: High-Contrast Info Stage (#FFFFFF) */
+.card-content-wrap,
+.card-info-stage {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #FFFFFF;
+}
+
 .card-brand-label,
 .card-brand,
 .vx-card-brand {
@@ -1108,7 +1172,7 @@ button {
   letter-spacing: 0.08em;
   color: #64748B;
   display: block;
-  margin-bottom: 2px;
+  line-height: 1;
 }
 
 .card-title-text,
@@ -1118,19 +1182,17 @@ button {
   font-weight: 600;
   color: #0F172A;
   line-height: 1.35;
-  margin-top: 2px;
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
-  height: 38px;
+  text-overflow: ellipsis;
+  display: block;
   transition: color 150ms ease;
 }
 
 .vx-card-showcase:hover .card-title-text,
 .card-title:hover,
-.vx-product-card:hover .card-title {
+.vx-product-card:hover .card-title,
+.product-card:hover .card-title-text {
   color: #2563EB;
 }
 
@@ -1140,15 +1202,15 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
 }
 
-.card-rating-badge {
-  background: #047857;
-  color: #FFFFFF;
+.card-rating-badge,
+.rating-badge {
+  background-color: #047857 !important;
+  color: #FFFFFF !important;
   font-weight: 700;
   font-size: 11px;
-  padding: 1.5px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
@@ -1159,9 +1221,9 @@ button {
 .rating-count-sub,
 .rating-count,
 .vx-review-count {
-  color: #64748B;
+  color: #94A3B8;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .card-price-cluster,
@@ -1170,13 +1232,14 @@ button {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin-bottom: 4px;
+  margin-top: 2px;
   flex-wrap: wrap;
 }
 
 .card-price-curr,
 .card-price-bold,
-.vx-price-main {
+.vx-price-main,
+.text-price {
   font-size: 16px;
   font-weight: 800;
   color: #020617;
@@ -1194,11 +1257,12 @@ button {
 
 .card-save-pill,
 .badge-discount-subtle,
-.vx-savings-tag {
-  font-size: 11.5px;
+.vx-savings-tag,
+.badge-discount {
+  font-size: 12px;
   font-weight: 700;
-  color: #047857;
-  background: transparent;
+  color: #059669;
+  background-color: transparent;
   padding: 0;
 }
 
@@ -3095,21 +3159,22 @@ button {
 }
 
 .pdp-rec-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: 14px;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
   position: relative;
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .pdp-rec-card:hover {
-  transform: translateY(-2px);
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  transform: translateY(-3px);
+  border-color: #94A3B8 !important;
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
 .pdp-rec-card:active {
@@ -3119,20 +3184,27 @@ button {
 .pdp-rec-img-box {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background: #F8FAFC;
-  border-radius: 10px;
+  background: #F1F5F9 !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 12px;
   overflow: hidden;
 }
 
 .pdp-rec-img-box img {
   max-width: 100%;
-  max-height: 100%;
+  max-height: 140px;
+  width: auto;
   object-fit: contain;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pdp-rec-card:hover .pdp-rec-img-box img {
+  transform: scale(1.05);
 }
 
 .pdp-rec-brand {
