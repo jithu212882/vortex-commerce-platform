@@ -2,145 +2,439 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b">
-  <title>MERIDIAN &bull; Modern Essentials &amp; Curated Goods</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#131921">
+  <meta name="application-name" content="Amazon.in Online Shopping">
+  <meta name="architecture" content="MERIDIAN RecSys &amp; Customer Operations Engine">
+  <title>Online Shopping site in India: Shop Online for Mobiles, Books, Watches, Shoes and More - Amazon.in</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
-  <!-- PUBLIC STOREFRONT HEADER -->
-  <header class="store-header">
-    <a href="/" class="store-brand">
-      <div class="brand-mark">M</div>
-      <div>
-        <div class="brand-title">MERIDIAN</div>
-        <div class="brand-tag">MODERN ESSENTIALS</div>
-      </div>
+  <!-- =========================================================================
+       1. AMAZON TOP BAR HEADER (#131921)
+       ========================================================================= -->
+  <header class="amz-header-top">
+
+    <!-- Amazon Logo with Signature Curved Orange Smile -->
+    <a href="/" class="amz-logo-link" title="Amazon.in Home">
+      <svg class="amz-logo-svg" viewBox="0 0 130 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 'amazon' text -->
+        <path d="M12.8 19.3c0-1.8-.4-3.2-1.3-4.1-.9-.9-2.1-1.4-3.7-1.4-1.8 0-3.3.6-4.5 1.7l1.5 2.1c.9-.8 2-1.3 3.1-1.3 1 0 1.7.3 2.1.8.4.5.7 1.3.7 2.3v.4c-1.1-.3-2.3-.4-3.6-.4-2.1 0-3.7.5-4.8 1.5-1.1 1-1.6 2.3-1.6 3.9 0 1.5.5 2.7 1.5 3.6 1 .9 2.3 1.3 3.9 1.3 1.8 0 3.3-.6 4.4-1.9v1.6h2.9v-10.1zm-3 5.4c0 1.1-.4 2-1.1 2.7-.8.7-1.7 1-2.9 1-1 0-1.8-.3-2.4-.8-.6-.6-.9-1.3-.9-2.3 0-1 .4-1.8 1.1-2.4.7-.6 1.8-.9 3.2-.9.9 0 1.9.1 3 .3v2.4zm16.5-10.5c-1.4 0-2.6.5-3.6 1.4-1 .9-1.5 2.1-1.5 3.6v9.8h3v-9.5c0-1 .3-1.8.9-2.3.6-.5 1.4-.8 2.3-.8 1 0 1.7.3 2.2.8.5.5.8 1.3.8 2.3v9.5h3v-9.5c0-1 .3-1.8.9-2.3.6-.5 1.4-.8 2.3-.8 1 0 1.7.3 2.2.8.5.5.8 1.3.8 2.3v9.5h3v-10c0-2-1.2-3.5-3.6-4.4-.9-.3-1.9-.5-3.1-.5-1.6 0-3 .5-4.2 1.4-1-1-2.4-1.4-4-1.4zm23.2.3c-2.3 0-4.2.8-5.7 2.3-1.5 1.5-2.2 3.6-2.2 6.1 0 2.5.7 4.5 2.2 6.1 1.5 1.5 3.4 2.3 5.7 2.3 2.3 0 4.2-.8 5.7-2.3 1.5-1.5 2.2-3.6 2.2-6.1 0-2.5-.7-4.5-2.2-6.1-1.5-1.5-3.4-2.3-5.7-2.3zm0 2.8c1.5 0 2.6.5 3.5 1.6.9 1.1 1.3 2.6 1.3 4.4 0 1.8-.4 3.3-1.3 4.4-.9 1.1-2 1.6-3.5 1.6-1.5 0-2.6-.5-3.5-1.6-.9-1.1-1.3-2.6-1.3-4.4 0-1.8.4-3.3 1.3-4.4.9-1.1 2.1-1.6 3.5-1.6zm14.8-2.8v3h7.7l-7.9 10.7v2.8h12.5v-3h-8.7l8-10.7v-2.8h-11.6zm22.4 0c-1.8 0-3.3.6-4.5 1.7l1.5 2.1c.9-.8 2-1.3 3.1-1.3 1 0 1.7.3 2.1.8.4.5.7 1.3.7 2.3v.4c-1.1-.3-2.3-.4-3.6-.4-2.1 0-3.7.5-4.8 1.5-1.1 1-1.6 2.3-1.6 3.9 0 1.5.5 2.7 1.5 3.6 1 .9 2.3 1.3 3.9 1.3 1.8 0 3.3-.6 4.4-1.9v1.6h2.9v-10.1c0-1.8-.4-3.2-1.3-4.1-.9-.9-2.1-1.4-3.7-1.4zm-3 5.4c0 1.1-.4 2-1.1 2.7-.8.7-1.7 1-2.9 1-1 0-1.8-.3-2.4-.8-.6-.6-.9-1.3-.9-2.3 0-1 .4-1.8 1.1-2.4.7-.6 1.8-.9 3.2-.9.9 0 1.9.1 3 .3v2.4zm16.5-5.4c-1.5 0-2.8.5-3.8 1.5v-1.2h-2.9v16.4h3v-9.6c0-1.2.4-2.2 1.1-2.9.8-.7 1.7-1 2.8-1 1.2 0 2.2.4 2.8 1.2.7.8 1 1.8 1 3.1v9.2h3v-9.6c0-2-1.2-3.6-3.4-4.5-.9-.4-2.1-.6-3.6-.6z" fill="#FFFFFF"/>
+        <!-- '.in' tag -->
+        <text x="103" y="19" fill="#CCCCCC" font-size="11" font-weight="700" font-family="sans-serif">.in</text>
+        <!-- Signature Curved Orange Smile (from 'a' to 'z') with Arrowhead -->
+        <path d="M7 26.5c22.5 7.8 54 8 72-5.5 1.5-1.1 2.2.8 1.5 1.6-19 14.2-54 13.5-74.5 4.8-.8-.4-.2-1.3 1-1z" fill="#FF9900"/>
+        <path d="M80.5 20.8c.8 1.8 2.4 5.3 4 7-1.5-.3-4.9-1.2-6.5-1.7 1-1.3 2-3.4 2.5-5.3z" fill="#FF9900"/>
+      </svg>
     </a>
 
-    <nav class="store-nav">
-      <a href="#catalog" class="nav-link">Catalog</a>
-      <a href="#recommended" class="nav-link">Recommended</a>
-      <button type="button" class="btn-header-action" id="btnHeaderVisualSearch">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-        <span>Visual Search</span>
-      </button>
-    </nav>
+    <!-- Delivery Pin: "Deliver to Sreejith / Marthandam 629165" -->
+    <div class="amz-delivery-pin" id="amzDeliveryPin" title="Change delivery location">
+      <svg class="pin-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <div>
+        <div class="pin-text-sub">Deliver to Sreejith</div>
+        <div class="pin-text-main">Marthandam 629165</div>
+      </div>
+    </div>
 
-    <div class="store-header-actions">
-      <a href="/admin" class="admin-pill-link" title="Open Engineering &amp; Operations Cockpit">
-        <span>Admin Cockpit &nearr;</span>
-      </a>
-      <button class="btn-header-action" id="btnCartTrigger">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
-        <span id="cartCountBadge" style="font-weight: 700;">0</span>
+    <!-- Integrated Search Bar with Dropdown, Input, Camera, & Yellow Submit -->
+    <div class="amz-search-container">
+      <select class="amz-search-dropdown" id="categorySelectDropdown" aria-label="Search in">
+        <option value="">All Categories</option>
+        <option value="beauty">Beauty &amp; Grooming</option>
+        <option value="fragrances">Luxury Fragrances</option>
+        <option value="furniture">Home &amp; Furniture</option>
+        <option value="groceries">Groceries &amp; Gourmet</option>
+        <option value="electronics">Electronics &amp; Workstations</option>
+        <option value="audio">Audio &amp; Headphones</option>
+        <option value="wearables">Wearables &amp; Smartwatches</option>
+      </select>
+
+      <input type="text" id="storeSearchInput" class="amz-search-input" placeholder="Search Amazon.in" autocomplete="off">
+
+      <!-- Camera button inside right end of search bar (YOLOv8 Visual Search) -->
+      <button type="button" class="btn-amz-lens" id="btnSearchPhotoTrigger" title="Search by image with Amazon Lens (YOLOv8)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+      </button>
+
+      <!-- Submit Search Button -->
+      <button type="button" class="btn-amz-search-submit" id="btnSearchSubmit" title="Execute Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
     </div>
+
+    <!-- Right Nav: Language Switcher -->
+    <div class="amz-nav-item" title="Language selection">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <span style="font-size: 15px;">🇮🇳</span>
+        <span class="amz-nav-line-2">EN ▾</span>
+      </div>
+    </div>
+
+    <!-- Right Nav: Hello, Sreejith / Account & Lists -->
+    <div class="amz-nav-item" title="Account settings &amp; wishlists">
+      <span class="amz-nav-line-1">Hello, Sreejith</span>
+      <span class="amz-nav-line-2">Account &amp; Lists ▾</span>
+    </div>
+
+    <!-- Right Nav: Returns & Orders -->
+    <div class="amz-nav-item" id="navReturnsOrders" title="Check order tracking &amp; refunds">
+      <span class="amz-nav-line-1">Returns</span>
+      <span class="amz-nav-line-2">&amp; Orders</span>
+    </div>
+
+    <!-- Right Nav: Cart Icon with Badge -->
+    <div class="amz-cart-btn" id="btnCartTrigger" title="Shopping Cart">
+      <div class="cart-icon-wrapper">
+        <svg viewBox="0 0 38 28"><path d="M3 2h5l3.8 17.5a2 2 0 0 0 2 1.5h16.4a2 2 0 0 0 2-1.6L35 7H9.2"/><circle cx="14" cy="24" r="2.5" fill="#ffffff"/><circle cx="28" cy="24" r="2.5" fill="#ffffff"/></svg>
+        <span class="cart-badge-number" id="cartCountBadge">0</span>
+      </div>
+      <span class="amz-nav-line-2" style="margin-bottom: 2px;">Cart</span>
+    </div>
+
+    <!-- Operations & Telemetry Cockpit Link -->
+    <a href="/admin" class="amz-ops-link" title="Open Enterprise Telemetry &amp; Operations Cockpit">
+      <span>Ops Cockpit &nearr;</span>
+    </a>
+
   </header>
 
-  <!-- STOREFRONT CONTENT CONTAINER -->
-  <main class="store-container">
+  <!-- =========================================================================
+       2. SECONDARY SUB-NAVBAR (#232f3e)
+       ========================================================================= -->
+  <nav class="amz-subnav-bar">
+    <div class="amz-subnav-btn-all" id="btnHamburgerAll">
+      <span style="font-size: 16px;">☰</span>
+      <span>All</span>
+    </div>
+    <a href="#results" class="amz-subnav-link" data-cat="">All Products</a>
+    <a href="#results" class="amz-subnav-link" data-cat="electronics">Electronics</a>
+    <a href="#results" class="amz-subnav-link" data-cat="audio">Audio &amp; Speakers</a>
+    <a href="#results" class="amz-subnav-link" data-cat="wearables">Smartwatches</a>
+    <a href="#results" class="amz-subnav-link" data-cat="beauty">Beauty &amp; Care</a>
+    <a href="#results" class="amz-subnav-link" data-cat="fragrances">Luxury Fragrances</a>
+    <a href="#results" class="amz-subnav-link" data-cat="furniture">Home &amp; Furniture</a>
+    <a href="#results" class="amz-subnav-link" data-cat="groceries">Groceries</a>
+    <a href="#recommended" class="amz-subnav-link">Recommended For You</a>
+    <div class="amz-subnav-promo-banner">
+      ⚡ Great Indian Festival | Mega Deals Live
+    </div>
+  </nav>
 
-    <!-- HERO INTRODUCTION -->
-    <section class="store-hero">
-      <h1 class="store-hero-headline">Curated objects for mindful living &amp; focused work.</h1>
-      <p class="store-hero-sub">Explore hand-selected lifestyle products, ergonomic workspace essentials, and daily personal care.</p>
-    </section>
+  <!-- =========================================================================
+       3. HERO PROMOTIONAL BANNER CAROUSEL
+       ========================================================================= -->
+  <section class="amz-hero-section">
+    <div class="amz-hero-slider">
 
-    <!-- SEARCH & CATEGORY FILTER CLUSTER -->
-    <section class="search-filter-cluster">
-      <div class="search-input-wrapper">
-        <svg class="icon" style="color: var(--text-muted); margin-right: 4px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="storeSearchInput" class="search-input-main" placeholder="Search catalog by title, brand, or specifications..." autocomplete="off">
-        <button type="button" class="btn-visual-search-trigger" id="btnSearchPhotoTrigger" title="Search by photo using YOLOv8 visual crop">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-          <span>Search with photo</span>
-        </button>
+      <!-- Slide 1: Electronics Deals -->
+      <div class="hero-slide active" id="heroSlide1">
+        <div class="hero-slide-content">
+          <span class="hero-sale-badge">Great Indian Festival Deals</span>
+          <h1 class="hero-slide-title">Up to 60% off | Flagship Laptops, Audio &amp; Workstations</h1>
+          <p class="hero-slide-subtitle">Ultra-fast M3 chips, noise-cancelling headphones, and smart wearable accessories with No Cost EMI.</p>
+          <a href="#results" class="btn-hero-cta" data-cat="electronics">Shop Tech Deals</a>
+        </div>
+        <div class="hero-slide-visual">
+          <img src="https://cdn.dummyjson.com/products/images/laptops/Apple%20MacBook%20Pro%2014%20Inch%20Space%20Grey/thumbnail.png" alt="Hero Laptop" class="hero-visual-img">
+        </div>
       </div>
 
-      <div class="category-pills-row" id="categoryPillsRow">
-        <button class="filter-pill active" data-category="">All Goods</button>
-        <button class="filter-pill" data-category="beauty">Beauty &amp; Care</button>
-        <button class="filter-pill" data-category="fragrances">Fragrances</button>
-        <button class="filter-pill" data-category="furniture">Furniture</button>
-        <button class="filter-pill" data-category="groceries">Groceries</button>
-        <button class="filter-pill" data-category="electronics">Electronics</button>
-        <button class="filter-pill" data-category="audio">Audio</button>
-        <button class="filter-pill" data-category="wearables">Wearables</button>
+      <!-- Slide 2: Luxury Fragrance & Beauty -->
+      <div class="hero-slide" id="heroSlide2">
+        <div class="hero-slide-content">
+          <span class="hero-sale-badge" style="background-color: #007185;">Curated Personal Luxury</span>
+          <h1 class="hero-slide-title">Starting ₹499 | World-Class Perfumes &amp; Beauty Essentials</h1>
+          <p class="hero-slide-subtitle">Iconic fragrances from Chanel, Dior, Calvin Klein, and professional cosmetics.</p>
+          <a href="#results" class="btn-hero-cta" data-cat="fragrances">Explore Fragrances</a>
+        </div>
+        <div class="hero-slide-visual">
+          <img src="https://cdn.dummyjson.com/products/images/fragrances/Chanel%20Coco%20Noir%20Eau%20De%20Parfum/thumbnail.png" alt="Hero Fragrance" class="hero-visual-img">
+        </div>
       </div>
-    </section>
 
-    <!-- RECOMMENDED FOR YOU (FLUID DWELL-WEIGHTED FEED) -->
-    <section class="recommended-section" id="recommended">
-      <div class="section-subhead">
+      <!-- Slide 3: Furniture & Ergonomics -->
+      <div class="hero-slide" id="heroSlide3">
+        <div class="hero-slide-content">
+          <span class="hero-sale-badge" style="background-color: #b45309;">Work From Home Upgrade</span>
+          <h1 class="hero-slide-title">Revamp your space | Ergonomic Desks &amp; Handcrafted Beds</h1>
+          <p class="hero-slide-subtitle">Solid oak furniture, posture-supporting modular seating, and modern bedside storage.</p>
+          <a href="#results" class="btn-hero-cta" data-cat="furniture">Shop Home &amp; Living</a>
+        </div>
+        <div class="hero-slide-visual">
+          <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Hero Furniture" class="hero-visual-img">
+        </div>
+      </div>
+
+      <!-- Arrow Controls -->
+      <button type="button" class="hero-nav-arrow left" id="btnHeroPrev" aria-label="Previous banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" class="hero-nav-arrow right" id="btnHeroNext" aria-label="Next banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <!-- Bottom Gradient Mask -->
+      <div class="amz-hero-gradient-overlay"></div>
+    </div>
+
+    <!-- =========================================================================
+         4. AMAZON 4-ITEM FEATURE GRID CARDS (OVERLAPPING HERO)
+         ========================================================================= -->
+    <div class="amz-feature-grid-row">
+
+      <!-- Card 1: Appliances for your home -->
+      <div class="amz-quad-card">
+        <h2 class="amz-quad-card-title">Appliances for your home | Up to 55% off</h2>
+        <div class="quad-2x2-grid">
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Bed/thumbnail.png" alt="Air Conditioners" class="quad-img">
+            </div>
+            <div class="quad-label">Air Conditioners</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Bedside%20Table%20Two%20Drawer/thumbnail.png" alt="Refrigerators" class="quad-img">
+            </div>
+            <div class="quad-label">Refrigerators</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Sofa/thumbnail.png" alt="Microwaves" class="quad-img">
+            </div>
+            <div class="quad-label">Microwaves</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Washing Machines" class="quad-img">
+            </div>
+            <div class="quad-label">Washing machines</div>
+          </div>
+        </div>
+        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="furniture">See more appliances &rarr;</a>
+      </div>
+
+      <!-- Card 2: Revamp your home in style -->
+      <div class="amz-quad-card">
+        <h2 class="amz-quad-card-title">Revamp your home in style</h2>
+        <div class="quad-2x2-grid">
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Annibale%20Colombo%20Sofa/thumbnail.png" alt="Cushion covers" class="quad-img">
+            </div>
+            <div class="quad-label">Cushion covers &amp; bedsheets</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="fragrances">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/fragrances/Dolce%20Shine%20Eau%20de%20Parfum/thumbnail.png" alt="Figurines" class="quad-img">
+            </div>
+            <div class="quad-label">Figurines &amp; vases</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Bedside%20Table%20Two%20Drawer/thumbnail.png" alt="Home storage" class="quad-img">
+            </div>
+            <div class="quad-label">Home storage</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="furniture">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png" alt="Lighting solutions" class="quad-img">
+            </div>
+            <div class="quad-label">Lighting solutions</div>
+          </div>
+        </div>
+        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="furniture">Explore home decor &rarr;</a>
+      </div>
+
+      <!-- Card 3: Starting ₹199 | Amazon Brands & more -->
+      <div class="amz-quad-card">
+        <h2 class="amz-quad-card-title">Starting ₹199 | Amazon Brands &amp; more</h2>
+        <div class="quad-2x2-grid">
+          <div class="quad-item filter-trigger" data-cat="beauty">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/thumbnail.png" alt="Professional tools" class="quad-img">
+            </div>
+            <div class="quad-label">Professional beauty</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="beauty">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Eyeshadow%20Palette%20with%20Mirror/thumbnail.png" alt="Daily wear" class="quad-img">
+            </div>
+            <div class="quad-label">Daily care palettes</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="groceries">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Powder%20Canister/thumbnail.png" alt="Kitchen essentials" class="quad-img">
+            </div>
+            <div class="quad-label">Kitchen essentials</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="groceries">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Nail%20Polish/thumbnail.png" alt="Storage containers" class="quad-img">
+            </div>
+            <div class="quad-label">Pantry &amp; grocery</div>
+          </div>
+        </div>
+        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="beauty">Shop Amazon brands &rarr;</a>
+      </div>
+
+      <!-- Card 4: Trending Electronics -->
+      <div class="amz-quad-card">
+        <h2 class="amz-quad-card-title">Trending Electronics &amp; Personal Tech</h2>
+        <div class="quad-2x2-grid">
+          <div class="quad-item filter-trigger" data-cat="electronics">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/laptops/Apple%20MacBook%20Pro%2014%20Inch%20Space%20Grey/thumbnail.png" alt="Workstation Laptops" class="quad-img">
+            </div>
+            <div class="quad-label">Workstation Laptops</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="wearables">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/fragrances/Calvin%20Klein%20CK%20One/thumbnail.png" alt="Smartwatches" class="quad-img">
+            </div>
+            <div class="quad-label">Smartwatches</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="audio">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Powder%20Canister/thumbnail.png" alt="Audio & Headphones" class="quad-img">
+            </div>
+            <div class="quad-label">Noise-Cancelling Audio</div>
+          </div>
+          <div class="quad-item filter-trigger" data-cat="electronics">
+            <div class="quad-img-wrapper">
+              <img src="https://cdn.dummyjson.com/products/images/beauty/Red%20Lipstick/thumbnail.png" alt="Mobile Accessories" class="quad-img">
+            </div>
+            <div class="quad-label">Fast Chargers &amp; Cables</div>
+          </div>
+        </div>
+        <a href="#results" class="amz-quad-card-footer filter-trigger" data-cat="electronics">Discover all tech &rarr;</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       5. DYNAMIC DWELL-TIME RECOMMENDATIONS STRIP
+       ========================================================================= -->
+  <main class="amz-section-container" id="recommended">
+    <div class="amz-white-strip-card">
+      <div class="amz-strip-header">
         <div>
-          <h2 class="section-title">Recommended For You</h2>
-          <div class="section-note">Personalized selections tailored to your interests and recent browsing.</div>
+          <h2 class="amz-strip-title">Related to items you've viewed</h2>
+          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;">
+            Recommendations automatically calibrate in real-time as you explore products.
+          </div>
         </div>
-        <span id="recsFreshIndicator" style="font-size: 11px; color: var(--text-muted);">Updated live</span>
+        <span class="amz-badge-live" id="recsFreshIndicator">Live Dwell Telemetry Active</span>
       </div>
-      <div class="recommended-carousel-track" id="recommendedGrid">
-        <div class="text-muted" style="padding: 16px 0; font-size: 13px;">
-          Browsing products will seamlessly calibrate recommendations for you.
-        </div>
-      </div>
-    </section>
 
-    <!-- FULL CATALOG GRID -->
-    <section id="catalog">
-      <div class="section-subhead">
+      <div class="amz-carousel-track" id="recommendedGrid">
+        <div style="padding: 20px; color: var(--amz-text-secondary); font-size: 13px;">
+          Explore products below to activate personalized vector recommendations.
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         6. MAIN SEARCH & BROWSE RESULTS GRID
+         ========================================================================= -->
+    <section class="amz-white-strip-card" id="results">
+      <div class="amz-strip-header">
         <div>
-          <h2 class="section-title">Explore Catalog</h2>
-          <div class="section-note" id="catalogCountNote">Showing curated products</div>
+          <h2 class="amz-strip-title">Results &bull; Amazon.in Curated Catalog</h2>
+          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;" id="catalogCountNote">
+            Displaying prime products with fast delivery options
+          </div>
         </div>
       </div>
-      <div class="product-grid" id="storeCatalogGrid">
-        <div class="text-muted" style="padding: 24px; text-align: center;">Loading store catalog...</div>
+
+      <div class="amz-results-grid" id="storeCatalogGrid">
+        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--amz-text-secondary);">
+          Loading Amazon Catalog...
+        </div>
       </div>
     </section>
-
   </main>
 
-  <!-- PRODUCT QUICK-VIEW MODAL (WITH INVISIBLE DWELL-TIME TELEMETRY) -->
+  <!-- =========================================================================
+       7. PRODUCT QUICK-VIEW MODAL (AMAZON FLYOUT WITH DWELL TELEMETRY)
+       ========================================================================= -->
   <div class="modal-backdrop-smooth" id="quickViewModal">
     <div class="modal-content-smooth">
-      <div class="modal-top-bar">
-        <span class="modal-heading" id="modalHeading">Product Details</span>
-        <button class="modal-close-trigger" id="btnCloseQuickView" aria-label="Close modal">
-          <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <div class="amz-flyout-header">
+        <span class="amz-flyout-title">Amazon.in Quick Look &bull; Product Overview</span>
+        <button type="button" class="amz-close-btn" id="btnCloseQuickView" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
-      <div class="modal-body-layout">
-        <div>
-          <img id="modalImg" src="" alt="Product Image" class="modal-product-img">
-        </div>
-        <div>
-          <div class="product-category-meta" id="modalCategory">CATEGORY</div>
-          <h3 id="modalTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3;">Product Title</h3>
-          <div id="modalBrand" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Brand: Premium</div>
-          <div id="modalPrice" style="font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">$0.00</div>
-          
-          <p id="modalDesc" class="modal-desc-text">Detailed product description...</p>
 
-          <div class="perks-list">
-            <div class="perk-item">
-              <svg class="icon" style="color: var(--status-green); width: 14px; height: 14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>Complimentary 2-day delivery</span>
+      <div class="amz-flyout-body">
+        <!-- Left: Image Gallery & Active View -->
+        <div class="flyout-gallery-col">
+          <div class="flyout-active-img-box">
+            <img id="modalImg" src="" alt="Product Image" class="flyout-active-img">
+          </div>
+          <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+            <span class="amz-prime-badge"><span class="amz-prime-check">&#10003;</span>prime</span>
+            <span style="font-size: 12px; color: var(--amz-text-secondary);">FREE Delivery by <strong>Tomorrow, 11 AM</strong></span>
+          </div>
+        </div>
+
+        <!-- Right: Details, Ratings, Pricing, Offers & CTAs -->
+        <div class="flyout-details-col">
+          <a href="#" class="flyout-brand-link" id="modalBrand">Visit the Brand Store</a>
+          <h3 class="flyout-product-title" id="modalTitle">Product Title</h3>
+
+          <div class="amz-rating-row">
+            <span class="amz-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
+            <span class="amz-rating-count">4.5 out of 5 stars (3,412 ratings)</span>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <span class="badge-best-seller" id="modalCategory">#1 BEST SELLER</span>
+          </div>
+
+          <!-- Price Box -->
+          <div class="amz-price-cluster" style="border-top: 1px solid var(--amz-border); padding-top: 10px;">
+            <div>
+              <span class="amz-discount-tag" id="modalDiscount">-40%</span>
+              <span class="amz-price-main"><span class="amz-price-symbol">&#8377;</span><span id="modalPrice">0</span></span>
             </div>
-            <div class="perk-item">
-              <svg class="icon" style="color: var(--status-green); width: 14px; height: 14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              <span>30-day hassle-free return guarantee</span>
+            <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 2px;">
+              M.R.P.: <span class="amz-mrp-strikethrough" id="modalMrp">&#8377;0</span> Inclusive of all taxes
+            </div>
+            <div style="font-size: 12px; color: var(--amz-text); margin-top: 4px;">
+              <strong>EMI</strong> starts at &#8377;125/month. No Cost EMI available.
             </div>
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <button class="btn-browse-consumer" id="btnAddToCartModal" style="flex: 1; margin: 0; padding: 10px 18px;">
-              Add to Bag
+          <!-- Offers Box -->
+          <div class="amz-offers-box">
+            <div class="offers-box-title">&#127991; Available Offers</div>
+            <div class="offer-item">&bull; <strong>Bank Offer:</strong> Up to &#8377;1,500 instant discount on HDFC/ICICI Credit Cards.</div>
+            <div class="offer-item">&bull; <strong>Partner Offer:</strong> Get GST invoice and save up to 28% on business purchases.</div>
+          </div>
+
+          <!-- Specifications Bullet Points -->
+          <div style="font-size: 13px; font-weight: 700; color: var(--amz-text); margin-top: 6px;">About this item:</div>
+          <ul class="amz-bullets-list" id="modalDescBullets">
+            <li id="modalDesc">Genuine manufacturer certified product with standard warranty.</li>
+            <li>Premium construction engineered for longevity and exceptional durability.</li>
+            <li>Eligible for 7-day replacement and hassle-free return protection.</li>
+          </ul>
+
+          <!-- CTA Buttons -->
+          <div class="flyout-cta-row">
+            <button type="button" class="amz-btn-add-cart" id="btnAddToCartModal" style="flex: 1; height: 40px; font-size: 14px;">
+              Add to Cart
             </button>
-            <button class="btn-header-action" id="btnDismissModal" style="padding: 10px 16px;">
-              Done
+            <button type="button" class="btn-amz-buy-now" id="btnBuyNowModal">
+              Buy Now
+            </button>
+            <button type="button" class="amz-btn-quick-look" id="btnDismissModal" style="width: auto; padding: 0 16px; height: 40px; margin-top: 0;">
+              Close
             </button>
           </div>
         </div>
@@ -148,90 +442,156 @@
     </div>
   </div>
 
-  <!-- VISUAL FEATURE SEARCH MODAL -->
+  <!-- =========================================================================
+       8. AMAZON LENS (YOLOV8 VISUAL SEARCH MODAL)
+       ========================================================================= -->
   <div class="modal-backdrop-smooth" id="visualSearchModal">
-    <div class="modal-content-smooth" style="max-width: 580px;">
-      <div class="modal-top-bar">
-        <span class="modal-heading">Search with Photo</span>
-        <button class="modal-close-trigger" id="btnCloseVisualModal" aria-label="Close modal">
-          <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    <div class="modal-content-smooth" style="max-width: 600px;">
+      <div class="amz-flyout-header">
+        <span class="amz-flyout-title">Search by Image with Amazon Lens (YOLOv8)</span>
+        <button type="button" class="amz-close-btn" id="btnCloseVisualModal" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
+
       <div style="padding: 24px;">
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-          Drop a photo or select an image from your device. Our visual engine will isolate the item and find matching catalog products.
+        <p style="font-size: 13px; color: var(--amz-text-secondary); margin-bottom: 16px;">
+          Upload a photo of an item you want to find. Ultralytics YOLOv8 extracts the primary bounding box and retrieves visually matched catalog products.
         </p>
 
-        <div class="dropzone-consumer" id="storefrontDropzone">
+        <div class="lens-dropzone" id="storefrontDropzone">
           <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
-          <svg class="icon" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 8px;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">Drag photo here or browse files</div>
-          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Supports JPG, PNG, WEBP</div>
-          <button type="button" class="btn-browse-consumer" id="btnTriggerBrowsePhoto">Select File</button>
+          <svg style="width: 44px; height: 44px; color: #767676; margin-bottom: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <div style="font-weight: 700; font-size: 14px; color: var(--amz-text);">Drag photo here or tap to upload</div>
+          <div style="font-size: 12px; color: var(--amz-text-secondary); margin-top: 4px;">Supports JPG, PNG, WEBP</div>
+          <button type="button" class="amz-btn-add-cart" id="btnTriggerBrowsePhoto" style="width: auto; padding: 0 24px; margin-top: 14px; height: 36px;">
+            Select Photo from Device
+          </button>
         </div>
 
-        <!-- Visual Inspection Output Preview -->
+        <!-- YOLOv8 Inference Output Preview -->
         <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
-          <div style="display: flex; gap: 16px; align-items: center; background-color: var(--bg-surface-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
-            <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-subtle);">
+          <div style="display: flex; gap: 16px; align-items: center; background-color: #f7f9fa; padding: 12px; border-radius: 6px; border: 1px solid var(--amz-border);">
+            <img id="visualPreviewImg" src="" alt="YOLOv8 Cropped Preview" style="width: 76px; height: 76px; object-fit: cover; border-radius: 4px; border: 1px solid var(--amz-border);">
             <div style="flex: 1;">
-              <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);" id="visualLabelNotice">Detected Item</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);" id="visualStatusNotice">Analysis complete. Matches retrieved below.</div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--amz-text);" id="visualLabelNotice">Detected Item: cell phone</div>
+              <div style="font-size: 12px; color: var(--amz-text-secondary);" id="visualStatusNotice">Analysis complete. Retrieved top matches below.</div>
             </div>
           </div>
         </div>
 
         <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
-          <div style="font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--text-secondary);">MATCHING CATALOG ITEMS</div>
-          <div class="product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+          <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--amz-text);">MATCHING PRODUCTS FROM CATALOG</div>
+          <div class="amz-results-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- CUSTOMER SUPPORT SLIDING SHEET DRAWER -->
+  <!-- =========================================================================
+       9. CUSTOMER SERVICE & RETURNS DRAWER (AMAZON CS)
+       ========================================================================= -->
   <aside class="support-drawer-sheet" id="supportDrawer">
-    <div class="drawer-header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--status-green);"></div>
+    <div class="amz-cs-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">&#128172;</span>
         <div>
-          <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Customer Concierge</div>
-          <div style="font-size: 10.5px; color: var(--text-muted);">Orders, Returns &amp; Assistance</div>
+          <div style="font-size: 14px; font-weight: 700; color: #ffffff;">Amazon Customer Service</div>
+          <div style="font-size: 11px; color: #fbd690;">Returns, Orders &amp; AI Policy Gate</div>
         </div>
       </div>
-      <button class="modal-close-trigger" id="btnCloseDrawer" aria-label="Close drawer">
-        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <button type="button" class="amz-close-btn" id="btnCloseDrawer" style="color: #ffffff;" aria-label="Close customer service">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
     </div>
 
     <!-- Chat Stream -->
     <div class="drawer-chat-stream" id="drawerChatStream">
       <div class="chat-bubble concierge">
-        Hello! How can we assist you today? You can ask about product availability, order tracking, or submit a return request.
+        Hello Sreejith! Welcome to Amazon Customer Service. How can we assist you with your orders, sizing, or refund claims today?
       </div>
     </div>
 
     <!-- Quick Prompt Chips -->
-    <div style="padding: 0 16px 10px; display: flex; flex-wrap: wrap; gap: 6px;">
-      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipTrackOrder">Track order</button>
-      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipRefundPrompt">Request a refund</button>
-      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipCheckStock">Product inquiries</button>
+    <div style="padding: 10px 16px; background-color: #ffffff; border-top: 1px solid var(--amz-border); display: flex; flex-wrap: wrap; gap: 6px;">
+      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipTrackOrder">Track my package</button>
+      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipRefundPrompt">Request a refund</button>
+      <button type="button" class="amz-btn-quick-look" style="width: auto; padding: 4px 10px; font-size: 11.5px; margin: 0;" id="chipCheckStock">Product availability</button>
     </div>
 
     <!-- Chat Input Form -->
-    <form class="drawer-chat-input-row" id="drawerChatForm">
-      <input type="text" id="drawerChatInput" class="input-drawer-chat" placeholder="Type your message..." autocomplete="off" required>
-      <button type="submit" class="btn-browse-consumer" style="margin: 0; padding: 8px 14px;">Send</button>
+    <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: #f0f2f2; border-top: 1px solid var(--amz-border);" id="drawerChatForm">
+      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--amz-border-subtle); border-radius: 4px; padding: 0 12px; font-size: 13.5px; outline: none;" placeholder="Type your inquiry or refund request..." autocomplete="off" required>
+      <button type="submit" class="amz-btn-add-cart" style="width: auto; padding: 0 16px; height: 38px; border-radius: 4px;">Send</button>
     </form>
   </aside>
 
-  <!-- FLOATING SUPPORT BUTTON (BOTTOM-RIGHT) -->
-  <button class="floating-support-btn" id="btnOpenSupportDrawer">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    <span>Support &amp; Returns</span>
+  <!-- Floating Customer Service Button (Bottom Right) -->
+  <button type="button" class="amz-cs-floating-btn" id="btnOpenSupportDrawer" title="Customer Service &amp; Returns Assistance">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Customer Service &amp; Returns</span>
   </button>
+
+  <!-- =========================================================================
+       10. AUTHENTIC AMAZON FOOTER
+       ========================================================================= -->
+  <footer style="margin-top: 40px;">
+    <div class="amz-back-to-top" id="btnBackToTop">
+      Back to top
+    </div>
+
+    <div class="amz-footer-middle">
+      <div class="amz-footer-grid">
+        <div>
+          <div class="footer-col-title">Get to Know Us</div>
+          <ul class="footer-link-list">
+            <li><a href="#">About Amazon</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press Releases</a></li>
+            <li><a href="#">Amazon Science</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Connect with Us</div>
+          <ul class="footer-link-list">
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">Twitter</a></li>
+            <li><a href="#">Instagram</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Make Money with Us</div>
+          <ul class="footer-link-list">
+            <li><a href="#">Sell on Amazon</a></li>
+            <li><a href="#">Protect and Build Your Brand</a></li>
+            <li><a href="#">Amazon Global Selling</a></li>
+            <li><a href="#">Become an Affiliate</a></li>
+            <li><a href="#">Fulfilment by Amazon</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Let Us Help You</div>
+          <ul class="footer-link-list">
+            <li><a href="#">COVID-19 and Amazon</a></li>
+            <li><a href="#">Your Account</a></li>
+            <li><a href="#">Returns Centre</a></li>
+            <li><a href="#">100% Purchase Protection</a></li>
+            <li><a href="#">Help</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="amz-footer-bottom">
+      <div style="margin-bottom: 10px;">
+        <span style="font-weight: 700; color: #ffffff;">Amazon.in</span> &bull; Condition of Use &amp; Sale &bull; Privacy Notice &bull; Interest-Based Ads
+      </div>
+      <div>
+        &copy; 1996-2026, Amazon.com, Inc. or its affiliates. Enterprise RecSys &amp; Customer Operations Platform.
+      </div>
+    </div>
+  </footer>
 
   <script src="/storefront.js"></script>
 </body>
 </html>
-

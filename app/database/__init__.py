@@ -19,3 +19,4 @@ __all__ = [
     "init_db",
     "seed_catalog_database",
 ]
+

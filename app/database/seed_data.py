@@ -252,3 +252,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     count = seed_catalog_database()
     print(f"Catalog seed finished. Total newly inserted: {count}")
+
