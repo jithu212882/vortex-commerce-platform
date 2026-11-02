@@ -157,8 +157,35 @@ def test_e2e_suite():
     assert r_esc_resolve.status_code == 200
     assert esc_res["status"] == "manager_approved"
 
+    print("\n--- Test 10: Comprehensive Product Detail Page & Vector Similar Items ---")
+    r_pdp_html = client.get("/product/1")
+    print("PDP HTML status:", r_pdp_html.status_code, "Length:", len(r_pdp_html.text))
+    assert r_pdp_html.status_code == 200
+    assert "Specifications" in r_pdp_html.text
+    assert "Similar Products" in r_pdp_html.text
+    assert "Available Bank Offers" in r_pdp_html.text
+
+    r_pdp_api = client.get("/api/v1/product/1")
+    pdp_data = r_pdp_api.json()
+    print("PDP API status:", r_pdp_api.status_code, "Title:", pdp_data.get("title"))
+    assert r_pdp_api.status_code == 200
+    assert len(pdp_data["bank_offers"]) >= 3
+    assert len(pdp_data["detailed_description"]) >= 2
+    assert "General" in pdp_data["specs_sections"]
+    assert "Warranty" in pdp_data["specs_sections"]
+
+    r_similar = client.get("/api/v1/recommend/similar/1?limit=5")
+    similar_items = r_similar.json()
+    print("Similar items status:", r_similar.status_code, "Count:", len(similar_items))
+    assert r_similar.status_code == 200
+    assert len(similar_items) == 5
+    for s in similar_items:
+        assert "price_inr" in s
+        assert "mrp_inr" in s
+        assert "rating" in s
+
     print("\n=======================================================")
-    print(">>> ALL 9 END-TO-END INTEGRATION TESTS PASSED! <<<")
+    print(">>> ALL 10 END-TO-END INTEGRATION TESTS PASSED! <<<")
     print("=======================================================\n")
 
 

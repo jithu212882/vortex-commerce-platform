@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Details • VORTEX COMMERCE</title>
-  <meta name="description" content="View verified specifications, live pricing, and express delivery status on VORTEX COMMERCE.">
+  <meta name="description" content="View verified specifications, live pricing, bank offers, and express delivery status on VORTEX COMMERCE.">
 
   <!-- Inter Sans Stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,199 +13,6 @@
 
   <!-- Shared Design System CSS -->
   <link rel="stylesheet" href="/static/styles.css">
-
-  <style>
-    .pdp-container {
-      max-width: 1360px;
-      margin: 20px auto 48px;
-      padding: 0 24px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .pdp-breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-      color: #9CA3AF;
-      margin-bottom: 24px;
-    }
-    .pdp-breadcrumb a {
-      color: #4B5563;
-      font-weight: 500;
-      transition: color 150ms ease;
-    }
-    .pdp-breadcrumb a:hover {
-      color: #111827;
-      text-decoration: underline;
-    }
-    .pdp-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: 48px;
-      background: #FFFFFF;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 20px;
-      padding: 36px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    }
-    .pdp-visual-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .pdp-img-frame {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: #F9FAFB;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-      box-sizing: border-box;
-      position: relative;
-    }
-    .pdp-main-img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 20px 25px rgba(15, 23, 42, 0.12));
-    }
-    .pdp-info-col {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .pdp-brand-tag {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #9CA3AF;
-      margin-bottom: 6px;
-    }
-    .pdp-title {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.25;
-      color: #111827;
-      margin-bottom: 12px;
-    }
-    .pdp-price-box {
-      background: #F9FAFB;
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin: 16px 0 20px;
-    }
-    .pdp-price-row {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .pdp-price-main {
-      font-size: 28px;
-      font-weight: 800;
-      color: #111827;
-      letter-spacing: -0.02em;
-    }
-    .pdp-price-mrp {
-      font-size: 15px;
-      color: #9CA3AF;
-      text-decoration: line-through;
-    }
-    .pdp-discount-tag {
-      font-size: 12px;
-      font-weight: 700;
-      color: #047857;
-      background: #ECFDF5;
-      border: 1px solid rgba(4, 120, 87, 0.2);
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .pdp-desc {
-      font-size: 13.5px;
-      line-height: 1.6;
-      color: #4B5563;
-      margin-bottom: 24px;
-    }
-    .pdp-feature-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .pdp-feature-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: #374151;
-      font-weight: 500;
-    }
-    .pdp-cta-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .btn-pdp-cart {
-      flex: 1;
-      height: 44px;
-      background: #0F172A;
-      color: #FFFFFF;
-      font-weight: 600;
-      font-size: 13px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: background-color 150ms ease, transform 150ms ease;
-    }
-    .btn-pdp-cart:hover {
-      background: #000000;
-      transform: translateY(-1px);
-    }
-    .btn-pdp-cart:active {
-      transform: scale(0.97);
-    }
-    .btn-pdp-support {
-      height: 44px;
-      padding: 0 18px;
-      background: #F1F5F9;
-      color: #1E293B;
-      font-weight: 600;
-      font-size: 13px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      cursor: pointer;
-      transition: all 150ms ease;
-    }
-    .btn-pdp-support:hover {
-      background: #E2E8F0;
-      color: #0F172A;
-    }
-    .btn-pdp-support:active {
-      transform: scale(0.97);
-    }
-    @media (max-width: 900px) {
-      .pdp-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-        padding: 20px;
-      }
-    }
-  </style>
 </head>
 <body>
 
@@ -246,78 +53,176 @@
   </header>
 
   <!-- 2. MAIN PRODUCT DETAIL CONTAINER -->
-  <main class="pdp-container">
-    <!-- Breadcrumb -->
-    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+  <main class="pdp-page-container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="pdp-breadcrumb-bar" aria-label="Breadcrumb">
       <a href="/">Home</a>
-      <span>&rsaquo;</span>
+      <span class="sep">&rsaquo;</span>
       <a href="/" id="pdpCatBreadcrumb">Catalog</a>
-      <span>&rsaquo;</span>
-      <span id="pdpTitleBreadcrumb" style="color: #111827; font-weight: 600;">Loading...</span>
+      <span class="sep">&rsaquo;</span>
+      <span class="current" id="pdpTitleBreadcrumb">Loading Product...</span>
     </nav>
 
-    <!-- Product Card Grid -->
-    <div class="pdp-grid">
-      <!-- Visual Column -->
-      <div class="pdp-visual-col">
-        <div class="pdp-img-frame">
-          <img id="pdpImg" src="" alt="Product Visual" class="pdp-main-img">
-        </div>
-      </div>
-
-      <!-- Information Column -->
-      <div class="pdp-info-col">
-        <span class="pdp-brand-tag" id="pdpBrand">VORTEX SELECT</span>
-        <h1 class="pdp-title" id="pdpTitle">Loading Product Details...</h1>
-
-        <div class="card-rating-inline" style="margin-bottom: 8px;">
-          <span class="rating-star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-          <span class="rating-score" id="pdpRating">4.7</span>
-          <span class="rating-count" id="pdpReviews">(2,410 verified customer ratings)</span>
-        </div>
-
-        <div class="pdp-price-box">
-          <div class="pdp-price-row">
-            <span class="pdp-price-main" id="pdpPrice">&#8377;0</span>
-            <span class="pdp-price-mrp" id="pdpMrp">&#8377;0</span>
-            <span class="pdp-discount-tag" id="pdpDiscount">25% OFF</span>
+    <!-- Above-The-Fold: Flipkart Two-Column Showcase -->
+    <section class="pdp-showcase-card">
+      <!-- Left Column: Visual Media & Primary Actions -->
+      <div class="pdp-media-col">
+        <div class="pdp-main-image-box">
+          <div class="pdp-genuine-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>100% Genuine</span>
           </div>
-          <div style="font-size: 12px; color: #64748B; margin-top: 6px;">
-            Inclusive of all GST taxes &bull; Free express delivery to Marthandam
-          </div>
+          <img id="pdpImg" src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80" alt="Product Visual">
         </div>
 
-        <p class="pdp-desc" id="pdpDesc">
-          Curated and verified for precision manufacturing, performance, and everyday longevity.
-        </p>
-
-        <ul class="pdp-feature-list">
-          <li class="pdp-feature-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Verified 100% Genuine with Official Manufacturer Warranty</span>
-          </li>
-          <li class="pdp-feature-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Priority 24-Hour Dispatch &bull; Real-time GPS Delivery Tracking</span>
-          </li>
-          <li class="pdp-feature-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Hassle-Free 7-Day Replacement Guarantee</span>
-          </li>
-        </ul>
-
-        <div class="pdp-cta-row">
+        <!-- Action Strip Directly Below Image -->
+        <div class="pdp-action-strip">
           <button type="button" class="btn-pdp-cart" id="btnAddToCart">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             <span>Add to Cart</span>
           </button>
-          <button type="button" class="btn-pdp-support" id="btnOpenSupport">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Support</span>
+          <button type="button" class="btn-pdp-buynow" id="btnBuyNow">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Buy Now</span>
           </button>
         </div>
       </div>
+
+      <!-- Right Column: Metadata, Deal Layer & Delivery -->
+      <div class="pdp-details-col">
+        <div class="pdp-brand-row">
+          <span class="pdp-brand-name" id="pdpBrand">VORTEX SELECT</span>
+          <span class="pdp-verified-tag">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Verified Brand</span>
+          </span>
+        </div>
+
+        <h1 class="pdp-product-title" id="pdpTitle">Loading Product Details...</h1>
+
+        <div class="pdp-rating-strip">
+          <span class="pdp-rating-badge" id="pdpRatingBadge">
+            <span id="pdpRatingVal">4.7</span>
+            <span>★</span>
+          </span>
+          <span class="pdp-reviews-count" id="pdpReviewsCount">12,410 Ratings & 840 Reviews</span>
+          <span class="pdp-assured-badge">Plus Verified</span>
+        </div>
+
+        <!-- Price Section -->
+        <div class="pdp-price-box">
+          <div class="pdp-price-row">
+            <span class="pdp-price-current" id="pdpPriceCurrent">&#8377;0</span>
+            <span class="pdp-price-mrp" id="pdpPriceMrp">&#8377;0</span>
+            <span class="pdp-price-discount" id="pdpPriceDiscount">25% off</span>
+          </div>
+          <div class="pdp-tax-note">
+            Inclusive of all GST taxes &bull; Extra savings applied with bank partner offers
+          </div>
+        </div>
+
+        <!-- Available Bank Offers Container -->
+        <div class="pdp-bank-offers-container">
+          <div class="pdp-offers-head">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span>Available Bank Offers</span>
+          </div>
+          <ul class="pdp-offers-list" id="pdpOffersList">
+            <li class="pdp-offer-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Bank Offer:</strong> 5% Unlimited Cashback on Flipkart Axis Bank Card</span>
+            </li>
+            <li class="pdp-offer-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Bank Offer:</strong> &#8377;1,500 Off on HDFC Bank Credit Card EMI Transactions</span>
+            </li>
+            <li class="pdp-offer-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Bank Offer:</strong> Special Price get extra &#8377;3,000 off (price inclusive of discount)</span>
+            </li>
+            <li class="pdp-offer-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Partner Offer:</strong> Free 3-Month Extended Manufacturer Warranty on registration</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Delivery & Pincode Checker -->
+        <div class="pdp-delivery-card">
+          <div class="pdp-delivery-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Delivery & Servicing Details</span>
+          </div>
+          <div class="pdp-pincode-input-row">
+            <input type="text" id="pdpPincodeInput" class="pdp-pincode-input" value="629165" placeholder="Enter pincode">
+            <button type="button" id="btnCheckPincode" class="btn-pdp-check-pin">Check</button>
+          </div>
+          <div class="pdp-delivery-status-msg" id="pdpDeliveryStatusMsg">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="pdpDeliveryDateText">Delivery by Wednesday, 4 Nov | Free Delivery</span>
+          </div>
+          <div class="pdp-trust-highlights">
+            <div class="pdp-trust-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>7 Days Replacement Policy</span>
+            </div>
+            <div class="pdp-trust-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Cash on Delivery Available</span>
+            </div>
+            <div class="pdp-trust-item">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Plus Verified Hub Dispatch</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Below-The-Fold: Comprehensive Product Description & Technical Specifications -->
+    <div class="pdp-below-grid">
+      <!-- 1. Product Description Card -->
+      <section class="pdp-content-card">
+        <div class="pdp-card-head">
+          <span>Product Description</span>
+        </div>
+        <div class="pdp-editorial-blocks" id="pdpEditorialBlocks">
+          <!-- Populated by product.js -->
+        </div>
+      </section>
+
+      <!-- 2. Grouped Technical Specifications Card -->
+      <section class="pdp-content-card">
+        <div class="pdp-card-head">
+          <span>Specifications</span>
+        </div>
+        <div id="pdpSpecsContainer">
+          <!-- Populated by product.js with grouped tables -->
+        </div>
+      </section>
     </div>
+
+    <!-- Bottom Carousel Shelf 1: Similar Products (Category Correlation) -->
+    <section class="pdp-shelf-wrapper">
+      <div class="pdp-shelf-header">
+        <h2 class="pdp-shelf-title">Similar Products</h2>
+        <div class="pdp-shelf-subtitle">Customers browsing this item also considered</div>
+      </div>
+      <div class="pdp-shelf-grid" id="pdpSimilarGrid">
+        <!-- Rendered by product.js -->
+      </div>
+    </section>
+
+    <!-- Bottom Carousel Shelf 2: Frequently Bought Together -->
+    <section class="pdp-shelf-wrapper">
+      <div class="pdp-shelf-header">
+        <h2 class="pdp-shelf-title">Frequently Bought Together</h2>
+        <div class="pdp-shelf-subtitle">Popular cross-category accessories & complementary gear</div>
+      </div>
+      <div class="pdp-shelf-grid" id="pdpBoughtTogetherGrid">
+        <!-- Rendered by product.js -->
+      </div>
+    </section>
   </main>
 
   <!-- CART DRAWER -->
@@ -337,126 +242,11 @@
         <span>Subtotal</span>
         <span id="cartSubtotalVal">&#8377;0</span>
       </div>
-      <button type="button" class="btn-vx-primary" style="width: 100%; height: 40px;" onclick="alert('Proceeding to Checkout!');">Checkout</button>
+      <button type="button" class="btn-vx-primary" style="width: 100%; height: 42px;" onclick="window.location.href='/orders';">Proceed to Checkout</button>
     </div>
   </aside>
 
-  <script>
-    const pathParts = window.location.pathname.split("/").filter(Boolean);
-    const productId = pathParts[pathParts.length - 1] || "1";
-    let productData = null;
-    let dwellStart = performance.now();
-    let cartItems = JSON.parse(localStorage.getItem("vx_cart") || "[]");
-
-    function formatInr(usd) {
-      return Math.round(Number(usd) * 83).toLocaleString("en-IN");
-    }
-    function formatMrp(usd) {
-      return Math.round(Number(usd) * 83 * 1.35).toLocaleString("en-IN");
-    }
-
-    function updateCartBadge() {
-      const count = cartItems.reduce((acc, it) => acc + (it.quantity || 1), 0);
-      document.getElementById("cartCountBadge").textContent = count;
-      localStorage.setItem("vx_cart", JSON.stringify(cartItems));
-    }
-
-    async function loadProduct() {
-      try {
-        const res = await fetch(`/api/v1/catalog/${productId}`);
-        if (!res.ok) throw new Error("Product not found");
-        productData = await res.json();
-
-        document.title = `${productData.title} • VORTEX COMMERCE`;
-        document.getElementById("pdpTitle").textContent = productData.title;
-        document.getElementById("pdpTitleBreadcrumb").textContent = productData.title;
-        document.getElementById("pdpBrand").textContent = (productData.brand || productData.category || "VORTEX").toUpperCase();
-        document.getElementById("pdpCatBreadcrumb").textContent = (productData.category || "Catalog").toUpperCase();
-        document.getElementById("pdpPrice").innerHTML = `&#8377;${formatInr(productData.price)}`;
-        document.getElementById("pdpMrp").innerHTML = `&#8377;${formatMrp(productData.price)}`;
-        document.getElementById("pdpDesc").textContent = productData.description || "Premium quality product backed by manufacturer warranty and 7-day easy returns.";
-        document.getElementById("pdpImg").src = productData.image_url || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80";
-      } catch (err) {
-        document.getElementById("pdpTitle").textContent = "Product Not Found";
-      }
-    }
-
-    // Dwell Telemetry Beacon
-    function sendDwellBeacon() {
-      if (!productData) return;
-      const dwellSeconds = Math.max(0.5, (performance.now() - dwellStart) / 1000);
-      navigator.sendBeacon("/api/v1/recommend/dwell", JSON.stringify({
-        user_id: "shopper_anon",
-        query_text: productData.category || "essentials",
-        recent_interactions: [{ product_id: productData.id, dwell_time_seconds: parseFloat(dwellSeconds.toFixed(2)) }],
-        top_k: 4
-      }));
-    }
-
-    window.addEventListener("beforeunload", sendDwellBeacon);
-
-    // Cart actions
-    document.getElementById("btnAddToCart").addEventListener("click", () => {
-      if (!productData) return;
-      const existing = cartItems.find(i => i.id === productData.id);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cartItems.push({
-          id: productData.id,
-          title: productData.title,
-          price: productData.price,
-          image_url: productData.image_url,
-          quantity: 1
-        });
-      }
-      updateCartBadge();
-      const btn = document.getElementById("btnAddToCart");
-      btn.innerHTML = "<span>Added to Cart &#10003;</span>";
-      setTimeout(() => {
-        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Add to Cart</span>`;
-      }, 1400);
-    });
-
-    document.getElementById("btnCartTrigger").addEventListener("click", () => {
-      document.getElementById("cartDrawer").classList.add("open");
-      renderCartDrawer();
-    });
-    document.getElementById("btnCloseCartDrawer").addEventListener("click", () => {
-      document.getElementById("cartDrawer").classList.remove("open");
-    });
-
-    function renderCartDrawer() {
-      const stream = document.getElementById("cartItemsStream");
-      if (cartItems.length === 0) {
-        stream.innerHTML = '<div style="text-align:center; padding:32px; color:#9CA3AF;">Your cart is empty.</div>';
-        document.getElementById("cartSubtotalVal").textContent = "₹0";
-        return;
-      }
-      let subtotal = 0;
-      stream.innerHTML = cartItems.map(it => {
-        const itemTotal = Math.round(Number(it.price) * 83 * it.quantity);
-        subtotal += itemTotal;
-        return `
-          <div style="display:flex; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #E2E8F0;">
-            <img src="${it.image_url}" style="width:50px; height:50px; object-fit:contain; border-radius:6px; background:#F8FAFC;">
-            <div style="flex:1;">
-              <div style="font-size:12.5px; font-weight:600; line-height:1.3;">${it.title}</div>
-              <div style="font-size:12px; color:#111827; font-weight:700; margin-top:2px;">₹${itemTotal.toLocaleString('en-IN')} (x${it.quantity})</div>
-            </div>
-          </div>
-        `;
-      }).join("");
-      document.getElementById("cartSubtotalVal").textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-    }
-
-    document.getElementById("btnOpenSupport").addEventListener("click", () => {
-      window.location.href = "/?openSupport=true";
-    });
-
-    updateCartBadge();
-    loadProduct();
-  </script>
+  <!-- Dedicated Product Client Script -->
+  <script src="/static/product.js"></script>
 </body>
 </html>
-

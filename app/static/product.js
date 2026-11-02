@@ -1,0 +1,547 @@
+/**
+ * VORTEX COMMERCE - Comprehensive Product Detail Page Controller
+ * Standards: Emil Kowalski UI Engineering • Smooth Micro-Interactions • Dense Specs
+ */
+
+(function () {
+  "use strict";
+
+  // State
+  let productData = null;
+  let similarProducts = [];
+  let dwellStart = performance.now();
+  let cartItems = JSON.parse(localStorage.getItem("vx_cart") || "[]");
+
+  // DOM Elements
+  const el = {
+    // Breadcrumbs
+    catBreadcrumb: document.getElementById("pdpCatBreadcrumb"),
+    titleBreadcrumb: document.getElementById("pdpTitleBreadcrumb"),
+
+    // Showcase
+    brand: document.getElementById("pdpBrand"),
+    title: document.getElementById("pdpTitle"),
+    img: document.getElementById("pdpImg"),
+    ratingVal: document.getElementById("pdpRatingVal"),
+    reviewsCount: document.getElementById("pdpReviewsCount"),
+    priceCurrent: document.getElementById("pdpPriceCurrent"),
+    priceMrp: document.getElementById("pdpPriceMrp"),
+    priceDiscount: document.getElementById("pdpPriceDiscount"),
+
+    // Offers & Delivery
+    offersList: document.getElementById("pdpOffersList"),
+    pincodeInput: document.getElementById("pdpPincodeInput"),
+    btnCheckPincode: document.getElementById("btnCheckPincode"),
+    deliveryDateText: document.getElementById("pdpDeliveryDateText"),
+
+    // Actions
+    btnAddToCart: document.getElementById("btnAddToCart"),
+    btnBuyNow: document.getElementById("btnBuyNow"),
+
+    // Below-the-fold
+    editorialBlocks: document.getElementById("pdpEditorialBlocks"),
+    specsContainer: document.getElementById("pdpSpecsContainer"),
+
+    // Bottom Shelves
+    similarGrid: document.getElementById("pdpSimilarGrid"),
+    boughtTogetherGrid: document.getElementById("pdpBoughtTogetherGrid"),
+
+    // Cart Drawer
+    btnCartTrigger: document.getElementById("btnCartTrigger"),
+    cartDrawer: document.getElementById("cartDrawer"),
+    btnCloseCartDrawer: document.getElementById("btnCloseCartDrawer"),
+    cartItemsStream: document.getElementById("cartItemsStream"),
+    cartSubtotalVal: document.getElementById("cartSubtotalVal"),
+    cartCountBadge: document.getElementById("cartCountBadge"),
+  };
+
+  // Utilities
+  function formatInr(val) {
+    return Math.round(Number(val)).toLocaleString("en-IN");
+  }
+
+  function getProductIdFromUrl() {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    const lastPart = parts[parts.length - 1];
+    const parsed = parseInt(lastPart, 10);
+    return isNaN(parsed) ? 1 : parsed;
+  }
+
+  // Synchronize Cart Badge
+  function syncCartBadge() {
+    const count = cartItems.reduce((acc, it) => acc + (it.quantity || 1), 0);
+    if (el.cartCountBadge) {
+      el.cartCountBadge.textContent = count;
+    }
+    localStorage.setItem("vx_cart", JSON.stringify(cartItems));
+  }
+
+  // ===========================================================================
+  // DATA INITIALIZATION & CONCURRENT API FETCHING
+  // ===========================================================================
+
+  async function initProductPage() {
+    const productId = getProductIdFromUrl();
+
+    try {
+      // Concurrently fetch both single product details and similar products
+      const [prodRes, similarRes] = await Promise.all([
+        fetch(`/api/v1/product/${productId}`),
+        fetch(`/api/v1/recommend/similar/${productId}?limit=5`),
+      ]);
+
+      if (!prodRes.ok) throw new Error(`HTTP ${prodRes.status}`);
+
+      productData = await prodRes.json();
+      similarProducts = similarRes.ok ? await similarRes.json() : [];
+
+      renderProductShowcase(productData);
+      renderBankOffers(productData.bank_offers || []);
+      renderEditorialDescription(productData.detailed_description || []);
+      renderSpecificationsTable(productData.specs_sections || {});
+      renderSimilarShelf(similarProducts);
+      fetchAndRenderBoughtTogether(productId, productData.category);
+
+    } catch (err) {
+      console.error("Failed to load product details:", err);
+      if (el.title) {
+        el.title.textContent = "Product Not Found";
+      }
+      if (el.editorialBlocks) {
+        el.editorialBlocks.innerHTML = `
+          <div style="padding: 24px; color: #64748B;">
+            We were unable to locate this product in the catalog. <a href="/" style="color: #0F172A; font-weight: 600; text-decoration: underline;">Return to Marketplace</a>.
+          </div>`;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // RENDER PRIMARY SHOWCASE
+  // ===========================================================================
+
+  function renderProductShowcase(prod) {
+    document.title = `${prod.title} • VORTEX COMMERCE`;
+
+    // Breadcrumb
+    if (el.catBreadcrumb) {
+      el.catBreadcrumb.textContent = (prod.category || "Catalog").toUpperCase();
+      el.catBreadcrumb.href = `/?category=${encodeURIComponent(prod.category)}`;
+    }
+    if (el.titleBreadcrumb) {
+      el.titleBreadcrumb.textContent = prod.title;
+    }
+
+    // Media & Metadata
+    if (el.brand) el.brand.textContent = (prod.brand || prod.category || "VORTEX").toUpperCase();
+    if (el.title) el.title.textContent = prod.title;
+    if (el.img) {
+      el.img.src = prod.image_url || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80";
+      el.img.alt = prod.title;
+    }
+
+    // Rating & Reviews
+    if (el.ratingVal) el.ratingVal.textContent = prod.rating ? prod.rating.toFixed(1) : "4.7";
+    if (el.reviewsCount) {
+      const reviewCount = prod.review_count || 12410;
+      el.reviewsCount.textContent = `${reviewCount.toLocaleString("en-IN")} Ratings & ${Math.round(reviewCount * 0.08).toLocaleString("en-IN")} Reviews`;
+    }
+
+    // Pricing
+    const priceInr = prod.price_inr || Math.round(prod.price * 83);
+    const mrpInr = prod.mrp_inr || Math.round(priceInr * 1.35);
+    const discountPct = prod.discount_pct || 25;
+
+    if (el.priceCurrent) el.priceCurrent.innerHTML = `&#8377;${formatInr(priceInr)}`;
+    if (el.priceMrp) el.priceMrp.innerHTML = `&#8377;${formatInr(mrpInr)}`;
+    if (el.priceDiscount) el.priceDiscount.textContent = `${discountPct}% off`;
+  }
+
+  // ===========================================================================
+  // RENDER BANK OFFERS
+  // ===========================================================================
+
+  function renderBankOffers(offers) {
+    if (!el.offersList) return;
+    if (!offers || offers.length === 0) {
+      offers = [
+        "Bank Offer: 5% Unlimited Cashback on Flipkart Axis Bank Card",
+        "Bank Offer: ₹1,500 Off on HDFC Bank Credit Card EMI Transactions",
+        "Bank Offer: Special Price get extra ₹3,000 off (price inclusive of discount)",
+        "Partner Offer: Free 3-Month Extended Manufacturer Warranty on registration",
+      ];
+    }
+
+    el.offersList.innerHTML = offers
+      .map(
+        (offer) => `
+        <li class="pdp-offer-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>${highlightOfferKeywords(offer)}</span>
+        </li>`
+      )
+      .join("");
+  }
+
+  function highlightOfferKeywords(text) {
+    return text
+      .replace(/(Bank Offer:)/g, "<strong>$1</strong>")
+      .replace(/(Partner Offer:)/g, "<strong>$1</strong>")
+      .replace(/(Special Price:)/g, "<strong>$1</strong>");
+  }
+
+  // ===========================================================================
+  // PINCODE DELIVERY ESTIMATOR
+  // ===========================================================================
+
+  function updateDeliveryEstimate(pincode) {
+    const pin = (pincode || "629165").trim();
+    if (pin.length < 6) {
+      if (el.deliveryDateText) {
+        el.deliveryDateText.textContent = "Please enter a valid 6-digit postal pincode";
+        el.deliveryDateText.style.color = "#DC2626";
+      }
+      return;
+    }
+
+    // Calculate delivery date 2 days ahead
+    const date = new Date();
+    date.setDate(date.getDate() + 2);
+    const options = { weekday: "long", day: "numeric", month: "short" };
+    const dateFormatted = date.toLocaleDateString("en-IN", options);
+
+    if (el.deliveryDateText) {
+      el.deliveryDateText.textContent = `Delivery by ${dateFormatted} to ${pin} | Free Delivery`;
+      el.deliveryDateText.style.color = "#047857";
+    }
+  }
+
+  if (el.btnCheckPincode) {
+    el.btnCheckPincode.addEventListener("click", () => {
+      updateDeliveryEstimate(el.pincodeInput ? el.pincodeInput.value : "629165");
+    });
+  }
+
+  if (el.pincodeInput) {
+    el.pincodeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        updateDeliveryEstimate(el.pincodeInput.value);
+      }
+    });
+  }
+
+  // ===========================================================================
+  // RENDER EDITORIAL PRODUCT DESCRIPTION
+  // ===========================================================================
+
+  function renderEditorialDescription(paragraphs) {
+    if (!el.editorialBlocks) return;
+
+    const titles = [
+      "Precision Engineering & Build Architecture",
+      "Real-World High-Efficiency Performance",
+      "Verified Quality Assurance & Packaging Standards",
+    ];
+
+    if (!paragraphs || paragraphs.length === 0) {
+      paragraphs = [
+        "Crafted with precision engineering and high-grade materials, delivering uncompromising structural integrity and refined ergonomic handling.",
+        "Engineered for modern high-efficiency operations, ensuring reliable daily performance and calibrated thermal stability.",
+        "Every unit undergoes rigorous factory burn-in testing and arrives fully certified with genuine manufacturer serial tracking.",
+      ];
+    }
+
+    el.editorialBlocks.innerHTML = paragraphs
+      .map(
+        (para, i) => `
+        <div class="pdp-editorial-block">
+          <div class="pdp-editorial-block-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>${titles[i] || `Section ${i + 1}`}</span>
+          </div>
+          <p class="pdp-editorial-block-text">${para}</p>
+        </div>`
+      )
+      .join("");
+  }
+
+  // ===========================================================================
+  // RENDER GROUPED SPECIFICATIONS TABLE
+  // ===========================================================================
+
+  function renderSpecificationsTable(sections) {
+    if (!el.specsContainer) return;
+
+    const sectionKeys = Object.keys(sections);
+    if (sectionKeys.length === 0) {
+      el.specsContainer.innerHTML = '<div style="color: #64748B;">No specifications recorded.</div>';
+      return;
+    }
+
+    el.specsContainer.innerHTML = sectionKeys
+      .map((secName) => {
+        const rows = sections[secName] || {};
+        const rowKeys = Object.keys(rows);
+
+        const tableRowsHtml = rowKeys
+          .map(
+            (k) => `
+            <tr>
+              <td class="pdp-specs-label">${k}</td>
+              <td class="pdp-specs-val">${rows[k]}</td>
+            </tr>`
+          )
+          .join("");
+
+        return `
+          <div class="pdp-specs-group">
+            <div class="pdp-specs-group-title">${secName}</div>
+            <table class="pdp-specs-table">
+              <tbody>${tableRowsHtml}</tbody>
+            </table>
+          </div>`;
+      })
+      .join("");
+  }
+
+  // ===========================================================================
+  // RENDER BOTTOM RECOMMENDATION SHELVES
+  // ===========================================================================
+
+  function renderSimilarShelf(items) {
+    if (!el.similarGrid) return;
+
+    if (!items || items.length === 0) {
+      el.similarGrid.innerHTML = '<div style="grid-column: 1/-1; padding: 24px; color: #64748B;">No similar items found.</div>';
+      return;
+    }
+
+    el.similarGrid.innerHTML = items
+      .map((item) => {
+        const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
+        const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
+        const rating = item.rating || 4.5;
+        const reviews = item.review_count || 1240;
+
+        return `
+          <div class="pdp-rec-card" onclick="window.location.href='/product/${item.id}';">
+            <div class="pdp-rec-img-box">
+              <img src="${item.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80'}" alt="${item.title}" loading="lazy">
+            </div>
+            <div class="pdp-rec-brand">${item.brand || item.category || 'VORTEX'}</div>
+            <div class="pdp-rec-title" title="${item.title}">${item.title}</div>
+            <div class="pdp-rec-rating-row">
+              <span class="pdp-rec-rating-pill">${rating.toFixed(1)} ★</span>
+              <span class="pdp-rec-reviews">(${reviews.toLocaleString("en-IN")})</span>
+            </div>
+            <div class="pdp-rec-price-row">
+              <span class="pdp-rec-price">&#8377;${formatInr(priceInr)}</span>
+              <span class="pdp-rec-mrp">&#8377;${formatInr(mrpInr)}</span>
+              <span class="pdp-rec-discount">${item.discount_pct || 25}% off</span>
+            </div>
+            <div class="pdp-rec-delivery-badge">Free Delivery</div>
+          </div>`;
+      })
+      .join("");
+  }
+
+  async function fetchAndRenderBoughtTogether(currentId, category) {
+    if (!el.boughtTogetherGrid) return;
+
+    try {
+      // Query catalog for related items
+      const res = await fetch(`/api/v1/catalog?limit=12`);
+      if (!res.ok) return;
+      const allItems = await res.json();
+
+      // Filter out current product, pick complementary items
+      const complementary = allItems
+        .filter((it) => it.id !== currentId)
+        .slice(0, 5);
+
+      el.boughtTogetherGrid.innerHTML = complementary
+        .map((item) => {
+          const priceInr = Math.round(Number(item.price) * 83);
+          const mrpInr = Math.round(priceInr * 1.35);
+
+          return `
+            <div class="pdp-rec-card">
+              <div class="pdp-rec-img-box" onclick="window.location.href='/product/${item.id}';">
+                <img src="${item.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80'}" alt="${item.title}" loading="lazy">
+              </div>
+              <div class="pdp-rec-brand">${item.brand || item.category || 'ACCESSORY'}</div>
+              <div class="pdp-rec-title" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
+              <div class="pdp-rec-price-row">
+                <span class="pdp-rec-price">&#8377;${formatInr(priceInr)}</span>
+                <span class="pdp-rec-mrp">&#8377;${formatInr(mrpInr)}</span>
+                <span class="pdp-rec-discount">25% off</span>
+              </div>
+              <button type="button" class="btn-pdp-quick-add" data-item-id="${item.id}" data-item-title="${item.title}" data-item-price="${item.price}" data-item-img="${item.image_url}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Add to Cart</span>
+              </button>
+            </div>`;
+        })
+        .join("");
+
+      // Bind quick add buttons
+      el.boughtTogetherGrid.querySelectorAll(".btn-pdp-quick-add").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.getAttribute("data-item-id"), 10);
+          const title = btn.getAttribute("data-item-title");
+          const price = parseFloat(btn.getAttribute("data-item-price"));
+          const img = btn.getAttribute("data-item-img");
+
+          addItemToCart({ id, title, price, image_url: img });
+
+          btn.innerHTML = "<span>Added ✓</span>";
+          btn.style.background = "#047857";
+          btn.style.color = "#FFFFFF";
+          btn.style.borderColor = "#047857";
+
+          setTimeout(() => {
+            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add to Cart</span>`;
+            btn.style.background = "#F1F5F9";
+            btn.style.color = "#0F172A";
+            btn.style.borderColor = "#E2E8F0";
+          }, 1500);
+        });
+      });
+
+    } catch (e) {
+      console.warn("Could not load complementary products:", e);
+    }
+  }
+
+  // ===========================================================================
+  // CART ACTIONS & SYNCHRONIZATION
+  // ===========================================================================
+
+  function addItemToCart(item) {
+    const existing = cartItems.find((i) => i.id === item.id);
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cartItems.push({
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        image_url: item.image_url,
+        quantity: 1,
+      });
+    }
+    syncCartBadge();
+  }
+
+  if (el.btnAddToCart) {
+    el.btnAddToCart.addEventListener("click", () => {
+      if (!productData) return;
+      addItemToCart(productData);
+
+      el.btnAddToCart.innerHTML = "<span>Added to Cart &#10003;</span>";
+      el.btnAddToCart.style.background = "#047857";
+
+      setTimeout(() => {
+        el.btnAddToCart.innerHTML = `
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span>Add to Cart</span>`;
+        el.btnAddToCart.style.background = "#0F172A";
+      }, 1400);
+    });
+  }
+
+  if (el.btnBuyNow) {
+    el.btnBuyNow.addEventListener("click", () => {
+      if (!productData) return;
+      addItemToCart(productData);
+      window.location.href = "/orders";
+    });
+  }
+
+  // Cart Drawer Trigger
+  if (el.btnCartTrigger) {
+    el.btnCartTrigger.addEventListener("click", () => {
+      if (el.cartDrawer) el.cartDrawer.classList.add("open");
+      renderCartDrawer();
+    });
+  }
+
+  if (el.btnCloseCartDrawer) {
+    el.btnCloseCartDrawer.addEventListener("click", () => {
+      if (el.cartDrawer) el.cartDrawer.classList.remove("open");
+    });
+  }
+
+  function renderCartDrawer() {
+    if (!el.cartItemsStream || !el.cartSubtotalVal) return;
+
+    if (cartItems.length === 0) {
+      el.cartItemsStream.innerHTML = '<div style="text-align: center; padding: 48px 16px; color: #94A3B8;">Your cart is empty.</div>';
+      el.cartSubtotalVal.textContent = "₹0";
+      return;
+    }
+
+    let subtotal = 0;
+    el.cartItemsStream.innerHTML = cartItems
+      .map((it) => {
+        const itemTotal = Math.round(Number(it.price) * 83 * (it.quantity || 1));
+        subtotal += itemTotal;
+        return `
+          <div style="display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0;">
+            <img src="${it.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&q=80'}" style="width: 52px; height: 52px; object-fit: contain; border-radius: 8px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 600; line-height: 1.3; color: #0F172A;">${it.title}</div>
+              <div style="font-size: 12.5px; color: #0F172A; font-weight: 700; margin-top: 3px;">₹${itemTotal.toLocaleString("en-IN")} <span style="font-size: 11px; color: #64748B; font-weight: 500;">(x${it.quantity || 1})</span></div>
+            </div>
+          </div>`;
+      })
+      .join("");
+
+    el.cartSubtotalVal.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
+  }
+
+  // ===========================================================================
+  // PASSIVE DWELL TELEMETRY BEACON
+  // ===========================================================================
+
+  function sendDwellBeacon() {
+    if (!productData) return;
+    const dwellSeconds = Math.max(0.5, (performance.now() - dwellStart) / 1000);
+
+    const payload = JSON.stringify({
+      user_id: "shopper_anon",
+      query_text: productData.category || "essentials",
+      recent_interactions: [
+        {
+          product_id: productData.id,
+          dwell_time_seconds: parseFloat(dwellSeconds.toFixed(2)),
+        },
+      ],
+      top_k: 4,
+    });
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/v1/recommend/dwell", payload);
+    } else {
+      fetch("/api/v1/recommend/dwell", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true,
+      });
+    }
+  }
+
+  window.addEventListener("beforeunload", sendDwellBeacon);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      sendDwellBeacon();
+    }
+  });
+
+  // Run on page load
+  syncCartBadge();
+  initProductPage();
+})();

@@ -47,6 +47,26 @@ class ProductItem(BaseModel):
     match_breakdown: Optional[Dict[str, Any]] = None
 
 
+class EnhancedProductResponse(BaseModel):
+    """Comprehensive Flipkart-grade product detail response with specs and bank offers."""
+    id: int
+    external_id: Optional[int] = None
+    title: str
+    category: str
+    brand: Optional[str] = None
+    description: str = ""
+    price: float = 0.0
+    price_inr: float = 0.0
+    mrp_inr: float = 0.0
+    discount_pct: int = 25
+    rating: float = 4.7
+    review_count: int = 12410
+    image_url: Optional[str] = None
+    bank_offers: List[str] = Field(default_factory=list)
+    detailed_description: List[str] = Field(default_factory=list)
+    specs_sections: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+
+
 class RecommendationResult(BaseModel):
     """Individual item result for backwards compatibility."""
     item_id: int
