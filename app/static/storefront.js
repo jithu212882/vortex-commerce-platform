@@ -652,14 +652,13 @@
         <span class="card-brand-label">${brand}</span>
         <h3 class="card-title-text" title="${it.title}">${it.title}</h3>
         <div class="card-rating-pill">
-          <span class="rating-val">${ratingScore}</span>
-          <span class="rating-star-icon">&#9733;</span>
+          <span class="card-rating-badge">${ratingScore} ★</span>
           <span class="rating-count-sub">(${reviewCount})</span>
         </div>
         <div class="card-price-cluster">
           <span class="card-price-curr">&#8377;${inr}</span>
           <span class="card-price-orig">&#8377;${mrp}</span>
-          <span class="card-save-pill">${discountPct}% OFF</span>
+          <span class="card-save-pill">${discountPct}% off</span>
         </div>
       </div>
       <button type="button" class="btn-shelf-add-cart btn-add-bag" data-id="${it.id}">
