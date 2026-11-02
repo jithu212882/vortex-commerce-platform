@@ -42,7 +42,7 @@
     carouselTrack: document.getElementById("carouselTrack"),
     btnCarouselPrev: document.getElementById("btnCarouselPrev"),
     btnCarouselNext: document.getElementById("btnCarouselNext"),
-    carouselDots: document.querySelectorAll(".vx-carousel-dot"),
+    carouselDots: document.querySelectorAll(".hero-dot, .vx-carousel-dot"),
 
     // Cart Drawer
     cartDrawer: document.getElementById("cartDrawer"),
@@ -311,7 +311,7 @@
     totalSlides: 4,
     autoplayTimer: null,
     isHovered: false,
-    intervalMs: 5000,
+    intervalMs: 5500,
   };
 
   function initCarousel() {

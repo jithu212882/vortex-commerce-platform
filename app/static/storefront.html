@@ -95,109 +95,119 @@
   </nav>
 
   <!-- =========================================================================
-       3. SMOOTH HERO CAROUSEL (4 ROTATING SLIDES, EMIL KOWALSKI STANDARDS)
+       3. EDITORIAL HERO MERCHANDISING BANNER (APPLE / CROMA / AMAZON STANDARDS)
        ========================================================================= -->
-  <section class="vx-hero" aria-label="Featured Promotions">
-    <div class="vx-carousel-container" id="heroCarousel">
+  <section class="vx-hero" aria-label="Commercial Merchandising Showcase">
+    <div class="hero-carousel-wrapper" id="heroCarousel">
       <!-- Sliding Track -->
-      <div class="vx-carousel-track" id="carouselTrack">
+      <div class="hero-track" id="carouselTrack">
 
-        <!-- Slide 1: Audio & Wireless Acoustics -->
-        <article class="vx-carousel-slide slide-audio" data-index="0" style="background-color: #F1F5F9;">
-          <div class="vx-slide-content">
-            <span class="vx-slide-tag">PREMIUM AUDIO</span>
-            <h2 class="vx-slide-title">Studio Quality Sound. Zero Distraction.</h2>
-            <p class="vx-slide-sub">
-              Active noise cancelling, 30-hour battery life, and high-fidelity wireless drivers.
-            </p>
-            <div class="vx-slide-actions">
-              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="audio">
-                Explore Headphones &rarr;
-              </button>
-              <button type="button" class="btn-vx-secondary" id="btnTriggerHeroVisualSearch">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                Photo Search
-              </button>
+        <!-- Slide 1: Sony WH-1000XM5 (Acoustic Studio) -->
+        <article class="hero-slide slide-sony" data-index="0">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">NOISE CANCELING HEADPHONES</span>
+              <h2 class="hero-headline">Studio Precision. Zero Distraction.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-price">Starting from &#8377;26,990</span>
+                <span class="deal-divider">&bull;</span>
+                <span class="deal-offer">Extra &#8377;2,000 Off on HDFC Cards</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="audio">
+                  Shop Audio Series &rarr;
+                </button>
+                <button type="button" class="btn-hero-secondary" id="btnTriggerHeroVisualSearch" title="Quick Specs &amp; Visual Search">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  Quick Specs
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="vx-slide-visual">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Studio Quality Headphones" class="vx-slide-img" loading="eager">
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Sony WH-1000XM5 Studio Headphones" class="hero-product-img" loading="eager">
+            </div>
           </div>
         </article>
 
-        <!-- Slide 2: Workspace & Computing Performance -->
-        <article class="vx-carousel-slide slide-computing" data-index="1" style="background-color: #F8FAFC;">
-          <div class="vx-slide-content">
-            <span class="vx-slide-tag">WORKSPACE ESSENTIALS</span>
-            <h2 class="vx-slide-title">Engineered for Speed, Focus &amp; Power.</h2>
-            <p class="vx-slide-sub">
-              High-performance ultrabooks, mechanical peripherals, and fast NVMe storage.
-            </p>
-            <div class="vx-slide-actions">
-              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="electronics">
-                Upgrade Setup &rarr;
-              </button>
+        <!-- Slide 2: Dell XPS 14 & Workstation Hub -->
+        <article class="hero-slide slide-dell" data-index="1">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">PERFORMANCE COMPUTING</span>
+              <h2 class="hero-headline">Raw Intel Ultra Power. Ultra Thin.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-offer">Flat 15% Instant Cashback &bull; Free Express Delivery</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="electronics">
+                  Explore Laptops &rarr;
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="vx-slide-visual">
-            <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&q=80" alt="Workspace & Computing Setup" class="vx-slide-img" loading="lazy">
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&q=80" alt="Dell XPS 14 Workstation" class="hero-product-img" loading="lazy">
+            </div>
           </div>
         </article>
 
-        <!-- Slide 3: Fine Jewellery & Timeless Craft -->
-        <article class="vx-carousel-slide slide-jewellery" data-index="2" style="background-color: #FDFBF7;">
-          <div class="vx-slide-content">
-            <span class="vx-slide-tag">HERITAGE CRAFT</span>
-            <h2 class="vx-slide-title">Hallmarked Gold &amp; Precision Silver.</h2>
-            <p class="vx-slide-sub">
-              BIS 916 certified gold necklaces and handcrafted 925 sterling silver bracelets.
-            </p>
-            <div class="vx-slide-actions">
-              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="fragrances">
-                View Jewellery &rarr;
-              </button>
+        <!-- Slide 3: 22K Heritage Jewellery (Fine Craft) -->
+        <article class="hero-slide slide-jewellery" data-index="2">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">CERTIFIED GOLD &amp; SILVER</span>
+              <h2 class="hero-headline">Authentic 22K (916) Heritage Craft.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-offer">0% Making Charges on Select Bangles</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="fragrances">
+                  Browse Collections &rarr;
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="vx-slide-visual">
-            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80" alt="Fine Gold & Silver Jewellery" class="vx-slide-img" loading="lazy">
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80" alt="22K Heritage Jewellery" class="hero-product-img" loading="lazy">
+            </div>
           </div>
         </article>
 
-        <!-- Slide 4: Modern Living & Kitchen -->
-        <article class="vx-carousel-slide slide-kitchen" data-index="3" style="background-color: #F3F4F6;">
-          <div class="vx-slide-content">
-            <span class="vx-slide-tag">HOME LIVING</span>
-            <h2 class="vx-slide-title">Smarter Cooking. Minimal Footprint.</h2>
-            <p class="vx-slide-sub">
-              Digital rapid-air convection appliances and temperature-controlled gooseneck kettles.
-            </p>
-            <div class="vx-slide-actions">
-              <button type="button" class="btn-vx-primary hero-slide-cta" data-cat="furniture">
-                Shop Kitchen &rarr;
-              </button>
+        <!-- Slide 4: Philips Rapid Air & Kitchen Modern -->
+        <article class="hero-slide slide-kitchen" data-index="3">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">SMART APPLIANCES</span>
+              <h2 class="hero-headline">Healthy Frying. 90% Less Oil.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-offer">Save Up to 33% &bull; 2-Year Official Brand Warranty</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="furniture">
+                  View Kitchen Essentials &rarr;
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="vx-slide-visual">
-            <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80" alt="Modern Living & Kitchen Appliances" class="vx-slide-img" loading="lazy">
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80" alt="Philips Rapid Air Modern Kitchen" class="hero-product-img" loading="lazy">
+            </div>
           </div>
         </article>
 
       </div>
 
-      <!-- Navigation Arrows (Floating circular chevrons) -->
-      <button type="button" class="vx-carousel-arrow prev" id="btnCarouselPrev" aria-label="Previous Slide">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      <!-- Floating Navigation Chevrons -->
+      <button type="button" class="hero-chevron prev" id="btnCarouselPrev" aria-label="Previous Slide">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
       </button>
-      <button type="button" class="vx-carousel-arrow next" id="btnCarouselNext" aria-label="Next Slide">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      <button type="button" class="hero-chevron next" id="btnCarouselNext" aria-label="Next Slide">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </button>
 
-      <!-- Bottom Pagination Indicators (Subtle dashes) -->
-      <div class="vx-carousel-pagination" id="carouselPagination" aria-label="Slide Selection">
-        <button type="button" class="vx-carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
-        <button type="button" class="vx-carousel-dot" data-slide="1" aria-label="Slide 2"></button>
-        <button type="button" class="vx-carousel-dot" data-slide="2" aria-label="Slide 3"></button>
-        <button type="button" class="vx-carousel-dot" data-slide="3" aria-label="Slide 4"></button>
+      <!-- Progress Indicators (Bottom Center) -->
+      <div class="hero-progress" id="carouselPagination" aria-label="Slide Selector">
+        <button type="button" class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button type="button" class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button type="button" class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+        <button type="button" class="hero-dot" data-slide="3" aria-label="Slide 4"></button>
       </div>
     </div>
   </section>
