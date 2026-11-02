@@ -36,18 +36,27 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "[INFO] Nothing new to commit or working tree clean." -ForegroundColor Gray
 }
 
-# 4. Push to Remote Repository
-Write-Host "`n[4/4] Pushing changes to GitHub (origin/main)..." -ForegroundColor Yellow
+# 4. Push to Remote Repositories
+Write-Host "`n[4/4] Pushing changes to GitHub repositories..." -ForegroundColor Yellow
 $Token = (Get-Content "D:\git acesss token.txt").Trim()
 if ($Token.Length -gt 40) {
     $Token = $Token.Substring(0, 40)
 }
 
-$AuthUrl = "https://${Token}@github.com/jithu212882/enterprise-ecommerce-recommender-operations.git"
-git push $AuthUrl main
+$RepoList = @(
+    "enterprise-ecommerce-recommender-operations",
+    "vortex-commerce-platform"
+)
+
+foreach ($repo in $RepoList) {
+    Write-Host "--> Syncing to $repo..." -ForegroundColor Cyan
+    $AuthUrl = "https://${Token}@github.com/jithu212882/${repo}.git"
+    git push $AuthUrl main
+}
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host " Successfully pushed updates to:" -ForegroundColor Green
-Write-Host " https://github.com/jithu212882/enterprise-ecommerce-recommender-operations" -ForegroundColor White
+Write-Host " 1. https://github.com/jithu212882/vortex-commerce-platform" -ForegroundColor White
+Write-Host " 2. https://github.com/jithu212882/enterprise-ecommerce-recommender-operations" -ForegroundColor White
 Write-Host "==========================================================" -ForegroundColor Green
 
