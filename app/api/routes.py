@@ -97,6 +97,37 @@ def get_catalog(
     ]
 
 
+@router.get("/catalog/{item_id}", response_model=ProductItem, tags=["Enterprise Catalog"])
+def get_catalog_item(item_id: int, db: Session = Depends(get_db)):
+    """Retrieves single product by primary key identifier."""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        mem = next((p for p in recommender_service.items if p.get("id") == item_id), None)
+        if mem:
+            return ProductItem(
+                id=mem["id"],
+                external_id=mem.get("external_id"),
+                title=mem["title"],
+                category=mem["category"],
+                brand=mem.get("brand"),
+                description=mem.get("description", ""),
+                price=float(mem.get("price", 0.0)),
+                image_url=mem.get("image_url"),
+            )
+        raise HTTPException(status_code=404, detail="Product not found in catalog")
+
+    return ProductItem(
+        id=item.id,
+        external_id=item.external_id,
+        title=item.title,
+        category=item.category,
+        brand=item.brand,
+        description=item.description or "",
+        price=item.price,
+        image_url=item.image_url,
+    )
+
+
 # ==============================================================================
 # RECOMMENDATION ENDPOINTS (DENSE DWELL-WEIGHTED)
 # ==============================================================================

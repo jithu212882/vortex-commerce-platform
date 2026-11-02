@@ -80,14 +80,12 @@
        2. SECONDARY CATEGORY STRIP (42px, #1E293B)
        ========================================================================= -->
   <nav class="vx-category-strip">
-    <div class="vx-cat-pill active" data-cat="">All Categories</div>
-    <div class="vx-cat-pill" data-cat="audio">Audio &amp; Acoustics</div>
-    <div class="vx-cat-pill" data-cat="wearables">Smart Wearables</div>
-    <div class="vx-cat-pill" data-cat="electronics">Workspace &amp; Computing</div>
-    <div class="vx-cat-pill" data-cat="furniture">Home &amp; Living</div>
-    <div class="vx-cat-pill" data-cat="beauty">Daily Care</div>
-    <div class="vx-cat-pill" data-cat="fragrances">Fine Fragrances</div>
-    <div class="vx-cat-pill" data-cat="groceries">Pantry &amp; Gourmet</div>
+    <div class="vx-cat-pill active" data-cat="" data-target="">All Curated Collections</div>
+    <div class="vx-cat-pill" data-cat="audio" data-target="#shelf-tech">Audio &amp; Acoustics</div>
+    <div class="vx-cat-pill" data-cat="electronics" data-target="#shelf-tech">Workstations &amp; Computing</div>
+    <div class="vx-cat-pill" data-cat="fragrances" data-target="#shelf-jewellery">Fine Jewellery &amp; Luxury</div>
+    <div class="vx-cat-pill" data-cat="furniture" data-target="#shelf-home">Home &amp; Kitchen</div>
+    <div class="vx-cat-pill" data-cat="beauty" data-target="#shelf-care">Daily Care &amp; Wellness</div>
     <div class="vx-strip-right-badge">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
       <span>Verified 24h Dispatch to Marthandam</span>
@@ -296,47 +294,113 @@
   </section>
 
   <!-- =========================================================================
-       5. DYNAMIC DWELL-TIME RECOMMENDATIONS (VECTOR EMBEDDINGS)
+       DYNAMIC SEARCH & FILTER RESULTS SHOWCASE (Appears on Search/Filter)
        ========================================================================= -->
-  <section class="vx-dwell-strip" id="recommended">
-    <div class="vx-card-container">
-      <div class="vx-section-title-row">
-        <div>
-          <h2 class="vx-section-title">Recommended For You</h2>
-          <div class="vx-section-sub">
-            Personalized in real-time based on your browsing dwell telemetry
-          </div>
-        </div>
-        <span class="vx-dwell-indicator" id="recsFreshIndicator" style="display: none;"></span>
+  <section class="vx-shelf-section" id="shelfSearchResults" style="display: none;">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title" id="searchResultsTitle">Matched Products</h2>
+        <div class="vx-section-sub" id="catalogCountNote">Showing matched items</div>
       </div>
+      <button type="button" class="vx-shelf-action-btn" id="btnClearSearch">
+        Clear Filter &times;
+      </button>
+    </div>
+    <div class="vx-shelf-grid" id="storeCatalogGrid">
+      <!-- Search results dynamically rendered in 4-column layout -->
+    </div>
+  </section>
 
-      <div class="vx-rec-track-wrapper">
-        <div class="vx-rec-track" id="recommendedGrid">
-          <div style="padding: 24px; color: var(--vx-text-secondary); font-size: 13px;">
-            Explore products to view recommendations tailored to your interests.
-          </div>
-        </div>
+  <!-- =========================================================================
+       SECTION 1: PERSONALIZED PICKS (RECOMMENDED FOR YOU)
+       ========================================================================= -->
+  <section class="vx-shelf-section" id="shelf-recommended">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Recommended For You</h2>
+        <div class="vx-section-sub">Tuned in real-time to your browsing interests</div>
+      </div>
+      <span class="vx-dwell-indicator" id="recsFreshIndicator" style="display: none;">Tuned for you</span>
+    </div>
+    <div class="vx-shelf-grid" id="recommendedGrid">
+      <!-- Top 4 dwell-weighted flagship products -->
+      <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--vx-text-muted);">
+        Loading personalized recommendations...
       </div>
     </div>
   </section>
 
   <!-- =========================================================================
-       6. PRIMARY PRODUCT CATALOG GRID
+       SECTION 2: PREMIUM AUDIO & PERSONAL TECH
        ========================================================================= -->
-  <main class="vx-catalog-section" id="catalog">
+  <section class="vx-shelf-section" id="shelf-tech">
     <div class="vx-section-title-row">
       <div>
-        <h2 class="vx-section-title">All Products</h2>
-        <div class="vx-section-sub" id="catalogCountNote">Displaying all products</div>
+        <h2 class="vx-section-title">Audio, Computing &amp; Smart Wearables</h2>
+        <div class="vx-section-sub">High-fidelity acoustics, studio workstations, and active wearables</div>
       </div>
+      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="electronics">
+        Explore Tech &rarr;
+      </button>
     </div>
+    <div class="vx-shelf-grid" id="gridTech">
+      <!-- 4 Flagship tech items -->
+    </div>
+  </section>
 
-    <div class="vx-product-grid" id="storeCatalogGrid">
-      <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
-        Loading catalog inventory...
+  <!-- =========================================================================
+       SECTION 3: FINE JEWELLERY & LUXURY ACCENTS
+       ========================================================================= -->
+  <section class="vx-shelf-section" id="shelf-jewellery">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Heritage Craft &amp; Fine Jewellery</h2>
+        <div class="vx-section-sub">Hallmarked 22K gold, certified 925 sterling silver, and fine accents</div>
       </div>
+      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="fragrances">
+        View Hallmarked Collection &rarr;
+      </button>
     </div>
-  </main>
+    <div class="vx-shelf-grid" id="gridJewellery">
+      <!-- 4 Flagship jewellery & luxury items -->
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 4: MODERN HOME & KITCHEN APPLIANCES
+       ========================================================================= -->
+  <section class="vx-shelf-section" id="shelf-home">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Home Living &amp; Smart Appliances</h2>
+        <div class="vx-section-sub">Precision culinary tools, ergonomic lounge furniture, and living craft</div>
+      </div>
+      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="furniture">
+        Shop Home &rarr;
+      </button>
+    </div>
+    <div class="vx-shelf-grid" id="gridHome">
+      <!-- 4 Flagship home items -->
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       SECTION 5: DAILY CARE & ESSENTIALS
+       ========================================================================= -->
+  <section class="vx-shelf-section" id="shelf-care" style="margin-bottom: 56px;">
+    <div class="vx-section-title-row">
+      <div>
+        <h2 class="vx-section-title">Beauty, Grooming &amp; Daily Wellness</h2>
+        <div class="vx-section-sub">Clinically tested formulations, gentle daily care, and self-care staples</div>
+      </div>
+      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="beauty">
+        Browse Care &rarr;
+      </button>
+    </div>
+    <div class="vx-shelf-grid" id="gridCare">
+      <!-- 4 Flagship care items -->
+    </div>
+  </section>
 
   <!-- =========================================================================
        7. PRODUCT QUICK-VIEW MODAL

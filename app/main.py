@@ -86,6 +86,14 @@ def get_admin():
     """Serves high-density operations and engineering cockpit."""
     return FileResponse(settings.STATIC_DIR / "admin.html")
 
+@app.get("/product/{item_id}", include_in_schema=False)
+def get_product_detail(item_id: int):
+    """Serves high-craft product detail page."""
+    product_file = settings.STATIC_DIR / "product.html"
+    if product_file.exists():
+        return FileResponse(product_file)
+    return FileResponse(settings.STATIC_DIR / "storefront.html")
+
 # Mount static directory
 app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static_assets")
 app.mount("/", StaticFiles(directory=str(settings.STATIC_DIR), html=True), name="static")

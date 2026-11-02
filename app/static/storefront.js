@@ -26,10 +26,22 @@
 
   // DOM Elements
   const el = {
+    shelfSearchResults: document.getElementById("shelfSearchResults"),
+    searchResultsTitle: document.getElementById("searchResultsTitle"),
+    btnClearSearch: document.getElementById("btnClearSearch"),
     storeCatalogGrid: document.getElementById("storeCatalogGrid"),
-    recommendedGrid: document.getElementById("recommendedGrid"),
     catalogCountNote: document.getElementById("catalogCountNote"),
+    shelfRecommended: document.getElementById("shelf-recommended"),
+    recommendedGrid: document.getElementById("recommendedGrid"),
     recsFreshIndicator: document.getElementById("recsFreshIndicator"),
+    shelfTech: document.getElementById("shelf-tech"),
+    gridTech: document.getElementById("gridTech"),
+    shelfJewellery: document.getElementById("shelf-jewellery"),
+    gridJewellery: document.getElementById("gridJewellery"),
+    shelfHome: document.getElementById("shelf-home"),
+    gridHome: document.getElementById("gridHome"),
+    shelfCare: document.getElementById("shelf-care"),
+    gridCare: document.getElementById("gridCare"),
     storeSearchInput: document.getElementById("storeSearchInput"),
     btnSearchSubmit: document.getElementById("btnSearchSubmit"),
     categorySelectDropdown: document.getElementById("categorySelectDropdown"),
@@ -116,6 +128,17 @@
     initCarousel();
     fetchCatalog();
     fetchInitialRecommendations();
+
+    // Check for openSupport deep link from PDP
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("openSupport") === "true") {
+      setTimeout(() => {
+        if (el.supportDrawer) {
+          el.supportDrawer.classList.add("open");
+          if (el.drawerChatInput) el.drawerChatInput.focus();
+        }
+      }, 350);
+    }
   }
 
   // ============================================================================
@@ -124,49 +147,109 @@
 
   function bindEvents() {
     // Search input
-    el.btnSearchSubmit.addEventListener("click", () => {
-      state.searchQuery = el.storeSearchInput.value.trim();
-      fetchCatalog();
-      smoothScrollTo("#catalog");
-    });
-
-    el.storeSearchInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        state.searchQuery = el.storeSearchInput.value.trim();
+    if (el.btnSearchSubmit) {
+      el.btnSearchSubmit.addEventListener("click", () => {
+        state.searchQuery = el.storeSearchInput ? el.storeSearchInput.value.trim() : "";
         fetchCatalog();
-        smoothScrollTo("#catalog");
-      }
-    });
+        smoothScrollTo("#shelfSearchResults");
+      });
+    }
+
+    if (el.storeSearchInput) {
+      el.storeSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          state.searchQuery = el.storeSearchInput.value.trim();
+          fetchCatalog();
+          smoothScrollTo("#shelfSearchResults");
+        }
+      });
+    }
+
+    // Clear Search & Filter Button
+    if (el.btnClearSearch) {
+      el.btnClearSearch.addEventListener("click", () => {
+        state.searchQuery = "";
+        state.activeCategory = "";
+        if (el.storeSearchInput) el.storeSearchInput.value = "";
+        if (el.categorySelectDropdown) el.categorySelectDropdown.value = "";
+        updateCategoryStripActive("");
+        if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+        fetchCatalog();
+        smoothScrollTo("#shelf-recommended");
+      });
+    }
 
     // Category dropdown
-    el.categorySelectDropdown.addEventListener("change", (e) => {
-      state.activeCategory = e.target.value;
-      updateCategoryStripActive(state.activeCategory);
-      fetchCatalog();
-      smoothScrollTo("#catalog");
-    });
+    if (el.categorySelectDropdown) {
+      el.categorySelectDropdown.addEventListener("change", (e) => {
+        state.activeCategory = e.target.value;
+        updateCategoryStripActive(state.activeCategory);
+        if (state.activeCategory) {
+          fetchCatalog();
+          smoothScrollTo("#shelfSearchResults");
+        } else {
+          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+          fetchCatalog();
+          smoothScrollTo("#shelf-recommended");
+        }
+      });
+    }
 
-    // Category strip pills
-    document.querySelectorAll(".vx-cat-pill[data-cat]").forEach((pill) => {
+    // Category strip pills (Direct Anchor Navigation to Curated Sector Shelves)
+    document.querySelectorAll(".vx-cat-pill").forEach((pill) => {
       pill.addEventListener("click", () => {
-        const cat = pill.getAttribute("data-cat");
+        const cat = pill.getAttribute("data-cat") || "";
+        const target = pill.getAttribute("data-target");
         state.activeCategory = cat;
-        el.categorySelectDropdown.value = cat;
+        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
         updateCategoryStripActive(cat);
-        fetchCatalog();
-        smoothScrollTo("#catalog");
+
+        if (target) {
+          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+          smoothScrollTo(target);
+        } else {
+          // "All Curated Collections": Reset any search, scroll to top recommended
+          state.searchQuery = "";
+          if (el.storeSearchInput) el.storeSearchInput.value = "";
+          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+          fetchCatalog();
+          smoothScrollTo("#shelf-recommended");
+        }
       });
     });
 
-    // Bento Card filters
+    // Bento Card quick jump to sector shelves
     document.querySelectorAll(".bento-filter-trigger").forEach((card) => {
       card.addEventListener("click", () => {
         const cat = card.getAttribute("data-cat") || "";
-        state.activeCategory = cat;
-        el.categorySelectDropdown.value = cat;
+        let target = "#shelf-recommended";
+        if (cat === "audio" || cat === "electronics" || cat === "wearables") {
+          target = "#shelf-tech";
+        } else if (cat === "fragrances") {
+          target = "#shelf-jewellery";
+        } else if (cat === "furniture") {
+          target = "#shelf-home";
+        } else if (cat === "beauty") {
+          target = "#shelf-care";
+        }
         updateCategoryStripActive(cat);
-        fetchCatalog();
-        smoothScrollTo("#catalog");
+        smoothScrollTo(target);
+      });
+    });
+
+    // Sector Shelf Action Buttons ("Explore Tech →", "Shop Home →", etc.)
+    document.querySelectorAll(".btn-shelf-explore").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat") || "";
+        if (cat) {
+          state.activeCategory = cat;
+          state.searchQuery = "";
+          if (el.storeSearchInput) el.storeSearchInput.value = "";
+          if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
+          updateCategoryStripActive(cat);
+          fetchCatalog();
+          smoothScrollTo("#shelfSearchResults");
+        }
       });
     });
 
@@ -176,10 +259,14 @@
         e.preventDefault();
         const cat = link.getAttribute("data-cat") || "";
         state.activeCategory = cat;
-        el.categorySelectDropdown.value = cat;
+        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
         updateCategoryStripActive(cat);
-        fetchCatalog();
-        smoothScrollTo("#catalog");
+        let target = "#shelf-recommended";
+        if (cat === "audio" || cat === "electronics" || cat === "wearables") target = "#shelf-tech";
+        else if (cat === "fragrances") target = "#shelf-jewellery";
+        else if (cat === "furniture") target = "#shelf-home";
+        else if (cat === "beauty") target = "#shelf-care";
+        smoothScrollTo(target);
       });
     });
 
@@ -227,7 +314,7 @@
           updateCategoryStripActive(cat);
           fetchCatalog();
         }
-        smoothScrollTo("#catalog");
+        smoothScrollTo("#shelfSearchResults");
       });
     });
     el.btnCloseVisualModal.addEventListener("click", () => el.visualSearchModal.classList.remove("open"));
@@ -363,11 +450,12 @@
     document.querySelectorAll(".hero-slide-cta").forEach((btn) => {
       btn.addEventListener("click", () => {
         const cat = btn.getAttribute("data-cat") || "";
-        state.activeCategory = cat;
-        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
+        let target = "#shelf-recommended";
+        if (cat === "audio" || cat === "electronics") target = "#shelf-tech";
+        else if (cat === "fragrances") target = "#shelf-jewellery";
+        else if (cat === "furniture") target = "#shelf-home";
         updateCategoryStripActive(cat);
-        fetchCatalog();
-        smoothScrollTo("#catalog");
+        smoothScrollTo(target);
       });
     });
 
@@ -538,11 +626,184 @@
   }
 
   // ============================================================================
-  // STOREFRONT CATALOG (GET /api/v1/catalog)
+  // STOREFRONT CATALOG & CURATED SECTOR SHELVES
   // ============================================================================
 
+  function renderProductCard(it, idx) {
+    const thumb = it.image_url || FALLBACK_THUMB;
+    const inr = formatInr(it.price);
+    const mrp = formatMrp(it.price);
+    const brand = it.brand || (it.category || 'VORTEX').toUpperCase();
+    const ratingScore = (4.4 + ((it.id * 7) % 6) / 10).toFixed(1);
+    const reviewCount = (850 + it.id * 39).toLocaleString('en-IN');
+    const discountPct = 20 + ((it.id * 3) % 15);
+
+    return `
+    <article class="vx-card-showcase group" data-id="${it.id}">
+      <div class="card-square-visual">
+        <button type="button" class="btn-card-wishlist" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+        </button>
+        <img src="${thumb}" alt="${it.title}" class="card-square-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+      </div>
+      <div class="card-content-wrap">
+        <span class="card-brand-label">${brand}</span>
+        <h3 class="card-title-text" title="${it.title}">${it.title}</h3>
+        <div class="card-rating-pill">
+          <span class="rating-val">${ratingScore}</span>
+          <span class="rating-star-icon">&#9733;</span>
+          <span class="rating-count-sub">(${reviewCount})</span>
+        </div>
+        <div class="card-price-cluster">
+          <span class="card-price-curr">&#8377;${inr}</span>
+          <span class="card-price-orig">&#8377;${mrp}</span>
+          <span class="card-save-pill">${discountPct}% OFF</span>
+        </div>
+      </div>
+      <button type="button" class="btn-shelf-add-cart btn-add-bag" data-id="${it.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+          <path d="M3 6h18"></path>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span>Add to Cart</span>
+      </button>
+    </article>
+    `;
+  }
+
+  function bindCardInteractions(container) {
+    if (!container) return;
+
+    // 1. Direct card click navigates to PDP (/product/:id) with dwell capture
+    container.querySelectorAll(".vx-card-showcase").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".btn-card-wishlist") || e.target.closest(".btn-add-bag")) {
+          return;
+        }
+        const id = card.getAttribute("data-id");
+        if (id) {
+          recordCardClickDwell(parseInt(id, 10));
+          window.location.href = `/product/${id}`;
+        }
+      });
+    });
+
+    // 2. Add to Cart with tactile confirmation state
+    container.querySelectorAll(".btn-add-bag").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.getAttribute("data-id"), 10);
+        const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
+        if (product) {
+          addToCart(product);
+          const origHtml = btn.innerHTML;
+          btn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Added!</span>
+          `;
+          btn.classList.add("added");
+          setTimeout(() => {
+            btn.innerHTML = origHtml;
+            btn.classList.remove("added");
+          }, 1200);
+        }
+      });
+    });
+
+    // 3. Wishlist Toggle
+    container.querySelectorAll(".btn-card-wishlist").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        btn.classList.toggle("active");
+      });
+    });
+  }
+
+  function recordCardClickDwell(productId) {
+    if (!productId) return;
+    state.recentInteractions.push({
+      product_id: productId,
+      dwell_time_seconds: 2.0,
+    });
+    dispatchDwellTelemetry();
+  }
+
+  function populateSectorShelves(items) {
+    if (!items || items.length === 0) return;
+
+    // 1. Tech Shelf (Audio, Computing & Smart Wearables) - 4 Flagship Items
+    if (el.gridTech) {
+      const techItems = items.filter((p) =>
+        ['laptops', 'smartphones', 'tablets', 'mobile-accessories'].includes(p.category)
+      ).slice(0, 4);
+      el.gridTech.innerHTML = techItems.map((p, i) => renderProductCard(p, i)).join("");
+      bindCardInteractions(el.gridTech);
+    }
+
+    // 2. Fine Jewellery & Luxury Accents (Heritage Craft & Watches) - 4 Flagship Items
+    if (el.gridJewellery) {
+      const jewelItems = items.filter((p) =>
+        ['womens-jewellery', 'mens-watches', 'womens-watches', 'fragrances'].includes(p.category)
+      ).slice(0, 4);
+      el.gridJewellery.innerHTML = jewelItems.map((p, i) => renderProductCard(p, i)).join("");
+      bindCardInteractions(el.gridJewellery);
+    }
+
+    // 3. Home Living & Smart Appliances (Kitchen & Furniture Craft) - 4 Flagship Items
+    if (el.gridHome) {
+      const homeItems = items.filter((p) =>
+        ['furniture', 'kitchen-accessories', 'home-decoration'].includes(p.category)
+      ).slice(0, 4);
+      el.gridHome.innerHTML = homeItems.map((p, i) => renderProductCard(p, i)).join("");
+      bindCardInteractions(el.gridHome);
+    }
+
+    // 4. Daily Care & Essentials (Beauty, Formulations & Wellness) - 4 Flagship Items
+    if (el.gridCare) {
+      const careItems = items.filter((p) =>
+        ['beauty', 'skin-care', 'groceries'].includes(p.category)
+      ).slice(0, 4);
+      el.gridCare.innerHTML = careItems.map((p, i) => renderProductCard(p, i)).join("");
+      bindCardInteractions(el.gridCare);
+    }
+  }
+
+  function renderSearchFilterResults(items) {
+    if (!el.shelfSearchResults) return;
+    el.shelfSearchResults.style.display = "block";
+
+    const filterLabel = state.searchQuery 
+      ? `Search results for "${state.searchQuery}"`
+      : `Filtered by "${state.activeCategory}"`;
+
+    if (el.searchResultsTitle) {
+      el.searchResultsTitle.textContent = filterLabel;
+    }
+    if (el.catalogCountNote) {
+      el.catalogCountNote.textContent = `Showing ${items.length} matching items`;
+    }
+
+    if (!items || items.length === 0) {
+      el.storeCatalogGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--vx-text-secondary);">
+          <div style="font-size: 16px; font-weight: 700; color: var(--vx-text); margin-bottom: 6px;">No products found</div>
+          <div style="font-size: 13px;">Try adjusting keywords or selecting an alternate category filter.</div>
+        </div>`;
+      return;
+    }
+
+    el.storeCatalogGrid.innerHTML = items
+      .map((it, idx) => renderProductCard(it, idx))
+      .join("");
+
+    bindCardInteractions(el.storeCatalogGrid);
+  }
+
   async function fetchCatalog() {
-    const params = new URLSearchParams({ limit: "48" });
+    const params = new URLSearchParams({ limit: "200" });
     if (state.searchQuery) params.append("search", state.searchQuery);
     if (state.activeCategory) params.append("category", state.activeCategory);
 
@@ -551,117 +812,21 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const items = await res.json();
       state.catalog = items;
-      renderCatalogGrid(items);
-      el.catalogCountNote.textContent = `Displaying ${items.length} curated essentials in "${state.searchQuery || state.activeCategory || 'All Collections'}"`;
+
+      if (state.searchQuery || (state.activeCategory && state.activeCategory !== "")) {
+        renderSearchFilterResults(items);
+      } else {
+        if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+        populateSectorShelves(items);
+      }
     } catch (err) {
-      el.storeCatalogGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
-          Unable to retrieve inventory catalog right now.
-        </div>`;
+      if (el.storeCatalogGrid) {
+        el.storeCatalogGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
+            Unable to retrieve inventory catalog right now.
+          </div>`;
+      }
     }
-  }
-
-  function renderCatalogGrid(items) {
-    if (!items || items.length === 0) {
-      el.storeCatalogGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--vx-text-secondary);">
-          <div style="font-size: 16px; font-weight: 700; color: var(--vx-text); margin-bottom: 6px;">No products found for "${state.searchQuery}"</div>
-          <div style="font-size: 13px;">Try adjusting keywords or selecting an alternate collection filter.</div>
-        </div>`;
-      return;
-    }
-
-    el.storeCatalogGrid.innerHTML = items
-      .map((it, idx) => {
-        const thumb = it.image_url || FALLBACK_THUMB;
-        const inr = formatInr(it.price);
-        const mrp = formatMrp(it.price);
-        const brand = it.brand || (it.category || 'VORTEX').toUpperCase();
-        
-        // Minimalist stock or prime dispatch badges
-        const stockBadge = (idx % 5 === 1)
-          ? '<span class="badge-stock-low">Only 3 Left</span>'
-          : (idx % 2 === 0)
-          ? '<span class="badge-prime-dispatch"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Prime Dispatch</span>'
-          : '';
-
-        const ratingScore = (4.4 + ((it.id * 7) % 6) / 10).toFixed(1);
-        const reviewCount = (850 + it.id * 39).toLocaleString('en-IN');
-        const discountPct = 20 + ((it.id * 3) % 15);
-
-        return `
-        <article class="vx-product-card product-card group" data-id="${it.id}">
-          <!-- Top Aspect Image Frame -->
-          <div class="card-img-frame btn-open-quickview" data-id="${it.id}">
-            ${stockBadge ? `<div class="card-badge-container">${stockBadge}</div>` : ''}
-            <button type="button" class="btn-card-wishlist" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
-              </svg>
-            </button>
-            <img src="${thumb}" alt="${it.title}" class="card-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
-          </div>
-
-          <!-- Product Details & Pricing -->
-          <div class="card-content-wrap">
-            <div class="card-brand">${brand}</div>
-            <h3 class="card-title btn-open-quickview" data-id="${it.id}" title="${it.title}">
-              ${it.title}
-            </h3>
-
-            <div class="card-rating-inline">
-              <span class="rating-star">&#9733;</span>
-              <span class="rating-score">${ratingScore}</span>
-              <span class="rating-count">(${reviewCount})</span>
-            </div>
-
-            <div class="card-price-row">
-              <span class="card-price-bold">&#8377;${inr}</span>
-              <span class="card-price-mrp">&#8377;${mrp}</span>
-              <span class="badge-discount-subtle">${discountPct}% OFF</span>
-            </div>
-          </div>
-
-          <!-- Streamlined Light Action Button (No Black Bricks) -->
-          <div class="card-actions-wrap">
-            <button type="button" class="btn-product-card-cart btn-add-bag" data-id="${it.id}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-                <path d="M3 6h18"></path>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-              </svg>
-              <span>Add to Cart</span>
-            </button>
-          </div>
-        </article>
-      `;
-      })
-      .join("");
-
-    // Attach click triggers
-    el.storeCatalogGrid.querySelectorAll(".btn-open-quickview").forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        const id = parseInt(trigger.getAttribute("data-id"), 10);
-        const product = state.catalog.find((p) => p.id === id);
-        if (product) openQuickView(product);
-      });
-    });
-
-    el.storeCatalogGrid.querySelectorAll(".btn-add-bag").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.getAttribute("data-id"), 10);
-        const product = state.catalog.find((p) => p.id === id);
-        if (product) addToCart(product);
-      });
-    });
-
-    el.storeCatalogGrid.querySelectorAll(".btn-card-wishlist").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        btn.classList.toggle("active");
-      });
-    });
   }
 
   // ============================================================================
@@ -771,57 +936,21 @@
   }
 
   function renderRecommendedTrack(recommendations) {
-    if (!recommendations || recommendations.length === 0) return;
+    if (!el.recommendedGrid) return;
+    if (!recommendations || recommendations.length === 0) {
+      el.recommendedGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--vx-text-muted);">
+          No personalized recommendations yet. Browse items to personalize your feed.
+        </div>`;
+      return;
+    }
 
-    el.recommendedGrid.innerHTML = recommendations
-      .map((it) => {
-        const thumb = it.image_url || FALLBACK_THUMB;
-        const inr = formatInr(it.price);
-        const mrp = formatMrp(it.price);
-        const brand = it.brand || (it.category || 'ESSENTIAL').toUpperCase();
-
-        return `
-        <div class="vx-rec-item btn-rec-card group" data-id="${it.id}">
-          <div class="card-img-frame btn-open-rec" data-id="${it.id}" style="aspect-ratio: 4 / 3; margin-bottom: 8px;">
-            <img src="${thumb}" alt="${it.title}" class="card-img" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
-          </div>
-          <div class="card-brand" style="margin-bottom: 2px;">${brand}</div>
-          <div class="card-title btn-open-rec" data-id="${it.id}" title="${it.title}" style="height: 32px; font-size: 12.5px; margin-bottom: 4px;">
-            ${it.title}
-          </div>
-          <div class="card-price-row" style="margin-bottom: 10px;">
-            <span class="card-price-bold" style="font-size: 15px;">&#8377;${inr}</span>
-            <span class="card-price-mrp" style="font-size: 11px;">&#8377;${mrp}</span>
-          </div>
-          <button type="button" class="btn-product-card-cart btn-rec-add-bag" data-id="${it.id}" style="height: 32px; font-size: 11.5px; margin-top: auto;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-              <path d="M3 6h18"></path>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            <span>Add to Cart</span>
-          </button>
-        </div>
-      `;
-      })
+    const topRecs = recommendations.slice(0, 4);
+    el.recommendedGrid.innerHTML = topRecs
+      .map((it, idx) => renderProductCard(it, idx))
       .join("");
 
-    el.recommendedGrid.querySelectorAll(".btn-open-rec").forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        const id = parseInt(trigger.getAttribute("data-id"), 10);
-        const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
-        if (product) openQuickView(product);
-      });
-    });
-
-    el.recommendedGrid.querySelectorAll(".btn-rec-add-bag").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.getAttribute("data-id"), 10);
-        const product = state.catalog.find((p) => p.id === id) || state.recommended.find((p) => p.id === id);
-        if (product) addToCart(product);
-      });
-    });
+    bindCardInteractions(el.recommendedGrid);
   }
 
   // ============================================================================
@@ -871,7 +1000,7 @@
           .map((it) => {
             const thumb = it.image_url || FALLBACK_THUMB;
             return `
-            <div class="vx-product-card" style="padding: 10px; cursor: pointer;" onclick="window.location.hash='catalog'">
+            <div class="vx-card-showcase" style="padding: 10px; cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
               <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
                 <img src="${thumb}" alt="${it.title}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
               </div>

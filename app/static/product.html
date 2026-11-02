@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details • VORTEX COMMERCE</title>
+  <meta name="description" content="View verified specifications, live pricing, and express delivery status on VORTEX COMMERCE.">
+
+  <!-- Inter Sans Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Shared Design System CSS -->
+  <link rel="stylesheet" href="/static/styles.css">
+
+  <style>
+    .pdp-container {
+      max-width: 1360px;
+      margin: 20px auto 48px;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .pdp-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: #9CA3AF;
+      margin-bottom: 24px;
+    }
+    .pdp-breadcrumb a {
+      color: #4B5563;
+      font-weight: 500;
+      transition: color 150ms ease;
+    }
+    .pdp-breadcrumb a:hover {
+      color: #111827;
+      text-decoration: underline;
+    }
+    .pdp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 48px;
+      background: #FFFFFF;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+    .pdp-visual-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pdp-img-frame {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #F9FAFB;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .pdp-main-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 25px rgba(15, 23, 42, 0.12));
+    }
+    .pdp-info-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .pdp-brand-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9CA3AF;
+      margin-bottom: 6px;
+    }
+    .pdp-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+    .pdp-price-box {
+      background: #F9FAFB;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0 20px;
+    }
+    .pdp-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pdp-price-main {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.02em;
+    }
+    .pdp-price-mrp {
+      font-size: 15px;
+      color: #9CA3AF;
+      text-decoration: line-through;
+    }
+    .pdp-discount-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: #047857;
+      background: #ECFDF5;
+      border: 1px solid rgba(4, 120, 87, 0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .pdp-desc {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #4B5563;
+      margin-bottom: 24px;
+    }
+    .pdp-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pdp-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #374151;
+      font-weight: 500;
+    }
+    .pdp-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .btn-pdp-cart {
+      flex: 1;
+      height: 44px;
+      background: #0F172A;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+    .btn-pdp-cart:hover {
+      background: #000000;
+      transform: translateY(-1px);
+    }
+    .btn-pdp-cart:active {
+      transform: scale(0.97);
+    }
+    .btn-pdp-support {
+      height: 44px;
+      padding: 0 18px;
+      background: #F1F5F9;
+      color: #1E293B;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+    .btn-pdp-support:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+    }
+    .btn-pdp-support:active {
+      transform: scale(0.97);
+    }
+    @media (max-width: 900px) {
+      .pdp-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. TOP NAVIGATION BAR -->
+  <header class="vx-header">
+    <a href="/" class="vx-logo-cluster" title="VORTEX Global Store">
+      <div class="vx-logo-text">VORTEX</div>
+      <div class="vx-logo-dot">&#9679;</div>
+      <div class="vx-logo-badge">MARKETPLACE</div>
+    </a>
+
+    <div class="vx-delivery-selector" title="Current Delivery Address">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div class="vx-delivery-text">
+        <span class="vx-deliver-label">Deliver to Sreejith</span>
+        <span class="vx-deliver-sub">Marthandam 629165 &bull; Express</span>
+      </div>
+    </div>
+
+    <div style="flex: 1;"></div>
+
+    <div class="vx-nav-actions">
+      <a href="/" class="vx-nav-btn" title="Back to Marketplace">
+        <span>&larr; Marketplace</span>
+      </a>
+      <button type="button" class="vx-nav-btn" id="btnCartTrigger" title="Shopping Cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span>Cart</span>
+        <span class="vx-cart-badge" id="cartCountBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. MAIN PRODUCT DETAIL CONTAINER -->
+  <main class="pdp-container">
+    <!-- Breadcrumb -->
+    <nav class="pdp-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>&rsaquo;</span>
+      <a href="/" id="pdpCatBreadcrumb">Catalog</a>
+      <span>&rsaquo;</span>
+      <span id="pdpTitleBreadcrumb" style="color: #111827; font-weight: 600;">Loading...</span>
+    </nav>
+
+    <!-- Product Card Grid -->
+    <div class="pdp-grid">
+      <!-- Visual Column -->
+      <div class="pdp-visual-col">
+        <div class="pdp-img-frame">
+          <img id="pdpImg" src="" alt="Product Visual" class="pdp-main-img">
+        </div>
+      </div>
+
+      <!-- Information Column -->
+      <div class="pdp-info-col">
+        <span class="pdp-brand-tag" id="pdpBrand">VORTEX SELECT</span>
+        <h1 class="pdp-title" id="pdpTitle">Loading Product Details...</h1>
+
+        <div class="card-rating-inline" style="margin-bottom: 8px;">
+          <span class="rating-star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <span class="rating-score" id="pdpRating">4.7</span>
+          <span class="rating-count" id="pdpReviews">(2,410 verified customer ratings)</span>
+        </div>
+
+        <div class="pdp-price-box">
+          <div class="pdp-price-row">
+            <span class="pdp-price-main" id="pdpPrice">&#8377;0</span>
+            <span class="pdp-price-mrp" id="pdpMrp">&#8377;0</span>
+            <span class="pdp-discount-tag" id="pdpDiscount">25% OFF</span>
+          </div>
+          <div style="font-size: 12px; color: #64748B; margin-top: 6px;">
+            Inclusive of all GST taxes &bull; Free express delivery to Marthandam
+          </div>
+        </div>
+
+        <p class="pdp-desc" id="pdpDesc">
+          Curated and verified for precision manufacturing, performance, and everyday longevity.
+        </p>
+
+        <ul class="pdp-feature-list">
+          <li class="pdp-feature-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Verified 100% Genuine with Official Manufacturer Warranty</span>
+          </li>
+          <li class="pdp-feature-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Priority 24-Hour Dispatch &bull; Real-time GPS Delivery Tracking</span>
+          </li>
+          <li class="pdp-feature-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Hassle-Free 7-Day Replacement Guarantee</span>
+          </li>
+        </ul>
+
+        <div class="pdp-cta-row">
+          <button type="button" class="btn-pdp-cart" id="btnAddToCart">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>Add to Cart</span>
+          </button>
+          <button type="button" class="btn-pdp-support" id="btnOpenSupport">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Support</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- CART DRAWER -->
+  <aside class="vx-drawer" id="cartDrawer">
+    <div class="vx-drawer-head">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span class="vx-drawer-title">Your Cart</span>
+      </div>
+      <button type="button" class="vx-close-btn" id="btnCloseCartDrawer" style="color: #FFFFFF;" aria-label="Close cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="vx-cart-items-stream" id="cartItemsStream" style="padding: 16px;"></div>
+    <div class="vx-cart-footer">
+      <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; margin-bottom: 12px;">
+        <span>Subtotal</span>
+        <span id="cartSubtotalVal">&#8377;0</span>
+      </div>
+      <button type="button" class="btn-vx-primary" style="width: 100%; height: 40px;" onclick="alert('Proceeding to Checkout!');">Checkout</button>
+    </div>
+  </aside>
+
+  <script>
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    const productId = pathParts[pathParts.length - 1] || "1";
+    let productData = null;
+    let dwellStart = performance.now();
+    let cartItems = JSON.parse(localStorage.getItem("vx_cart") || "[]");
+
+    function formatInr(usd) {
+      return Math.round(Number(usd) * 83).toLocaleString("en-IN");
+    }
+    function formatMrp(usd) {
+      return Math.round(Number(usd) * 83 * 1.35).toLocaleString("en-IN");
+    }
+
+    function updateCartBadge() {
+      const count = cartItems.reduce((acc, it) => acc + (it.quantity || 1), 0);
+      document.getElementById("cartCountBadge").textContent = count;
+      localStorage.setItem("vx_cart", JSON.stringify(cartItems));
+    }
+
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/v1/catalog/${productId}`);
+        if (!res.ok) throw new Error("Product not found");
+        productData = await res.json();
+
+        document.title = `${productData.title} • VORTEX COMMERCE`;
+        document.getElementById("pdpTitle").textContent = productData.title;
+        document.getElementById("pdpTitleBreadcrumb").textContent = productData.title;
+        document.getElementById("pdpBrand").textContent = (productData.brand || productData.category || "VORTEX").toUpperCase();
+        document.getElementById("pdpCatBreadcrumb").textContent = (productData.category || "Catalog").toUpperCase();
+        document.getElementById("pdpPrice").innerHTML = `&#8377;${formatInr(productData.price)}`;
+        document.getElementById("pdpMrp").innerHTML = `&#8377;${formatMrp(productData.price)}`;
+        document.getElementById("pdpDesc").textContent = productData.description || "Premium quality product backed by manufacturer warranty and 7-day easy returns.";
+        document.getElementById("pdpImg").src = productData.image_url || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80";
+      } catch (err) {
+        document.getElementById("pdpTitle").textContent = "Product Not Found";
+      }
+    }
+
+    // Dwell Telemetry Beacon
+    function sendDwellBeacon() {
+      if (!productData) return;
+      const dwellSeconds = Math.max(0.5, (performance.now() - dwellStart) / 1000);
+      navigator.sendBeacon("/api/v1/recommend/dwell", JSON.stringify({
+        user_id: "shopper_anon",
+        query_text: productData.category || "essentials",
+        recent_interactions: [{ product_id: productData.id, dwell_time_seconds: parseFloat(dwellSeconds.toFixed(2)) }],
+        top_k: 4
+      }));
+    }
+
+    window.addEventListener("beforeunload", sendDwellBeacon);
+
+    // Cart actions
+    document.getElementById("btnAddToCart").addEventListener("click", () => {
+      if (!productData) return;
+      const existing = cartItems.find(i => i.id === productData.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cartItems.push({
+          id: productData.id,
+          title: productData.title,
+          price: productData.price,
+          image_url: productData.image_url,
+          quantity: 1
+        });
+      }
+      updateCartBadge();
+      const btn = document.getElementById("btnAddToCart");
+      btn.innerHTML = "<span>Added to Cart &#10003;</span>";
+      setTimeout(() => {
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Add to Cart</span>`;
+      }, 1400);
+    });
+
+    document.getElementById("btnCartTrigger").addEventListener("click", () => {
+      document.getElementById("cartDrawer").classList.add("open");
+      renderCartDrawer();
+    });
+    document.getElementById("btnCloseCartDrawer").addEventListener("click", () => {
+      document.getElementById("cartDrawer").classList.remove("open");
+    });
+
+    function renderCartDrawer() {
+      const stream = document.getElementById("cartItemsStream");
+      if (cartItems.length === 0) {
+        stream.innerHTML = '<div style="text-align:center; padding:32px; color:#9CA3AF;">Your cart is empty.</div>';
+        document.getElementById("cartSubtotalVal").textContent = "₹0";
+        return;
+      }
+      let subtotal = 0;
+      stream.innerHTML = cartItems.map(it => {
+        const itemTotal = Math.round(Number(it.price) * 83 * it.quantity);
+        subtotal += itemTotal;
+        return `
+          <div style="display:flex; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #E2E8F0;">
+            <img src="${it.image_url}" style="width:50px; height:50px; object-fit:contain; border-radius:6px; background:#F8FAFC;">
+            <div style="flex:1;">
+              <div style="font-size:12.5px; font-weight:600; line-height:1.3;">${it.title}</div>
+              <div style="font-size:12px; color:#111827; font-weight:700; margin-top:2px;">₹${itemTotal.toLocaleString('en-IN')} (x${it.quantity})</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      document.getElementById("cartSubtotalVal").textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+    }
+
+    document.getElementById("btnOpenSupport").addEventListener("click", () => {
+      window.location.href = "/?openSupport=true";
+    });
+
+    updateCartBadge();
+    loadProduct();
+  </script>
+</body>
+</html>
