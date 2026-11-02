@@ -21,7 +21,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "`n[ERROR] Integration tests failed. Aborting commit to prevent regression." -ForegroundColor Red
     exit 1
 }
-Write-Host "[PASS] All 7 test cases passed successfully." -ForegroundColor Green
+Write-Host "[PASS] All 9 test cases passed successfully." -ForegroundColor Green
 
 # 2. Stage All Changes
 Write-Host "`n[2/4] Staging modified and new files..." -ForegroundColor Yellow

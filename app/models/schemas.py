@@ -149,3 +149,16 @@ class EscalationDecisionResponse(BaseModel):
     notes: Optional[str] = None
     status: str
     response: str
+
+
+# ==============================================================================
+# ORDERS & REFUND RESOLUTION SCHEMAS
+# ==============================================================================
+
+class OrderReturnRequest(BaseModel):
+    """Payload to initiate an automated refund/return on an order."""
+    reason: str = Field(..., description="Customer reason for return (e.g. Defective item, Wrong size, Damaged box)")
+    notes: Optional[str] = Field(None, description="Detailed customer statement or condition notes")
+    image_evidence_url: Optional[str] = Field(None, description="Optional uploaded image evidence preview")
+    thread_id: Optional[str] = Field(None, description="Optional thread/ticket ID")
+

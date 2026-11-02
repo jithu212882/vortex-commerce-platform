@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile • VORTEX COMMERCE</title>
+  <meta name="description" content="Manage your personal details, delivery addresses, and saved payment methods on VORTEX COMMERCE.">
+
+  <!-- Inter Sans Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Shared Design System CSS -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body style="background-color: #F8FAFC; color: #0F172A; min-height: 100vh;">
+
+  <!-- =========================================================================
+       1. TOP BRAND NAVIGATION BAR (60px, #0F172A)
+       ========================================================================= -->
+  <header class="vx-top-header">
+    <div class="vx-header-left">
+      <a href="/" class="vx-brand-lockup" aria-label="VORTEX Home">
+        <span class="vx-brand-logo">VORTEX</span>
+        <span class="vx-brand-badge">GLOBAL</span>
+      </a>
+
+      <!-- Delivery Pin -->
+      <div class="vx-delivery-cluster" title="Delivery Location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="vx-pin-icon">
+          <path d="M12 21s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 7.2c0 7.3-8 11.8-8 11.8z"></path>
+          <circle cx="12" cy="9" r="2.5"></circle>
+        </svg>
+        <div class="vx-pin-text">
+          <span class="vx-pin-sub">Deliver to Sreejith</span>
+          <span class="vx-pin-main">Marthandam 629165</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrated Search Box -->
+    <div class="vx-search-container">
+      <div class="vx-search-shell">
+        <input type="search" class="vx-search-input" placeholder="Search products, brands, and categories..." autocomplete="off">
+        <button type="button" class="vx-search-btn" aria-label="Search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Header Actions -->
+    <div class="vx-header-right">
+      <a href="/orders" class="vx-nav-link" title="Order History">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/account" class="vx-nav-link active" title="Customer Profile" style="color: #60A5FA;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span>Account</span>
+      </a>
+      <button type="button" class="vx-nav-link" id="btnCartTrigger" title="Shopping Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart</span>
+        <span class="vx-cart-badge" id="cartCountBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. ACCOUNT PROFILE WORKSPACE (FLIPKART / AMAZON PROFILE STYLE)
+       ========================================================================= -->
+  <main class="vx-page-shell">
+    <!-- Breadcrumb -->
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #94A3B8; margin-bottom: 20px;">
+      <a href="/" style="color: #64748B; text-decoration: none;">Home</a>
+      <span>&rsaquo;</span>
+      <span style="color: #0F172A; font-weight: 600;">My Account</span>
+    </div>
+
+    <div class="vx-two-column-layout">
+      <!-- LEFT SIDEBAR: PROFILE & NAVIGATION -->
+      <aside>
+        <div class="vx-sidebar-card">
+          <!-- Profile Badge -->
+          <div class="account-profile-header">
+            <div class="account-avatar">SK</div>
+            <div>
+              <div style="font-size: 11px; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Hello,</div>
+              <div style="font-size: 16px; font-weight: 800; color: #0F172A;">Sreejith Kumar</div>
+            </div>
+          </div>
+
+          <!-- Navigation Links -->
+          <nav class="account-nav-list">
+            <a href="/orders" class="account-nav-btn">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>My Orders</span>
+              </span>
+              <span style="font-size: 11px; background: #E2E8F0; padding: 2px 7px; border-radius: 10px; font-weight: 700;">5</span>
+            </a>
+
+            <button type="button" class="account-nav-btn active" data-tab="profile">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                <span>Profile Information</span>
+              </span>
+            </button>
+
+            <button type="button" class="account-nav-btn" data-tab="addresses">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 7.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span>Manage Addresses</span>
+              </span>
+              <span style="font-size: 11px; color: #64748B;">2</span>
+            </button>
+
+            <button type="button" class="account-nav-btn" data-tab="payments">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                <span>Saved Cards &amp; UPI</span>
+              </span>
+            </button>
+
+            <div style="height: 1px; background: #F1F5F9; margin: 8px 0;"></div>
+
+            <a href="/admin" class="account-nav-btn" style="color: #475569;" title="Internal Operations Cockpit">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>
+                <span>Staff Operations Console</span>
+              </span>
+              <span style="font-size: 10px; background: #FEF3C7; color: #B45309; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Admin</span>
+            </a>
+
+            <button type="button" class="account-nav-btn" id="btnLogout" style="color: #EF4444;">
+              <span style="display: flex; align-items: center; gap: 10px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>Log Out</span>
+              </span>
+            </button>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- RIGHT CONTENT AREA -->
+      <section>
+        <!-- TAB 1: PROFILE INFORMATION -->
+        <div id="tab-profile" class="account-tab-panel">
+          <div class="account-section-card">
+            <div class="account-card-title">
+              <span>Personal Information</span>
+              <button type="button" id="btnEditPersonalInfo" style="background: none; border: none; font-size: 13px; font-weight: 600; color: #2563EB; cursor: pointer;">Edit</button>
+            </div>
+
+            <form id="profileForm">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px;">
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px;">First Name</label>
+                  <input type="text" id="inputFirstName" value="Sreejith" disabled style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; color: #0F172A; background: #F8FAFC;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px;">Last Name</label>
+                  <input type="text" id="inputLastName" value="Kumar" disabled style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; color: #0F172A; background: #F8FAFC;">
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px;">Your Gender</label>
+                <div style="display: flex; gap: 20px; font-size: 13.5px; color: #334155;">
+                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="gender" checked disabled> Male
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="gender" disabled> Female
+                  </label>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 24px;">
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px;">Email Address</label>
+                  <input type="email" id="inputEmail" value="sreejith.k@enterprise-vortex.internal" disabled style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; color: #0F172A; background: #F8FAFC;">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 12px; font-weight: 600; color: #64748B; margin-bottom: 6px;">Mobile Number</label>
+                  <input type="text" id="inputMobile" value="+91 98401 23456" disabled style="width: 100%; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; color: #0F172A; background: #F8FAFC;">
+                </div>
+              </div>
+
+              <div id="saveProfileBtnRow" style="display: none; justify-content: flex-end; gap: 10px;">
+                <button type="button" id="btnCancelEditProfile" class="btn-order-action">Cancel</button>
+                <button type="submit" class="btn-order-action" style="background: #0F172A; color: #FFFFFF; border-color: #0F172A;">Save Changes</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Account FAQs Card -->
+          <div class="account-section-card">
+            <div class="account-card-title">
+              <span>Account FAQs</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 14px; font-size: 13px; color: #475569;">
+              <div>
+                <strong style="color: #0F172A;">What happens when I update my email address (or mobile number)?</strong>
+                <p style="margin-top: 4px; line-height: 1.4;">Your login details remain synced across all active sessions. Notifications and invoices will be routed to your new address immediately.</p>
+              </div>
+              <div style="border-top: 1px solid #F1F5F9; padding-top: 14px;">
+                <strong style="color: #0F172A;">How does the Gemini automated refund workflow operate?</strong>
+                <p style="margin-top: 4px; line-height: 1.4;">Orders under ₹500 qualify for immediate policy auto-approval upon return pickup. Orders exceeding ₹500 are routed to our Quality Team for review within 24 hours.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: MANAGE ADDRESSES -->
+        <div id="tab-addresses" class="account-tab-panel" style="display: none;">
+          <div class="account-section-card">
+            <div class="account-card-title">
+              <span>Manage Addresses</span>
+              <button type="button" class="btn-order-action" onclick="alert('Address creation modal ready. Maximum address capacity: 10.')">+ Add New Address</button>
+            </div>
+
+            <div class="address-grid">
+              <!-- Address 1: Home (Default) -->
+              <div class="address-box" style="border-color: #BFDBFE; background: #F0F7FF;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span class="address-tag-pill home">HOME &bull; DEFAULT</span>
+                  <span style="font-size: 11.5px; font-weight: 700; color: #2563EB;">Selected Delivery Pin</span>
+                </div>
+                <div style="font-weight: 700; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Sreejith Kumar &bull; +91 98401 23456</div>
+                <div style="font-size: 13px; color: #475569; line-height: 1.4; margin-bottom: 12px;">
+                  42/7 Temple Road, Near CSI Church, Marthandam, Kanyakumari Dist, Tamil Nadu - 629165
+                </div>
+                <div style="display: flex; gap: 12px; font-size: 12px; font-weight: 600;">
+                  <a href="#" style="color: #2563EB; text-decoration: none;">Edit</a>
+                  <span style="color: #CBD5E1;">&bull;</span>
+                  <a href="#" style="color: #64748B; text-decoration: none;">Delivery Instructions</a>
+                </div>
+              </div>
+
+              <!-- Address 2: Work -->
+              <div class="address-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span class="address-tag-pill">WORK</span>
+                </div>
+                <div style="font-weight: 700; font-size: 14px; color: #0F172A; margin-bottom: 4px;">Sreejith Kumar &bull; +91 98401 23456</div>
+                <div style="font-size: 13px; color: #475569; line-height: 1.4; margin-bottom: 12px;">
+                  Tech Hub Towers, 3rd Floor, Industrial Estate, Marthandam, Tamil Nadu - 629165
+                </div>
+                <div style="display: flex; gap: 12px; font-size: 12px; font-weight: 600;">
+                  <a href="#" style="color: #2563EB; text-decoration: none;">Edit</a>
+                  <span style="color: #CBD5E1;">&bull;</span>
+                  <a href="#" style="color: #64748B; text-decoration: none;">Set as Default</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: SAVED CARDS & UPI -->
+        <div id="tab-payments" class="account-tab-panel" style="display: none;">
+          <div class="account-section-card">
+            <div class="account-card-title">
+              <span>Saved Payment Methods</span>
+              <button type="button" class="btn-order-action" onclick="alert('Add Payment Method dialog ready.')">+ Add New Card / UPI</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Card 1 -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 44px; height: 30px; background: #1E3A8A; color: #FFFFFF; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; letter-spacing: 1px;">HDFC</div>
+                  <div>
+                    <div style="font-weight: 700; font-size: 13.5px; color: #0F172A;">HDFC Bank Platinum Debit Card &bull;&bull;&bull;&bull; 4102</div>
+                    <div style="font-size: 12px; color: #64748B;">Expires 08/29 &bull; Sreejith Kumar</div>
+                  </div>
+                </div>
+                <span style="font-size: 11px; background: #ECFDF5; color: #047857; padding: 3px 8px; border-radius: 4px; font-weight: 700;">DEFAULT</span>
+              </div>
+
+              <!-- UPI 1 -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 44px; height: 30px; background: #0F172A; color: #FFFFFF; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800;">UPI</div>
+                  <div>
+                    <div style="font-weight: 700; font-size: 13.5px; color: #0F172A;">Google Pay UPI (sreejith@oksbi)</div>
+                    <div style="font-size: 12px; color: #64748B;">Verified State Bank of India Account</div>
+                  </div>
+                </div>
+                <span style="font-size: 11px; color: #2563EB; font-weight: 600; cursor: pointer;">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Client Script -->
+  <script src="/static/account.js"></script>
+</body>
+</html>

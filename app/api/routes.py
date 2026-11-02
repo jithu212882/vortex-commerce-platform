@@ -5,11 +5,17 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from sqlalchemy.orm import Session
 
 from app.database.connection import Item, UserActivity, get_db
+from app.database.seed_orders import (
+    get_all_orders,
+    get_order_by_id,
+    update_order_refund_status,
+)
 from app.models.schemas import (
     AgentChatRequest,
     AgentChatResponse,
     EscalationDecisionRequest,
     EscalationDecisionResponse,
+    OrderReturnRequest,
     ProductItem,
     RecommendationRequest,
     RecommendationResponse,
@@ -126,6 +132,68 @@ def get_catalog_item(item_id: int, db: Session = Depends(get_db)):
         price=item.price,
         image_url=item.image_url,
     )
+
+
+# ==============================================================================
+# FLIPKART-GRADE ORDERS & REFUND RESOLUTION ENDPOINTS
+# ==============================================================================
+
+@router.get("/orders", tags=["Orders & Account"])
+def list_orders(status: Optional[str] = Query(None, description="Filter by status (all, on_the_way, delivered, cancelled, returned)")):
+    """Retrieves all user orders, formatted for Flipkart-style high-density cards."""
+    orders = get_all_orders(status_filter=status)
+    return {
+        "total_count": len(orders),
+        "orders": orders,
+    }
+
+
+@router.get("/orders/{order_id}", tags=["Orders & Account"])
+def get_order_details(order_id: str):
+    """Retrieves detailed order tracking, timeline, and return eligibility."""
+    order = get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail=f"Order '{order_id}' not found.")
+    return order
+
+
+@router.post("/orders/{order_id}/return", tags=["Orders & Account"])
+def request_order_return(order_id: str, payload: OrderReturnRequest):
+    """
+    Initiates customer return and refund request through the Gemini LangGraph workflow.
+    - Low-ticket orders (<= Rs 500) are automatically approved.
+    - High-ticket orders (> Rs 500) pause at an interrupted gate for Operations Manager review.
+    """
+    order = get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail=f"Order '{order_id}' not found.")
+
+    thread_id = payload.thread_id or f"thread_return_{order_id.lower().replace('#', '').replace('-', '_')}"
+    customer_message = (
+        f"I would like to request a return and refund for Order #{order_id} ({order['items'][0]['title']}). "
+        f"Total amount: ₹{order['total_inr']}. Reason: {payload.reason}. Notes: {payload.notes or 'None'}."
+    )
+
+    # Process via LangGraph
+    res = agent_workflow_service.handle_chat(
+        thread_id=thread_id,
+        message=customer_message,
+        order_id=order_id,
+    )
+
+    updated_order = get_order_by_id(order_id)
+    return {
+        "order_id": order_id,
+        "thread_id": thread_id,
+        "ticket_id": res.get("ticket_id"),
+        "status": res.get("resolution_status", "in_progress"),
+        "refund_status": str(res.get("status", "IN_PROGRESS")),
+        "resolution_status": res.get("resolution_status", "in_progress"),
+        "escalation_needed": res.get("escalation_needed", False),
+        "refund_amount": res.get("refund_amount", order["total_inr"]),
+        "response": res.get("response", ""),
+        "updated_order": updated_order,
+    }
 
 
 # ==============================================================================

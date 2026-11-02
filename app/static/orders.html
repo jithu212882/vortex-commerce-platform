@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders • VORTEX COMMERCE</title>
+  <meta name="description" content="Track your orders, request hassle-free returns, and view delivery updates on VORTEX COMMERCE.">
+
+  <!-- Inter Sans Stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Shared Design System CSS -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body style="background-color: #F8FAFC; color: #0F172A; min-height: 100vh;">
+
+  <!-- =========================================================================
+       1. TOP BRAND NAVIGATION BAR (60px, #0F172A)
+       ========================================================================= -->
+  <header class="vx-top-header">
+    <div class="vx-header-left">
+      <!-- Brand Logo -->
+      <a href="/" class="vx-brand-lockup" aria-label="VORTEX Home">
+        <span class="vx-brand-logo">VORTEX</span>
+        <span class="vx-brand-badge">GLOBAL</span>
+      </a>
+
+      <!-- Location Pin -->
+      <div class="vx-delivery-cluster" title="Change delivery location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="vx-pin-icon">
+          <path d="M12 21s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 7.2c0 7.3-8 11.8-8 11.8z"></path>
+          <circle cx="12" cy="9" r="2.5"></circle>
+        </svg>
+        <div class="vx-pin-text">
+          <span class="vx-pin-sub">Deliver to Sreejith</span>
+          <span class="vx-pin-main">Marthandam 629165</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrated Search Box -->
+    <div class="vx-search-container">
+      <div class="vx-search-shell">
+        <input type="search" id="headerSearchInput" class="vx-search-input" placeholder="Search products, brands, and categories..." autocomplete="off">
+        <button type="button" class="vx-search-btn" id="btnHeaderSearch" aria-label="Search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Header Actions -->
+    <div class="vx-header-right">
+      <a href="/orders" class="vx-nav-link active" title="Order History" style="color: #60A5FA;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/account" class="vx-nav-link" title="Customer Profile">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span>Account</span>
+      </a>
+      <button type="button" class="vx-nav-link" id="btnCartTrigger" title="Shopping Cart">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart</span>
+        <span class="vx-cart-badge" id="cartCountBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. ORDERS WORKSPACE (FLIPKART HIGH-DENSITY TWO-COLUMN LAYOUT)
+       ========================================================================= -->
+  <main class="vx-page-shell">
+    <!-- Breadcrumb -->
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #94A3B8; margin-bottom: 20px;">
+      <a href="/" style="color: #64748B; text-decoration: none;">Home</a>
+      <span>&rsaquo;</span>
+      <a href="/account" style="color: #64748B; text-decoration: none;">My Account</a>
+      <span>&rsaquo;</span>
+      <span style="color: #0F172A; font-weight: 600;">My Orders</span>
+    </div>
+
+    <div class="vx-two-column-layout">
+      <!-- LEFT SIDEBAR: FILTERS -->
+      <aside>
+        <div class="vx-sidebar-card">
+          <div class="vx-sidebar-title">
+            <span>Filters</span>
+            <button type="button" id="btnClearFilters" style="background: none; border: none; font-size: 11.5px; color: #2563EB; font-weight: 600; cursor: pointer;">Clear All</button>
+          </div>
+
+          <div class="vx-filter-section-title">Order Status</div>
+          <div class="vx-filter-option active" data-filter="all">
+            <input type="radio" name="orderStatus" id="filterAll" checked>
+            <label for="filterAll" style="cursor: pointer; flex: 1;">All Orders</label>
+            <span style="font-size: 11px; color: #94A3B8;" id="countAll">5</span>
+          </div>
+          <div class="vx-filter-option" data-filter="on_the_way">
+            <input type="radio" name="orderStatus" id="filterOnTheWay">
+            <label for="filterOnTheWay" style="cursor: pointer; flex: 1;">On the way</label>
+            <span style="font-size: 11px; color: #94A3B8;" id="countOnTheWay">1</span>
+          </div>
+          <div class="vx-filter-option" data-filter="delivered">
+            <input type="radio" name="orderStatus" id="filterDelivered">
+            <label for="filterDelivered" style="cursor: pointer; flex: 1;">Delivered</label>
+            <span style="font-size: 11px; color: #94A3B8;" id="countDelivered">3</span>
+          </div>
+          <div class="vx-filter-option" data-filter="returned">
+            <input type="radio" name="orderStatus" id="filterReturned">
+            <label for="filterReturned" style="cursor: pointer; flex: 1;">Returned / Refunded</label>
+            <span style="font-size: 11px; color: #94A3B8;" id="countReturned">0</span>
+          </div>
+          <div class="vx-filter-option" data-filter="cancelled">
+            <input type="radio" name="orderStatus" id="filterCancelled">
+            <label for="filterCancelled" style="cursor: pointer; flex: 1;">Cancelled</label>
+            <span style="font-size: 11px; color: #94A3B8;" id="countCancelled">1</span>
+          </div>
+
+          <div class="vx-filter-section-title">Order Time</div>
+          <div class="vx-filter-option">
+            <input type="checkbox" id="timeLast30" checked>
+            <label for="timeLast30" style="cursor: pointer; flex: 1;">Last 30 days</label>
+          </div>
+          <div class="vx-filter-option">
+            <input type="checkbox" id="time2026" checked>
+            <label for="time2026" style="cursor: pointer; flex: 1;">2026</label>
+          </div>
+        </div>
+
+        <!-- Help & Gemini Support Widget Card -->
+        <div class="vx-sidebar-card" style="background: #F8FAFC; border-color: #E2E8F0;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">Need Help with an Order?</span>
+          </div>
+          <div style="font-size: 12px; color: #64748B; line-height: 1.4; margin-bottom: 12px;">
+            Our automated Gemini customer service agent processes returns and instant refund approvals 24/7.
+          </div>
+          <button type="button" id="btnOpenSupportFromOrders" class="btn-order-action" style="width: 100%; justify-content: center; background: #0F172A; color: #FFFFFF; border-color: #0F172A;">
+            <span>Contact Support Desk</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- RIGHT STREAM: SEARCH + ORDER CARDS -->
+      <section class="vx-orders-stream">
+        <!-- Search within orders -->
+        <div class="vx-orders-search-bar">
+          <input type="search" id="orderSearchInput" class="vx-orders-search-input" placeholder="Search your orders by product title, brand, or order ID (e.g. VTX-90812)...">
+          <button type="button" class="vx-orders-search-btn" id="btnSearchOrders">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <span>Search Orders</span>
+          </button>
+        </div>
+
+        <!-- Orders Stream Container -->
+        <div id="ordersCardsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="text-align: center; padding: 48px; color: #94A3B8;">Loading orders...</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       3. INTERACTIVE RETURN / EXCHANGE MODAL (GEMINI LANGGRAPH WORKFLOW)
+       ========================================================================= -->
+  <div class="return-modal-backdrop" id="returnModal">
+    <div class="return-modal-content">
+      <div class="return-modal-header">
+        <div>
+          <div class="return-modal-title" id="returnModalTitle">Request Return / Exchange</div>
+          <div style="font-size: 12px; color: #64748B;" id="returnModalSubtitle">Order #VTX-90812 • Verified Purchase</div>
+        </div>
+        <button type="button" class="btn-modal-close" id="btnCloseReturnModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <!-- Item Preview Row -->
+      <div style="display: flex; gap: 14px; align-items: center; padding: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; margin-bottom: 20px;">
+        <img id="returnModalImg" src="" alt="Product" style="width: 52px; height: 52px; object-fit: contain; background: #FFFFFF; border-radius: 6px; padding: 4px; border: 1px solid #E2E8F0;">
+        <div style="flex: 1;">
+          <div id="returnModalItemTitle" style="font-size: 13px; font-weight: 600; color: #0F172A; line-height: 1.3;">Product Title</div>
+          <div id="returnModalItemPrice" style="font-size: 13px; font-weight: 700; color: #0F172A; margin-top: 2px;">₹0.00</div>
+        </div>
+      </div>
+
+      <!-- Return Form -->
+      <form id="returnClaimForm">
+        <input type="hidden" id="returnOrderId">
+        <div style="margin-bottom: 14px;">
+          <label for="returnReasonSelect" style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">Reason for Return *</label>
+          <select id="returnReasonSelect" required style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 13px; color: #0F172A; background: #FFFFFF;">
+            <option value="">Select a reason</option>
+            <option value="Defective item / Not functioning">Defective item / Not functioning</option>
+            <option value="Damaged outer box or cracked seal">Damaged outer box or cracked seal</option>
+            <option value="Wrong item delivered">Wrong item delivered</option>
+            <option value="Quality not as expected">Quality not as expected</option>
+            <option value="Incorrect size / Fit issue">Incorrect size / Fit issue</option>
+            <option value="Performance below expectations">Performance below expectations</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label for="returnCommentsText" style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">Comments / Fault Description</label>
+          <textarea id="returnCommentsText" rows="3" placeholder="Please describe the issue in detail..." style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 13px; color: #0F172A; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+
+        <!-- Policy Note -->
+        <div style="background: #F1F5F9; border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: #475569; margin-bottom: 18px; line-height: 1.4;">
+          <strong>VORTEX Refund Policy:</strong> Items under ₹500 qualify for instant automated verification. High-value equipment requires supervisor review within 24 hours.
+        </div>
+
+        <!-- Submission Status Area -->
+        <div id="returnStatusBox" style="display: none; margin-bottom: 16px; padding: 14px; border-radius: 10px;"></div>
+
+        <!-- Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-order-action" id="btnCancelReturnModal">Cancel</button>
+          <button type="submit" class="btn-order-action primary-return" id="btnSubmitReturnClaim" style="padding: 9px 20px; font-weight: 700;">
+            <span>Submit Return Claim</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Cart Drawer -->
+  <aside class="vx-drawer" id="cartDrawer" aria-label="Shopping Cart Drawer">
+    <div class="vx-drawer-header">
+      <div class="vx-drawer-title">Shopping Cart</div>
+      <button type="button" class="vx-drawer-close" id="btnCloseCartDrawer" aria-label="Close Cart">&times;</button>
+    </div>
+    <div class="vx-drawer-body" id="cartItemsStream">
+      <div style="text-align: center; padding: 48px; color: #94A3B8;">Your cart is empty.</div>
+    </div>
+    <div class="vx-drawer-footer">
+      <div style="display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 12px;">
+        <span>Subtotal</span>
+        <span id="cartSubtotalVal">&#8377;0</span>
+      </div>
+      <button type="button" class="btn-order-action" style="width: 100%; justify-content: center; background: #0F172A; color: #FFFFFF;" id="btnCheckoutCart">
+        Proceed to Secure Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Client Script -->
+  <script src="/static/orders.js"></script>
+</body>
+</html>

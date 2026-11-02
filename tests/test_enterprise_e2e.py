@@ -101,8 +101,64 @@ def test_e2e_suite():
     assert r_telem.status_code == 200
     assert r_telem.json()["status"] == "operational"
 
+    print("\n--- Test 8: Dedicated Orders and Account Profile Pages ---")
+    r_orders_page = client.get("/orders")
+    print("Orders page status:", r_orders_page.status_code, "Length:", len(r_orders_page.text))
+    assert r_orders_page.status_code == 200
+    assert "My Orders" in r_orders_page.text
+
+    r_account_page = client.get("/account")
+    print("Account page status:", r_account_page.status_code, "Length:", len(r_account_page.text))
+    assert r_account_page.status_code == 200
+    assert "Sreejith" in r_account_page.text
+
+    r_orders_api = client.get("/api/v1/orders")
+    orders_data = r_orders_api.json()
+    print("Orders API status:", r_orders_api.status_code, "Count:", orders_data["total_count"])
+    assert r_orders_api.status_code == 200
+    assert orders_data["total_count"] >= 3
+
+    r_order_detail = client.get("/api/v1/orders/VTX-90812")
+    assert r_order_detail.status_code == 200
+    assert r_order_detail.json()["total_inr"] == 450.0
+
+    print("\n--- Test 9: Automated Refund Engine (Low Ticket <= 500 Auto vs High Ticket > 500 Escalate) ---")
+    # Low ticket (Rs 450 <= 500)
+    r_ret_low = client.post("/api/v1/orders/VTX-90812/return", json={
+        "reason": "Defective item / Damaged on arrival",
+        "notes": "Bottle seal broken on delivery",
+    })
+    low_res = r_ret_low.json()
+    print("Low ticket return status:", r_ret_low.status_code, "Policy status:", low_res["status"])
+    assert r_ret_low.status_code == 200
+    assert low_res["status"] == "auto_approved"
+    assert low_res["escalation_needed"] is False
+
+    # High ticket (Rs 26,990 > 500)
+    r_ret_high = client.post("/api/v1/orders/VTX-44210/return", json={
+        "reason": "Wrong item delivered",
+        "notes": "Received silver color instead of black studio edition",
+    })
+    high_res = r_ret_high.json()
+    print("High ticket return status:", r_ret_high.status_code, "Policy status:", high_res["status"])
+    assert r_ret_high.status_code == 200
+    assert high_res["status"] == "pending_manager_approval"
+    assert high_res["escalation_needed"] is True
+
+    # Operations supervisor approval of high-ticket claim
+    r_esc_resolve = client.post("/api/v1/support/escalate", json={
+        "thread_id": high_res["thread_id"],
+        "approved": True,
+        "manager_id": "OPS_MGR_PRIYA",
+        "notes": "Physical return collected and verified at Marthandam hub",
+    })
+    esc_res = r_esc_resolve.json()
+    print("Escalation resolve status:", r_esc_resolve.status_code, "Final status:", esc_res["status"])
+    assert r_esc_resolve.status_code == 200
+    assert esc_res["status"] == "manager_approved"
+
     print("\n=======================================================")
-    print(">>> ALL 7 END-TO-END INTEGRATION TESTS PASSED! <<<")
+    print(">>> ALL 9 END-TO-END INTEGRATION TESTS PASSED! <<<")
     print("=======================================================\n")
 
 

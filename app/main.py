@@ -86,6 +86,24 @@ def get_admin():
     """Serves high-density operations and engineering cockpit."""
     return FileResponse(settings.STATIC_DIR / "admin.html")
 
+@app.get("/orders", include_in_schema=False)
+@app.get("/orders/", include_in_schema=False)
+def get_orders_page():
+    """Serves Flipkart-grade dedicated customer order history page."""
+    orders_file = settings.STATIC_DIR / "orders.html"
+    if orders_file.exists():
+        return FileResponse(orders_file)
+    return FileResponse(settings.STATIC_DIR / "storefront.html")
+
+@app.get("/account", include_in_schema=False)
+@app.get("/account/", include_in_schema=False)
+def get_account_page():
+    """Serves Flipkart-grade dedicated customer account profile page."""
+    account_file = settings.STATIC_DIR / "account.html"
+    if account_file.exists():
+        return FileResponse(account_file)
+    return FileResponse(settings.STATIC_DIR / "storefront.html")
+
 @app.get("/product/{item_id}", include_in_schema=False)
 def get_product_detail(item_id: int):
     """Serves high-craft product detail page."""
