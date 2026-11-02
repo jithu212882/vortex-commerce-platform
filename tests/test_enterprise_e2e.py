@@ -85,11 +85,21 @@ def test_e2e_suite():
     assert r.status_code == 200
     assert res["status"] == "manager_approved"
 
-    print("\n--- Test 7: Static files ---")
-    r = client.get("/")
-    print("Static root status:", r.status_code, "Content length:", len(r.text))
-    assert r.status_code == 200
-    assert "ENTERPRISE CATALOG" in r.text
+    print("\n--- Test 7: Static files & Architectural Separation ---")
+    r_store = client.get("/")
+    print("Storefront root status:", r_store.status_code, "Content length:", len(r_store.text))
+    assert r_store.status_code == 200
+    assert "MERIDIAN" in r_store.text
+
+    r_admin = client.get("/admin")
+    print("Admin console status:", r_admin.status_code, "Content length:", len(r_admin.text))
+    assert r_admin.status_code == 200
+    assert "OPERATIONS COCKPIT" in r_admin.text
+
+    r_telem = client.get("/api/v1/admin/telemetry")
+    print("Admin telemetry status:", r_telem.status_code, "Metrics:", r_telem.json().get("metrics"))
+    assert r_telem.status_code == 200
+    assert r_telem.json()["status"] == "operational"
 
     print("\n=======================================================")
     print(">>> ALL 7 END-TO-END INTEGRATION TESTS PASSED! <<<")

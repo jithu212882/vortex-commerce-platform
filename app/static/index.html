@@ -2,300 +2,235 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enterprise Catalog &amp; Operations Desk</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b">
+  <title>MERIDIAN &bull; Modern Essentials &amp; Curated Goods</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
-  <!-- TOP ENTERPRISE SYSTEM HEADER -->
-  <header class="app-header">
-    <div class="header-branding">
-      <div class="logo-mark">SYS</div>
+  <!-- PUBLIC STOREFRONT HEADER -->
+  <header class="store-header">
+    <a href="/" class="store-brand">
+      <div class="brand-mark">M</div>
       <div>
-        <h1 class="system-title">ENTERPRISE CATALOG &amp; OPERATIONS DESK</h1>
-        <div class="system-meta">High-Density Telemetry &bull; Dense Recommender &bull; Policy Gate Control</div>
+        <div class="brand-title">MERIDIAN</div>
+        <div class="brand-tag">MODERN ESSENTIALS</div>
       </div>
-    </div>
-    <div class="header-telemetry">
-      <div class="telemetry-pill"><span class="indicator-dot status-ok"></span> [STATUS: OPERATIONAL]</div>
-      <div class="telemetry-pill">[GATEWAY: HTTP/2]</div>
-      <div class="telemetry-pill">[ENV: PRODUCTION]</div>
-      <div class="session-tag" id="sessionTag">SESSION: sess_init</div>
+    </a>
+
+    <nav class="store-nav">
+      <a href="#catalog" class="nav-link">Catalog</a>
+      <a href="#recommended" class="nav-link">Recommended</a>
+      <button type="button" class="btn-header-action" id="btnHeaderVisualSearch">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <span>Visual Search</span>
+      </button>
+    </nav>
+
+    <div class="store-header-actions">
+      <a href="/admin" class="admin-pill-link" title="Open Engineering &amp; Operations Cockpit">
+        <span>Admin Cockpit &nearr;</span>
+      </a>
+      <button class="btn-header-action" id="btnCartTrigger">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+        <span id="cartCountBadge" style="font-weight: 700;">0</span>
+      </button>
     </div>
   </header>
 
-  <!-- MAIN 2-COLUMN ENTERPRISE DASHBOARD -->
-  <main class="dashboard-container">
-    
-    <!-- LEFT PANEL: 65% CATALOG, TELEMETRY & RECOMMENDATIONS -->
-    <section class="panel-left">
-      
-      <!-- DWELL-WEIGHTED RECOMMENDATION FEED -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge">RECOMMENDER</span>
-            <h2 class="card-title">Catalog Recommendation Feed (Dwell-Weighted)</h2>
-          </div>
-          <div class="card-controls">
-            <span class="status-chip" id="recsStatusChip">[STATE: STANDBY]</span>
-            <button class="btn btn-secondary btn-sm" id="btnRefreshRecs">Recalculate</button>
-          </div>
-        </div>
+  <!-- STOREFRONT CONTENT CONTAINER -->
+  <main class="store-container">
 
-        <div class="formula-banner">
-          <span class="formula-label">SCORING FORMULA:</span>
-          <code>FinalScore(i) = &alpha; &times; CosineSim(Query_emb, Item_emb_i) + &beta; &times; &Sigma; [ min(dwell_j / 10.0, 1.0) &times; CosineSim(Item_emb_j, Item_emb_i) ]</code>
-        </div>
-
-        <div class="telemetry-summary-row" id="telemetrySummaryRow">
-          <div>Logged Interactions: <strong id="loggedInteractionsCount">0</strong></div>
-          <div>Active Weights: <strong>&alpha; = 0.50, &beta; = 0.50</strong></div>
-          <div>Dwell Ceiling: <strong>10.0s = 1.0x (Saturated)</strong></div>
-          <div id="lastLoggedDwellText">Last Logged: None</div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table" id="recommendationsTable">
-            <thead>
-              <tr>
-                <th style="width: 50px;">RANK</th>
-                <th style="width: 60px;">ID</th>
-                <th>PRODUCT TITLE</th>
-                <th>CATEGORY</th>
-                <th>PRICE</th>
-                <th style="width: 110px;">FINAL SCORE</th>
-                <th>SCORING BREAKDOWN</th>
-                <th style="width: 80px;">ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="recommendationsTableBody">
-              <tr>
-                <td colspan="8" class="text-muted text-center" style="padding: 24px;">
-                  No interactions logged yet. Open items in the catalog below to accumulate dwell-time telemetry signals.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- VISUAL FEATURE SEARCH -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge">VISION</span>
-            <h2 class="card-title">Visual Feature Search (YOLOv8 Preprocessing)</h2>
-          </div>
-          <span class="status-chip" id="visionStatusChip">[STATUS: READY]</span>
-        </div>
-
-        <div class="visual-search-layout">
-          <div class="upload-zone" id="dropZone">
-            <input type="file" id="imageFileInput" accept="image/*" class="file-input-hidden">
-            <div class="upload-prompt">
-              <div class="upload-icon-box">&#9650;</div>
-              <div class="upload-text">Select Image File or Drop File to Isolate Object</div>
-              <div class="upload-sub">Supports PNG, JPG, WEBP &bull; Runs Ultralytics YOLOv8n Bounding Box Extraction</div>
-              <button type="button" class="btn btn-secondary btn-sm" id="btnBrowseFile" style="margin-top: 10px;">Browse Disk</button>
-            </div>
-          </div>
-
-          <div class="visual-inspection-panel" id="visualInspectionPanel">
-            <div class="inspection-preview-box">
-              <div class="preview-canvas-wrapper" id="previewCanvasWrapper">
-                <img id="imagePreview" alt="Inspection Preview" style="display:none; max-width: 100%; max-height: 200px;">
-                <div id="boundingBoxOverlay" class="bbox-overlay" style="display:none;">
-                  <span id="bboxLabel" class="bbox-label">object</span>
-                </div>
-              </div>
-            </div>
-            <div class="inspection-metrics">
-              <div class="metric-row"><span>Status:</span> <strong id="visionStatusText">Awaiting upload</strong></div>
-              <div class="metric-row"><span>Detected Class:</span> <strong id="visionClassText">--</strong></div>
-              <div class="metric-row"><span>Confidence:</span> <strong id="visionConfText">--</strong></div>
-              <div class="metric-row"><span>Bounding Box:</span> <strong id="visionCoordsText">--</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="visualMatchesSection" style="margin-top: 16px; display: none;">
-          <div class="subheading-bar">
-            <span>CANDIDATE VISUAL MATCHES</span>
-            <span id="visualMatchesCount">0 matches</span>
-          </div>
-          <div class="grid-catalog" id="visualMatchesGrid"></div>
-        </div>
-      </div>
-
-      <!-- PRODUCT CATALOG GRID -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge">INVENTORY</span>
-            <h2 class="card-title">Enterprise Product Catalog</h2>
-          </div>
-          <div class="catalog-filters">
-            <input type="text" id="catalogSearchInput" placeholder="Filter title or keyword..." class="input-text input-sm">
-            <select id="catalogCategorySelect" class="input-select input-sm">
-              <option value="">All Categories</option>
-              <option value="beauty">Beauty</option>
-              <option value="fragrances">Fragrances</option>
-              <option value="furniture">Furniture</option>
-              <option value="groceries">Groceries</option>
-              <option value="electronics">Electronics</option>
-              <option value="audio">Audio</option>
-              <option value="wearables">Wearables</option>
-              <option value="fitness">Fitness</option>
-              <option value="accessories">Accessories</option>
-            </select>
-            <button class="btn btn-secondary btn-sm" id="btnFilterCatalog">Filter</button>
-          </div>
-        </div>
-
-        <div class="grid-catalog" id="catalogGrid">
-          <div class="catalog-loading">Loading inventory data...</div>
-        </div>
-      </div>
-
+    <!-- HERO INTRODUCTION -->
+    <section class="store-hero">
+      <h1 class="store-hero-headline">Curated objects for mindful living &amp; focused work.</h1>
+      <p class="store-hero-sub">Explore hand-selected lifestyle products, ergonomic workspace essentials, and daily personal care.</p>
     </section>
 
-    <!-- RIGHT PANEL: 35% OPERATIONS, POLICY GATE & TICKETS -->
-    <aside class="panel-right">
-      
-      <!-- MANAGER APPROVAL QUEUE / POLICY GATE -->
-      <div class="card" id="managerQueueCard">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge badge-warning">POLICY GATE</span>
-            <h2 class="card-title">Manager Approval Queue</h2>
-          </div>
-          <span class="status-chip chip-warning" id="pendingQueueBadge">[PENDING: 0]</span>
-        </div>
-
-        <div class="policy-note">
-          Automated Refund Gate: Threshold is set at <strong>$1,000.00</strong>. Amounts &gt; $1,000.00 automatically trigger <code>escalation_needed = True</code> and pause graph execution for human supervisor authorization.
-        </div>
-
-        <div id="pendingTicketsList" class="pending-tickets-container">
-          <div class="empty-state text-muted">No pending escalations in queue.</div>
-        </div>
+    <!-- SEARCH & CATEGORY FILTER CLUSTER -->
+    <section class="search-filter-cluster">
+      <div class="search-input-wrapper">
+        <svg class="icon" style="color: var(--text-muted); margin-right: 4px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="storeSearchInput" class="search-input-main" placeholder="Search catalog by title, brand, or specifications..." autocomplete="off">
+        <button type="button" class="btn-visual-search-trigger" id="btnSearchPhotoTrigger" title="Search by photo using YOLOv8 visual crop">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span>Search with photo</span>
+        </button>
       </div>
 
-      <!-- CUSTOMER OPERATIONS DESK & CONVERSATION FEED -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge">OPERATIONS</span>
-            <h2 class="card-title">Customer Operations Desk</h2>
-          </div>
-          <div class="thread-info">
-            <span id="activeThreadLabel">THREAD: ticket_101</span>
-            <button class="btn btn-secondary btn-xs" id="btnNewThread">New</button>
-          </div>
-        </div>
-
-        <!-- Quick Test Buttons -->
-        <div class="quick-scenarios-bar">
-          <span class="quick-scenarios-label">QUICK TEST:</span>
-          <button class="btn btn-scenario" data-text="I am requesting a refund of $450 for my broken camera order.">
-            $450 Refund (&le; $1K Auto)
-          </button>
-          <button class="btn btn-scenario" data-text="I demand an immediate refund of $1,850 for the defective office workstation setup.">
-            $1,850 Refund (&gt; $1K Gate)
-          </button>
-          <button class="btn btn-scenario" data-text="Do you have high performance 4K ultrawide monitors in stock?">
-            Catalog Query
-          </button>
-        </div>
-
-        <!-- Chat Conversation Feed -->
-        <div class="chat-feed" id="chatFeed">
-          <div class="chat-message message-system">
-            <div class="message-meta">[SYSTEM: NOMINAL] Operations desk initialized. Ready to process inquiries.</div>
-            <div class="message-body">Support ticket thread #ticket_101 active. All interactions are audited.</div>
-          </div>
-        </div>
-
-        <!-- Chat Input Form -->
-        <form id="chatForm" class="chat-input-row">
-          <input type="text" id="chatInput" placeholder="Enter customer inquiry message..." class="input-text" autocomplete="off" required>
-          <button type="submit" class="btn btn-primary" id="btnSendChat">Dispatch</button>
-        </form>
+      <div class="category-pills-row" id="categoryPillsRow">
+        <button class="filter-pill active" data-category="">All Goods</button>
+        <button class="filter-pill" data-category="beauty">Beauty &amp; Care</button>
+        <button class="filter-pill" data-category="fragrances">Fragrances</button>
+        <button class="filter-pill" data-category="furniture">Furniture</button>
+        <button class="filter-pill" data-category="groceries">Groceries</button>
+        <button class="filter-pill" data-category="electronics">Electronics</button>
+        <button class="filter-pill" data-category="audio">Audio</button>
+        <button class="filter-pill" data-category="wearables">Wearables</button>
       </div>
+    </section>
 
-      <!-- SESSION AUDIT LOG -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <span class="card-badge">AUDIT</span>
-            <h2 class="card-title">Active Session Audit Log</h2>
-          </div>
-          <button class="btn btn-secondary btn-xs" id="btnClearAudit">Clear</button>
+    <!-- RECOMMENDED FOR YOU (FLUID DWELL-WEIGHTED FEED) -->
+    <section class="recommended-section" id="recommended">
+      <div class="section-subhead">
+        <div>
+          <h2 class="section-title">Recommended For You</h2>
+          <div class="section-note">Personalized selections tailored to your interests and recent browsing.</div>
         </div>
-        <div class="audit-log-terminal" id="auditLogTerminal">
-          <div class="audit-line">[SYSTEM BOOT] Session telemetry initialized.</div>
+        <span id="recsFreshIndicator" style="font-size: 11px; color: var(--text-muted);">Updated live</span>
+      </div>
+      <div class="recommended-carousel-track" id="recommendedGrid">
+        <div class="text-muted" style="padding: 16px 0; font-size: 13px;">
+          Browsing products will seamlessly calibrate recommendations for you.
         </div>
       </div>
+    </section>
 
-    </aside>
+    <!-- FULL CATALOG GRID -->
+    <section id="catalog">
+      <div class="section-subhead">
+        <div>
+          <h2 class="section-title">Explore Catalog</h2>
+          <div class="section-note" id="catalogCountNote">Showing curated products</div>
+        </div>
+      </div>
+      <div class="product-grid" id="storeCatalogGrid">
+        <div class="text-muted" style="padding: 24px; text-align: center;">Loading store catalog...</div>
+      </div>
+    </section>
 
   </main>
 
-  <!-- PRODUCT DETAIL MODAL (DWELL TIME TRACKER) -->
-  <div class="modal-backdrop" id="productModal" style="display: none;">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-header-left">
-          <span class="card-badge">TELEMETRY TRACKER</span>
-          <h3 class="modal-title" id="modalProductTitle">Product Specification</h3>
-        </div>
-        <button class="modal-close-btn" id="btnModalClose">&times;</button>
+  <!-- PRODUCT QUICK-VIEW MODAL (WITH INVISIBLE DWELL-TIME TELEMETRY) -->
+  <div class="modal-backdrop-smooth" id="quickViewModal">
+    <div class="modal-content-smooth">
+      <div class="modal-top-bar">
+        <span class="modal-heading" id="modalHeading">Product Details</span>
+        <button class="modal-close-trigger" id="btnCloseQuickView" aria-label="Close modal">
+          <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
+      <div class="modal-body-layout">
+        <div>
+          <img id="modalImg" src="" alt="Product Image" class="modal-product-img">
+        </div>
+        <div>
+          <div class="product-category-meta" id="modalCategory">CATEGORY</div>
+          <h3 id="modalTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3;">Product Title</h3>
+          <div id="modalBrand" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Brand: Premium</div>
+          <div id="modalPrice" style="font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">$0.00</div>
+          
+          <p id="modalDesc" class="modal-desc-text">Detailed product description...</p>
 
-      <div class="modal-body">
-        <div class="modal-grid">
-          <div class="modal-image-col">
-            <img id="modalProductImage" src="" alt="Product Image" class="modal-img">
+          <div class="perks-list">
+            <div class="perk-item">
+              <svg class="icon" style="color: var(--status-green); width: 14px; height: 14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Complimentary 2-day delivery</span>
+            </div>
+            <div class="perk-item">
+              <svg class="icon" style="color: var(--status-green); width: 14px; height: 14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>30-day hassle-free return guarantee</span>
+            </div>
           </div>
-          <div class="modal-info-col">
-            <div class="modal-meta-row">
-              <span class="modal-category" id="modalProductCategory">CATEGORY</span>
-              <span class="modal-price" id="modalProductPrice">$0.00</span>
-            </div>
-            <div class="modal-brand" id="modalProductBrand">Brand: Generic</div>
-            <p class="modal-desc" id="modalProductDesc">Product description loading...</p>
-            
-            <!-- LIVE DWELL TIME DISPLAY -->
-            <div class="dwell-tracker-box">
-              <div class="dwell-tracker-header">
-                <span class="indicator-dot status-active"></span>
-                <strong>REAL-TIME DWELL TELEMETRY ACTIVE</strong>
-              </div>
-              <div class="dwell-counter" id="modalDwellCounter">00:00.000</div>
-              <div class="dwell-factor-bar-wrapper">
-                <div class="dwell-factor-bar" id="modalDwellBar" style="width: 0%;"></div>
-              </div>
-              <div class="dwell-calc-text" id="modalDwellCalcText">
-                Dwell Factor: min(0.0s / 10.0s, 1.0) = 0.000x weight
-              </div>
-            </div>
 
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-browse-consumer" id="btnAddToCartModal" style="flex: 1; margin: 0; padding: 10px 18px;">
+              Add to Bag
+            </button>
+            <button class="btn-header-action" id="btnDismissModal" style="padding: 10px 16px;">
+              Done
+            </button>
           </div>
         </div>
-      </div>
-
-      <div class="modal-footer">
-        <div class="text-muted" style="font-size: 11px;">
-          Closing this dialog automatically dispatches dwell interaction payload to <code>/api/v1/recommend/dwell</code>.
-        </div>
-        <button class="btn btn-primary" id="btnModalCommit">Dismiss &amp; Commit Telemetry</button>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- VISUAL FEATURE SEARCH MODAL -->
+  <div class="modal-backdrop-smooth" id="visualSearchModal">
+    <div class="modal-content-smooth" style="max-width: 580px;">
+      <div class="modal-top-bar">
+        <span class="modal-heading">Search with Photo</span>
+        <button class="modal-close-trigger" id="btnCloseVisualModal" aria-label="Close modal">
+          <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div style="padding: 24px;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Drop a photo or select an image from your device. Our visual engine will isolate the item and find matching catalog products.
+        </p>
+
+        <div class="dropzone-consumer" id="storefrontDropzone">
+          <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
+          <svg class="icon" style="width: 32px; height: 32px; color: var(--text-muted); margin-bottom: 8px;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">Drag photo here or browse files</div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Supports JPG, PNG, WEBP</div>
+          <button type="button" class="btn-browse-consumer" id="btnTriggerBrowsePhoto">Select File</button>
+        </div>
+
+        <!-- Visual Inspection Output Preview -->
+        <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
+          <div style="display: flex; gap: 16px; align-items: center; background-color: var(--bg-surface-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+            <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-subtle);">
+            <div style="flex: 1;">
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);" id="visualLabelNotice">Detected Item</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);" id="visualStatusNotice">Analysis complete. Matches retrieved below.</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
+          <div style="font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--text-secondary);">MATCHING CATALOG ITEMS</div>
+          <div class="product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER SUPPORT SLIDING SHEET DRAWER -->
+  <aside class="support-drawer-sheet" id="supportDrawer">
+    <div class="drawer-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--status-green);"></div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Customer Concierge</div>
+          <div style="font-size: 10.5px; color: var(--text-muted);">Orders, Returns &amp; Assistance</div>
+        </div>
+      </div>
+      <button class="modal-close-trigger" id="btnCloseDrawer" aria-label="Close drawer">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Chat Stream -->
+    <div class="drawer-chat-stream" id="drawerChatStream">
+      <div class="chat-bubble concierge">
+        Hello! How can we assist you today? You can ask about product availability, order tracking, or submit a return request.
+      </div>
+    </div>
+
+    <!-- Quick Prompt Chips -->
+    <div style="padding: 0 16px 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipTrackOrder">Track order</button>
+      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipRefundPrompt">Request a refund</button>
+      <button class="filter-pill" style="font-size: 11px; padding: 4px 8px;" id="chipCheckStock">Product inquiries</button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form class="drawer-chat-input-row" id="drawerChatForm">
+      <input type="text" id="drawerChatInput" class="input-drawer-chat" placeholder="Type your message..." autocomplete="off" required>
+      <button type="submit" class="btn-browse-consumer" style="margin: 0; padding: 8px 14px;">Send</button>
+    </form>
+  </aside>
+
+  <!-- FLOATING SUPPORT BUTTON (BOTTOM-RIGHT) -->
+  <button class="floating-support-btn" id="btnOpenSupportDrawer">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Support &amp; Returns</span>
+  </button>
+
+  <script src="/storefront.js"></script>
 </body>
 </html>
-

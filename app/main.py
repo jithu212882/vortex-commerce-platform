@@ -3,6 +3,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router as api_router
@@ -70,7 +71,23 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # Ensure static directory exists
 os.makedirs(settings.STATIC_DIR, exist_ok=True)
 
-# Mount static files at root
+# Architectural Separation Routes
+@app.get("/", include_in_schema=False)
+def get_storefront():
+    """Serves high-craft public consumer storefront."""
+    storefront_file = settings.STATIC_DIR / "storefront.html"
+    if storefront_file.exists():
+        return FileResponse(storefront_file)
+    return FileResponse(settings.STATIC_DIR / "index.html")
+
+@app.get("/admin", include_in_schema=False)
+@app.get("/admin/", include_in_schema=False)
+def get_admin():
+    """Serves high-density operations and engineering cockpit."""
+    return FileResponse(settings.STATIC_DIR / "admin.html")
+
+# Mount static directory
+app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static_assets")
 app.mount("/", StaticFiles(directory=str(settings.STATIC_DIR), html=True), name="static")
 
 
