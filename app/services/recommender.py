@@ -1,7 +1,16 @@
+import hashlib
 import logging
+import re
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
-from sentence_transformers import SentenceTransformer
+
+try:
+    from sentence_transformers import SentenceTransformer
+    HAS_SENTENCE_TRANSFORMERS = True
+except (ImportError, Exception):
+    SentenceTransformer = None
+    HAS_SENTENCE_TRANSFORMERS = False
+
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -111,19 +120,49 @@ class DenseDwellRecommender:
 
     def __init__(self, model_name: str = settings.EMBEDDING_MODEL_NAME):
         self.model_name = model_name
-        self.model: Optional[SentenceTransformer] = None
+        self.model: Optional[Any] = None
         self.items: List[Dict[str, Any]] = []
         self.item_id_to_idx: Dict[int, int] = {}
         self.catalog_embeddings: Optional[np.ndarray] = None
         self._init_model_and_catalog()
 
+    def _lightweight_encode(self, text: str, dim: int = 384) -> np.ndarray:
+        """
+        Lightweight, pure NumPy term-hashing vectorizer.
+        Generates deterministic 384-dimensional unit-normalized L2 vectors for Vercel/serverless environments.
+        Matches exact cosine-similarity dot-product behavior without PyTorch or HuggingFace weights.
+        """
+        vec = np.zeros(dim, dtype=np.float32)
+        if not text:
+            return vec
+
+        tokens = re.findall(r"\w+", text.lower())
+        if not tokens:
+            return vec
+
+        for token in tokens:
+            h = int(hashlib.md5(token.encode("utf-8")).hexdigest(), 16)
+            idx = h % dim
+            sign = 1.0 if ((h >> 16) & 1) == 0 else -1.0
+            weight = 1.0 + min(len(token) / 10.0, 1.0)
+            vec[idx] += sign * weight
+
+        norm = float(np.linalg.norm(vec))
+        if norm > 1e-6:
+            vec = vec / norm
+        return vec
+
     def _init_model_and_catalog(self):
-        """Initializes SentenceTransformer model and precomputes unit-normalized embeddings."""
-        try:
-            logger.info(f"Loading SentenceTransformer: {self.model_name}")
-            self.model = SentenceTransformer(self.model_name)
-        except Exception as e:
-            logger.error(f"Failed to load sentence-transformer {self.model_name}: {e}")
+        """Initializes SentenceTransformer model or falls back to lightweight pure-NumPy vectorizer."""
+        if HAS_SENTENCE_TRANSFORMERS:
+            try:
+                logger.info(f"Loading SentenceTransformer: {self.model_name}")
+                self.model = SentenceTransformer(self.model_name)
+            except Exception as e:
+                logger.warning(f"Failed to load sentence-transformer {self.model_name}: {e}. Operating in lightweight mode.")
+                self.model = None
+        else:
+            logger.info("SentenceTransformers runtime not detected. Operating in lightweight pure-NumPy mode.")
             self.model = None
 
         self.reload_catalog()
@@ -149,34 +188,40 @@ class DenseDwellRecommender:
         self.item_id_to_idx = {it["id"]: idx for idx, it in enumerate(self.items)}
 
         # Precompute catalog vector embeddings normalized to unit length
-        if self.model and self.items:
+        if self.items:
             corpus = [
                 f"{it.get('title', '')} {it.get('category', '')} {it.get('brand', '') or ''} {it.get('description', '')}".strip()
                 for it in self.items
             ]
-            raw_embeddings = self.model.encode(
-                corpus,
-                convert_to_numpy=True,
-                show_progress_bar=False,
-                normalize_embeddings=True,
-            )
-            # Ensure float32 array
-            self.catalog_embeddings = np.ascontiguousarray(raw_embeddings, dtype=np.float32)
+            if self.model:
+                raw_embeddings = self.model.encode(
+                    corpus,
+                    convert_to_numpy=True,
+                    show_progress_bar=False,
+                    normalize_embeddings=True,
+                )
+                # Ensure float32 array
+                self.catalog_embeddings = np.ascontiguousarray(raw_embeddings, dtype=np.float32)
+            else:
+                raw_embeddings = np.array([self._lightweight_encode(doc) for doc in corpus], dtype=np.float32)
+                self.catalog_embeddings = np.ascontiguousarray(raw_embeddings, dtype=np.float32)
             logger.info(f"Precomputed {len(self.items)} catalog embeddings of shape {self.catalog_embeddings.shape}")
         else:
             self.catalog_embeddings = None
 
     def encode_text(self, text: str) -> Optional[np.ndarray]:
         """Encodes text to a unit-length normalized 1D vector."""
-        if not self.model or not text.strip():
+        if not text or not text.strip():
             return None
-        emb = self.model.encode(
-            [text.strip()],
-            convert_to_numpy=True,
-            show_progress_bar=False,
-            normalize_embeddings=True,
-        )
-        return emb[0].astype(np.float32)
+        if self.model:
+            emb = self.model.encode(
+                [text.strip()],
+                convert_to_numpy=True,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            )
+            return emb[0].astype(np.float32)
+        return self._lightweight_encode(text.strip())
 
     def recommend_dwell(
         self,
