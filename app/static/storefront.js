@@ -774,12 +774,21 @@
     });
 
     // Visual Search Modal (YOLOv8)
-    const openVisualModal = () => el.visualSearchModal.classList.add("open");
-    if (el.btnSearchPhotoTrigger) {
-      el.btnSearchPhotoTrigger.addEventListener("click", openVisualModal);
-    }
-    if (el.btnTriggerHeroVisualSearch) {
-      el.btnTriggerHeroVisualSearch.addEventListener("click", openVisualModal);
+    const openVisualModal = () => {
+      if (el.visualSearchModal) el.visualSearchModal.classList.add("open");
+    };
+    [
+      document.getElementById("visualSearchTrigger"),
+      el.btnSearchPhotoTrigger,
+      el.btnTriggerHeroVisualSearch,
+    ].forEach((btn) => {
+      if (btn) btn.addEventListener("click", openVisualModal);
+    });
+
+    // Check if redirected with ?openVisualSearch=1
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("openVisualSearch") === "1") {
+      setTimeout(openVisualModal, 300);
     }
     document.querySelectorAll(".btn-trigger-specs").forEach((btn) => {
       btn.addEventListener("click", () => {

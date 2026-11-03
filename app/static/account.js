@@ -49,6 +49,12 @@
     if (btnHeaderSearch) {
       btnHeaderSearch.addEventListener("click", executeHeaderSearch);
     }
+    const visualSearchBtn = document.getElementById("visualSearchTrigger");
+    if (visualSearchBtn) {
+      visualSearchBtn.addEventListener("click", () => {
+        window.location.href = "/?openVisualSearch=1";
+      });
+    }
 
     if (window.gsap) {
       gsap.from("#vxCommandDock", { y: -20, opacity: 0, duration: 0.5, ease: "power3.out" });

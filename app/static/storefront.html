@@ -78,6 +78,11 @@
 
         <input type="text" id="globalSearchInput" name="globalSearchInput" class="vx-search-input flex-1 bg-transparent text-stone-900 placeholder-stone-400 text-xs px-4 py-2.5 outline-none" placeholder="Search across products, brands, categories..." autocomplete="off">
 
+        <!-- Visual Search / Camera Trigger -->
+        <button id="visualSearchTrigger" type="button" title="Visual Search" class="bg-stone-100 hover:bg-stone-200 text-stone-600 px-3 h-full flex items-center justify-center border-l border-stone-200 transition-colors cursor-pointer flex-shrink-0">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        </button>
+
         <button type="button" class="btn-vx-search-submit bg-slate-900 hover:bg-black text-white px-5 py-2.5 flex items-center justify-center transition-colors flex-shrink-0" id="btnSearchSubmit" title="Execute Search">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
@@ -115,67 +120,122 @@
   </div>
 
   <!-- =========================================================================
-       2. ASYMMETRIC 3-CELL EDITORIAL BENTO GRID HERO
+       2. EDITORIAL HERO MERCHANDISING CAROUSEL
        ========================================================================= -->
-  <section class="vx-bento-hero" aria-label="Editorial Bento Merchandising Showcase">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-8">
+  <section class="vx-hero max-w-[1400px] mx-auto px-4 my-6 w-full" aria-label="Commercial Merchandising Showcase">
+    <div class="hero-carousel-wrapper" id="heroCarousel" tabindex="0">
+      <!-- Sliding Track (4 slides: 400% width, translateX) -->
+      <div class="hero-track" id="carouselTrack">
 
-      <!-- Main Flagship Cell (8 columns, 400px tall, Obsidian #141413) -->
-      <article class="lg:col-span-8 bg-[#141413] text-white rounded-3xl p-8 lg:p-10 relative overflow-hidden flex flex-col justify-between border border-white/10 shadow-2xl bento-cell group min-h-[400px]">
-        <div class="relative z-10 max-w-md lg:max-w-lg">
-          <div class="bento-flagship-pill">
-            ACOUSTICS &amp; SILICON // VORTEX ONE
-          </div>
-          <h1 class="text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.12] text-white mb-4">
-            Acoustics &amp; Silicon.<br><span class="text-zinc-400 font-medium">Engineered for Precision.</span>
-          </h1>
-          <div class="flex items-center gap-3 font-mono text-sm text-zinc-400 mb-8">
-            <span>Studio Flagships from</span>
-            <span class="text-2xl font-extrabold text-white">₹24,990</span>
-            <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Studio Master Sound</span>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <button type="button" class="btn-bento-primary" id="btnExploreCollection" data-cat="audio">
-              <span>Explore Flagships &rarr;</span>
-            </button>
-            <button type="button" class="btn-bento-secondary" id="btnTriggerHeroVisualSearch" title="Search by Photo">
-              <svg class="w-4 h-4 text-[#FF3B00]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-              <span>Visual Search</span>
-            </button>
-          </div>
-        </div>
-        <div class="bento-flagship-visual">
-          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Sony WH-1000XM5 Studio Acoustics" class="bento-flagship-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';">
-        </div>
-      </article>
-
-      <!-- Side Column Container (4 columns) -->
-      <div class="lg:col-span-4 flex flex-col gap-5">
-        <!-- Cell 2: Top-Right Gaming & Pro Peripherals Surface -->
-        <article class="bento-cell-champagne bento-cell bento-filter-trigger group" data-cat="gaming" title="Explore Mechanical & Optical Gear">
-          <div class="relative z-10 max-w-[190px]">
-            <span class="bento-sub-tag text-amber-800">ESPORTS // CUSTOM GEAR</span>
-            <h3 class="bento-sub-title group-hover:text-[#FF3B00] transition-colors">Gaming &amp; Pro Peripherals</h3>
-            <span class="bento-sub-cta font-mono mt-3">Explore Mechanical &amp; Optical &rarr;</span>
-          </div>
-          <div class="bento-sub-visual">
-            <img src="https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80" alt="Custom Mechanical Keyboard" class="bento-sub-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80';">
+        <!-- Slide 1: Sony WH-1000XM5 (Acoustic Studio) -->
+        <article class="hero-slide slide-sony" data-index="0">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">STUDIO ACOUSTICS // FLAGSHIP</span>
+              <h2 class="hero-headline">Studio Precision.<br>Zero Distraction.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-price">From &#8377;24,990</span>
+                <span class="deal-divider">&bull;</span>
+                <span class="deal-offer">Instant 10% HDFC Card Rebate</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="audio">
+                  <span>Shop Audio Series &rarr;</span>
+                </button>
+              </div>
+            </div>
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Sony WH-1000XM5 Studio Acoustics" class="hero-product-img" loading="eager" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';">
+            </div>
           </div>
         </article>
 
-        <!-- Cell 3: Bottom-Right Cool Anodized Silver Surface (#E5E7EB) -->
-        <article class="bento-cell-silver bento-cell bento-filter-trigger group" data-cat="furniture" title="Explore Home & Living">
-          <div class="relative z-10 max-w-[190px]">
-            <span class="bento-sub-tag text-zinc-700">SMART LIVING &bull; CARE</span>
-            <h3 class="bento-sub-title group-hover:text-[#FF3B00] transition-colors">Smart Home &amp; Daily Formulations</h3>
-            <span class="bento-sub-cta font-mono mt-3">Discover Collection &rarr;</span>
-          </div>
-          <div class="bento-sub-visual">
-            <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80" alt="Smart Home Appliances" class="bento-sub-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
+        <!-- Slide 2: Dell XPS 14 & Workstation Hub -->
+        <article class="hero-slide slide-dell" data-index="1">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">PERFORMANCE COMPUTING</span>
+              <h2 class="hero-headline">Raw Intel Ultra Power.<br>Ultra Thin.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-price">From &#8377;89,990</span>
+                <span class="deal-divider">&bull;</span>
+                <span class="deal-offer">Flat 15% Instant Cashback &bull; Express Delivery</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="electronics">
+                  <span>Explore Laptops &rarr;</span>
+                </button>
+              </div>
+            </div>
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&q=80" alt="Dell XPS 14 Workstation" class="hero-product-img" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80';">
+            </div>
           </div>
         </article>
+
+        <!-- Slide 3: Gaming & Pro Peripherals (Esports Gear) -->
+        <article class="hero-slide slide-gaming" data-index="2">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">ESPORTS // CUSTOM GEAR</span>
+              <h2 class="hero-headline">Mechanical Precision.<br>Optical Speed.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-price">From &#8377;13,995</span>
+                <span class="deal-divider">&bull;</span>
+                <span class="deal-offer">Custom Keyboards &amp; Ultralight Mice</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="gaming">
+                  <span>Explore Esports Gear &rarr;</span>
+                </button>
+              </div>
+            </div>
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=800&q=80" alt="Keychron Custom Mechanical Keyboard" class="hero-product-img" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=600&q=80';">
+            </div>
+          </div>
+        </article>
+
+        <!-- Slide 4: Philips Rapid Air & Kitchen Modern -->
+        <article class="hero-slide slide-kitchen" data-index="3">
+          <div class="hero-slide-inner">
+            <div class="hero-slide-copy">
+              <span class="hero-tag">SMART APPLIANCES // LIVING</span>
+              <h2 class="hero-headline">Healthy Living.<br>Precision Culinary.</h2>
+              <div class="hero-deal-pill">
+                <span class="deal-price">From &#8377;6,999</span>
+                <span class="deal-divider">&bull;</span>
+                <span class="deal-offer">Save Up to 33% &bull; 2-Year Official Brand Warranty</span>
+              </div>
+              <div class="hero-actions">
+                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="furniture">
+                  <span>View Home &amp; Living &rarr;</span>
+                </button>
+              </div>
+            </div>
+            <div class="hero-slide-visual">
+              <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80" alt="Philips Rapid Air Modern Kitchen" class="hero-product-img" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
+            </div>
+          </div>
+        </article>
+
       </div>
 
+      <!-- Floating Navigation Chevrons -->
+      <button type="button" class="hero-chevron prev" id="btnCarouselPrev" aria-label="Previous Slide">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button type="button" class="hero-chevron next" id="btnCarouselNext" aria-label="Next Slide">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+
+      <!-- Progress Indicators (Bottom Center) -->
+      <div class="hero-progress" id="carouselPagination" aria-label="Slide Selector">
+        <button type="button" class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button type="button" class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button type="button" class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+        <button type="button" class="hero-dot" data-slide="3" aria-label="Slide 4"></button>
+      </div>
     </div>
   </section>
 

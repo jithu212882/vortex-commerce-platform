@@ -598,6 +598,12 @@
   if (btnHeaderSearch) {
     btnHeaderSearch.addEventListener("click", executeHeaderSearch);
   }
+  const visualSearchBtn = document.getElementById("visualSearchTrigger");
+  if (visualSearchBtn) {
+    visualSearchBtn.addEventListener("click", () => {
+      window.location.href = "/?openVisualSearch=1";
+    });
+  }
 
   // Entrance Motion
   if (window.gsap) {
