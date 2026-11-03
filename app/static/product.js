@@ -136,8 +136,12 @@
     if (el.brand) el.brand.textContent = (prod.brand || prod.category || "VORTEX").toUpperCase();
     if (el.title) el.title.textContent = prod.title;
     if (el.img) {
-      el.img.src = prod.image_url || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80";
+      el.img.src = prod.image_url || "/static/images/placeholder.png";
       el.img.alt = prod.title;
+      el.img.onerror = function () {
+        this.onerror = null;
+        this.src = "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80";
+      };
     }
 
     // Rating & Reviews
@@ -313,7 +317,7 @@
     if (!el.similarGrid) return;
 
     if (!items || items.length === 0) {
-      el.similarGrid.innerHTML = '<div style="grid-column: 1/-1; padding: 24px; color: #64748B;">No similar items found.</div>';
+      el.similarGrid.innerHTML = '<div style="grid-column: 1/-1; padding: 24px; color: #71717A;">No similar items found.</div>';
       return;
     }
 
@@ -325,65 +329,96 @@
         const reviews = item.review_count || 1240;
 
         return `
-          <div class="pdp-rec-card" onclick="window.location.href='/product/${item.id}';">
-            <div class="pdp-rec-img-box">
-              <img src="${item.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80'}" alt="${item.title}" loading="lazy">
+          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${item.id}';">
+            <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3">
+              <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${item.discount_pct || 25}% OFF</span>
+              <div class="card-rating-pill absolute top-2 right-2 bg-white/90 backdrop-blur text-[#111111] font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-black/5 flex items-center gap-1 z-10">
+                <span class="text-[#059669]">★</span> ${rating.toFixed(1)}
+              </div>
+              <img 
+                src="${item.image_url || '/static/images/placeholder.png'}" 
+                alt="${item.title}" 
+                loading="lazy"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';"
+                style="max-height: 125px; max-width: 85%; object-fit: contain;" 
+                class="group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
-            <div class="pdp-rec-brand">${item.brand || item.category || 'VORTEX'}</div>
-            <div class="pdp-rec-title" title="${item.title}">${item.title}</div>
-            <div class="pdp-rec-rating-row">
-              <span class="pdp-rec-rating-pill">${rating.toFixed(1)} ★</span>
-              <span class="pdp-rec-reviews">(${reviews.toLocaleString("en-IN")})</span>
+            <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'VORTEX'}</div>
+            <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}">${item.title}</div>
+            <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
+              <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
+              <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>
+              <span class="pdp-rec-discount font-mono text-[10px] font-bold text-[#FF3B00]">${item.discount_pct || 25}% off</span>
             </div>
-            <div class="pdp-rec-price-row">
-              <span class="pdp-rec-price">&#8377;${formatInr(priceInr)}</span>
-              <span class="pdp-rec-mrp">&#8377;${formatInr(mrpInr)}</span>
-              <span class="pdp-rec-discount">${item.discount_pct || 25}% off</span>
-            </div>
-            <div class="pdp-rec-delivery-badge">Free Delivery</div>
+            <div class="pdp-rec-delivery-badge font-mono text-[10px] text-[#059669] mt-1 font-medium">Free Express Delivery</div>
           </div>`;
       })
       .join("");
+
+    if (window.gsap) {
+      gsap.fromTo(el.similarGrid.querySelectorAll(".pdp-rec-card"), 
+        { y: 10 }, 
+        { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", clearProps: "all" }
+      );
+    }
   }
 
   async function fetchAndRenderBoughtTogether(currentId, category) {
     if (!el.boughtTogetherGrid) return;
 
     try {
-      // Query catalog for related items
-      const res = await fetch(`/api/v1/catalog?limit=12`);
+      // Query dedicated complementary co-usage endpoint
+      const res = await fetch(`/api/v1/recommend/bought-together/${currentId}?limit=5`);
       if (!res.ok) return;
-      const allItems = await res.json();
+      const complementary = await res.json();
 
-      // Filter out current product, pick complementary items
-      const complementary = allItems
-        .filter((it) => it.id !== currentId)
-        .slice(0, 5);
+      if (!complementary || complementary.length === 0) {
+        el.boughtTogetherGrid.innerHTML = `
+          <div style="grid-column: 1/-1; padding: 24px; color: #71717A;">No complementary accessories found.</div>`;
+        return;
+      }
 
       el.boughtTogetherGrid.innerHTML = complementary
         .map((item) => {
-          const priceInr = Math.round(Number(item.price) * 83);
-          const mrpInr = Math.round(priceInr * 1.35);
+          const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
+          const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
+          const discountPct = item.discount_pct || 25;
 
           return `
-            <div class="pdp-rec-card">
-              <div class="pdp-rec-img-box" onclick="window.location.href='/product/${item.id}';">
-                <img src="${item.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80'}" alt="${item.title}" loading="lazy">
+            <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md">
+              <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3" onclick="window.location.href='/product/${item.id}';">
+                <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
+                <img 
+                  src="${item.image_url || '/static/images/placeholder.png'}" 
+                  alt="${item.title}" 
+                  loading="lazy"
+                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';"
+                  style="max-height: 125px; max-width: 85%; object-fit: contain;" 
+                  class="group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
-              <div class="pdp-rec-brand">${item.brand || item.category || 'ACCESSORY'}</div>
-              <div class="pdp-rec-title" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
-              <div class="pdp-rec-price-row">
-                <span class="pdp-rec-price">&#8377;${formatInr(priceInr)}</span>
-                <span class="pdp-rec-mrp">&#8377;${formatInr(mrpInr)}</span>
-                <span class="pdp-rec-discount">25% off</span>
+              <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'ACCESSORY'}</div>
+              <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
+              <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
+                <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
+                <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>
+                <span class="pdp-rec-discount font-mono text-[10px] font-bold text-[#FF3B00]">${discountPct}% off</span>
               </div>
-              <button type="button" class="btn-pdp-quick-add" data-item-id="${item.id}" data-item-title="${item.title}" data-item-price="${item.price}" data-item-img="${item.image_url}">
+              <button type="button" class="btn-pdp-quick-add w-full mt-2.5 bg-[#111111] hover:bg-[#FF3B00] text-white font-mono text-xs font-semibold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-item-id="${item.id}" data-item-title="${item.title}" data-item-price="${item.price}" data-item-img="${item.image_url}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>Add to Cart</span>
               </button>
             </div>`;
         })
         .join("");
+
+      if (window.gsap) {
+        gsap.fromTo(el.boughtTogetherGrid.querySelectorAll(".pdp-rec-card"), 
+          { y: 10 }, 
+          { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", clearProps: "all" }
+        );
+      }
 
       // Bind quick add buttons
       el.boughtTogetherGrid.querySelectorAll(".btn-pdp-quick-add").forEach((btn) => {
@@ -397,19 +432,15 @@
           addItemToCart({ id, title, price, image_url: img });
 
           btn.innerHTML = "<span>Added ✓</span>";
-          btn.style.background = "#047857";
-          btn.style.color = "#FFFFFF";
-          btn.style.borderColor = "#047857";
-
+          btn.style.background = "#059669";
           setTimeout(() => {
-            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add to Cart</span>`;
-            btn.style.background = "#F1F5F9";
-            btn.style.color = "#0F172A";
-            btn.style.borderColor = "#E2E8F0";
-          }, 1500);
+            btn.innerHTML = `
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add to Cart</span>`;
+            btn.style.background = "#111111";
+          }, 1200);
         });
       });
-
     } catch (e) {
       console.warn("Could not load complementary products:", e);
     }
@@ -490,7 +521,7 @@
         subtotal += itemTotal;
         return `
           <div style="display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0;">
-            <img src="${it.image_url || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&q=80'}" style="width: 52px; height: 52px; object-fit: contain; border-radius: 8px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+            <img src="${it.image_url || '/static/images/placeholder.png'}" alt="${it.title}" style="width: 52px; height: 52px; object-fit: contain; border-radius: 8px; background: #F8FAFC; border: 1px solid #E2E8F0;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
             <div style="flex: 1;">
               <div style="font-size: 13px; font-weight: 600; line-height: 1.3; color: #0F172A;">${it.title}</div>
               <div style="font-size: 12.5px; color: #0F172A; font-weight: 700; margin-top: 3px;">₹${itemTotal.toLocaleString("en-IN")} <span style="font-size: 11px; color: #64748B; font-weight: 500;">(x${it.quantity || 1})</span></div>
@@ -540,6 +571,39 @@
       sendDwellBeacon();
     }
   });
+
+  // Header Search Trigger
+  const headerSearchInput = document.getElementById("headerSearchInput") || document.getElementById("globalSearchInput");
+  const btnHeaderSearch = document.getElementById("btnHeaderSearch") || document.getElementById("btnSearchSubmit");
+  const headerSearchCategory = document.getElementById("categorySelectDropdown");
+  function executeHeaderSearch() {
+    if (!headerSearchInput) return;
+    const q = headerSearchInput.value.trim();
+    const cat = headerSearchCategory ? headerSearchCategory.value : "";
+    if (q || cat) {
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (cat) params.set("cat", cat);
+      window.location.href = `/?${params.toString()}`;
+    }
+  }
+  if (headerSearchInput) {
+    headerSearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        executeHeaderSearch();
+      }
+    });
+  }
+  if (btnHeaderSearch) {
+    btnHeaderSearch.addEventListener("click", executeHeaderSearch);
+  }
+
+  // Entrance Motion
+  if (window.gsap) {
+    gsap.from("#vxCommandDock", { y: -24, opacity: 0, duration: 0.6, ease: "power3.out" });
+    gsap.from(".pdp-showcase-card", { y: 20, opacity: 0, duration: 0.5, delay: 0.1, ease: "power3.out" });
+  }
 
   // Run on page load
   syncCartBadge();

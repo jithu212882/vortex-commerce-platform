@@ -73,7 +73,7 @@ OFFLINE_FALLBACK_CATALOG = [
         "brand": "Chanel",
         "description": "Luminous oriental perfume with top notes of grapefruit and bergamot, rose and geranium heart, and tonka bean base.",
         "price": 129.99,
-        "image_url": "https://cdn.dummyjson.com/products/images/fragrances/Chanel%20Coco%20Noir%20Eau%20De%20Parfum/thumbnail.png",
+        "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80",
     },
     {
         "id": 8,
@@ -91,7 +91,7 @@ OFFLINE_FALLBACK_CATALOG = [
         "brand": "Dolce & Gabbana",
         "description": "Sunny and cheerful fruity floral fragrance with vibrant notes of lush mango, salty quince, and Australian blonde woods.",
         "price": 69.99,
-        "image_url": "https://cdn.dummyjson.com/products/images/fragrances/Dolce%20Shine%20Eau%20de%20Parfum/thumbnail.png",
+        "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
     },
     {
         "id": 10,
@@ -100,7 +100,7 @@ OFFLINE_FALLBACK_CATALOG = [
         "brand": "Gucci",
         "description": "Captivating white flower scent created with tuberose, jasmine bud extract, and Rangoon creeper from South India.",
         "price": 79.99,
-        "image_url": "https://cdn.dummyjson.com/products/images/fragrances/Gucci%20Bloom%20Eau%20de%20Parfum/thumbnail.png",
+        "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=600&q=80",
     },
     {
         "id": 11,
@@ -127,7 +127,7 @@ OFFLINE_FALLBACK_CATALOG = [
         "brand": "Furniture Crafts",
         "description": "Mid-century solid walnut nightstand featuring soft-close ball-bearing drawers and hidden power cord routing pass-through.",
         "price": 299.99,
-        "image_url": "https://cdn.dummyjson.com/products/images/furniture/Bedside%20Table%20Two%20Drawer/thumbnail.png",
+        "image_url": "https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=600&q=80",
     },
     {
         "id": 14,
@@ -136,7 +136,7 @@ OFFLINE_FALLBACK_CATALOG = [
         "brand": "Artisan Living",
         "description": "Ergonomic molded bentwood armchair clad in full-grain cognac saddle leather with high-resilience foam cushioning.",
         "price": 799.99,
-        "image_url": "https://cdn.dummyjson.com/products/images/furniture/Carpenters%20Armchair/thumbnail.png",
+        "image_url": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80",
     },
     {
         "id": 15,
@@ -191,6 +191,42 @@ OFFLINE_FALLBACK_CATALOG = [
         "description": "Rugged 49mm aerospace-grade titanium smartwatch with precision dual-frequency GPS and up to 72 hours low-power battery life.",
         "price": 799.99,
         "image_url": "https://cdn.dummyjson.com/products/images/fragrances/Calvin%20Klein%20CK%20One/thumbnail.png",
+    },
+    {
+        "id": 182,
+        "title": "Keychron Q1 Pro Wireless Custom Mechanical Keyboard",
+        "category": "Gaming & Peripherals",
+        "brand": "KEYCHRON",
+        "description": "The Keychron Q1 Pro is a groundbreaking full metal QMK/VIA wireless custom mechanical keyboard engineered with double-gasket design, CNC aluminum body, hot-swappable switches, and ultra-low latency wireless connectivity.",
+        "price": 198.78,
+        "image_url": "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "id": 183,
+        "title": "Logitech G Pro X Superlight 2 Wireless Gaming Mouse",
+        "category": "Gaming & Peripherals",
+        "brand": "LOGITECH G",
+        "description": "The Logitech G Pro X Superlight 2 is an iconic championship esports wireless mouse weighing only 60 grams, featuring the next-gen HERO 2 sensor, LIGHTFORCE hybrid optical-mechanical switches, and 2K polling.",
+        "price": 168.61,
+        "image_url": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "id": 184,
+        "title": "Sony DualSense Edge Wireless Controller",
+        "category": "Gaming & Peripherals",
+        "brand": "SONY PLAYSTATION",
+        "description": "The Sony DualSense Edge Wireless Controller offers high-performance customizable controls, swappable stick modules, remappable back buttons, adjustable trigger stops, and haptic feedback engineered for pro-level gameplay.",
+        "price": 228.80,
+        "image_url": "https://images.unsplash.com/photo-1606318801954-d46d46d3360a?auto=format&fit=crop&w=600&q=80",
+    },
+    {
+        "id": 213,
+        "title": "Razer BlackShark V2 Pro Wireless Esports Headset",
+        "category": "Gaming & Peripherals",
+        "brand": "RAZER",
+        "description": "The Razer BlackShark V2 Pro is the definitive wireless esports gaming headset equipped with Razer HyperClear Super Wideband Mic, TriForce Titanium 50mm drivers, and ultra-soft memory foam ear cushions.",
+        "price": 210.83,
+        "image_url": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=600&q=80",
     },
 ]
 

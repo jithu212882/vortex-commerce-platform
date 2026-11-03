@@ -188,17 +188,43 @@ class DenseDwellRecommender:
         category_filter: Optional[str] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
+        exclude_item_ids: Optional[List[int]] = None,
+        exclude_interacted: bool = True,
     ) -> Tuple[List[ProductItem], Dict[str, Any]]:
         """
         Computes dense semantic recommendations using dwell telemetry and text queries.
         
         FinalScore(i) = α * CosineSim(Query_emb, Item_emb_i)
                       + β * Σ [ min(dwell_j / 10.0, 1.0) * CosineSim(Item_emb_j, Item_emb_i) ]
+                      + CategoryAffinityBonus(i) + AlternativeBrandBonus(i)
+        
+        Strictly excludes clicked/interacted products so the user is shown similar alternatives
+        from other brands or with different specs under the same/related category, never the exact product.
         """
         interactions = recent_interactions or []
         n_items = len(self.items)
         if n_items == 0:
             return [], {"status": "empty_catalog"}
+
+        # Collect product IDs to strictly exclude from recommendations
+        excluded_pids = set(exclude_item_ids or [])
+        if exclude_interacted and interactions:
+            for inter in interactions:
+                excluded_pids.add(inter.product_id)
+
+        # Collect category and brand context from recent interactions
+        interacted_categories = set()
+        interacted_brands = set()
+        for inter in interactions:
+            pid = inter.product_id
+            if pid in self.item_id_to_idx:
+                idx = self.item_id_to_idx[pid]
+                it_cat = (self.items[idx].get("category") or "").lower()
+                it_brand = (self.items[idx].get("brand") or "").lower()
+                if it_cat:
+                    interacted_categories.add(it_cat)
+                if it_brand:
+                    interacted_brands.add(it_brand)
 
         # Determine effective weights based on inputs
         has_query = bool(query_text and query_text.strip())
@@ -214,6 +240,7 @@ class DenseDwellRecommender:
                 category_filter=category_filter,
                 min_price=min_price,
                 max_price=max_price,
+                exclude_item_ids=excluded_pids,
             )
 
         # Normalize alpha/beta if both or one active
@@ -260,12 +287,34 @@ class DenseDwellRecommender:
                 # Normalize by total dwell weight for bounded [0, 1] cosine scale
                 dwell_sims = raw_dwell_scores / total_dwell_weight
 
-        # 3. Final Combined Score
-        final_scores = (eff_alpha * query_sims) + (eff_beta * dwell_sims)
+        # 3. Category Affinity and Alternative Brand Boosts
+        # Fulfills user requirement: show similar products from ANOTHER brand or same category
+        bonus_scores = np.zeros(n_items, dtype=np.float32)
+        if interacted_categories or interacted_brands:
+            for idx, it in enumerate(self.items):
+                it_cat = (it.get("category") or "").lower()
+                it_brand = (it.get("brand") or "").lower()
 
-        # Apply Category / Price Constraints
+                # Same category / related category boost
+                if it_cat in interacted_categories:
+                    bonus_scores[idx] += 0.25
+
+                # Alternative brand boost (if candidate has a different brand than the interacted product)
+                if it_brand and interacted_brands and (it_brand not in interacted_brands):
+                    bonus_scores[idx] += 0.18
+                elif not interacted_brands and it_cat in interacted_categories:
+                    bonus_scores[idx] += 0.10
+
+        # 4. Final Combined Score
+        final_scores = (eff_alpha * query_sims) + (eff_beta * dwell_sims) + bonus_scores
+
+        # Apply Exclusion & Constraints
         candidate_indices = []
         for idx, it in enumerate(self.items):
+            it_id = it.get("id")
+            # Strictly exclude clicked / interacted products
+            if it_id in excluded_pids:
+                continue
             if category_filter and it.get("category", "").lower() != category_filter.lower():
                 continue
             price = float(it.get("price", 0.0))
@@ -275,8 +324,11 @@ class DenseDwellRecommender:
                 continue
             candidate_indices.append(idx)
 
+        # Fallback if strict filtering eliminated everything
         if not candidate_indices:
-            candidate_indices = list(range(n_items))
+            candidate_indices = [idx for idx, it in enumerate(self.items) if it.get("id") not in excluded_pids]
+            if not candidate_indices:
+                candidate_indices = list(range(n_items))
 
         candidate_indices = np.array(candidate_indices)
         candidate_scores = final_scores[candidate_indices]
@@ -332,10 +384,14 @@ class DenseDwellRecommender:
         category_filter: Optional[str] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
+        exclude_item_ids: Optional[Any] = None,
     ) -> Tuple[List[ProductItem], Dict[str, Any]]:
         """Handles cold-start cases when neither interactions nor text queries are present."""
+        excluded = set(exclude_item_ids or [])
         filtered = []
         for it in self.items:
+            if it.get("id") in excluded:
+                continue
             if category_filter and it.get("category", "").lower() != category_filter.lower():
                 continue
             price = float(it.get("price", 0.0))
@@ -345,8 +401,10 @@ class DenseDwellRecommender:
                 continue
             filtered.append(it)
 
-        # If strict filtering returned nothing, take base catalog
-        candidates = filtered if filtered else self.items
+        # If strict filtering returned nothing, take base catalog excluding pids
+        candidates = filtered if filtered else [it for it in self.items if it.get("id") not in excluded]
+        if not candidates:
+            candidates = self.items
         selected = candidates[:top_k]
 
         results = [
@@ -381,7 +439,7 @@ class DenseDwellRecommender:
         custom_items: Optional[List[Any]] = None,
     ) -> List[RecommendationResult]:
         """Preserves backwards compatibility with legacy API contracts."""
-        query_str = " ".join(interests) if interests else ""
+        query_str = " ".join(str(i) for i in interests) if interests else ""
         products, _ = self.recommend_dwell(query_text=query_str, top_k=top_k)
         return [
             RecommendationResult(
@@ -395,45 +453,113 @@ class DenseDwellRecommender:
 
     def get_similar_products(self, product_id: int, top_k: int = 5) -> List[Dict[str, Any]]:
         """
-        Retrieves nearest neighbor products from sentence-transformers vector index,
-        prioritizing category coherence and cosine similarity.
+        Retrieves similar products matching category coherence and embedding similarity.
+        Strictly excludes the clicked/viewed product itself.
+        Boosts similar products from OTHER brands and with different specs to provide variety.
         """
         n_items = len(self.items)
         if n_items == 0:
             return []
 
         target_idx = self.item_id_to_idx.get(product_id)
+        target_item = self.items[target_idx] if target_idx is not None and target_idx < len(self.items) else next((it for it in self.items if it.get("id") == product_id), None)
+        target_cat = (target_item.get("category") or "").lower() if target_item else ""
+        if "gaming" in target_cat or "peripherals" in target_cat:
+            target_cat = "gaming-peripherals"
+        target_brand = (target_item.get("brand") or "").lower() if target_item else ""
+        target_title = (target_item.get("title") or "").lower() if target_item else ""
+        target_price = float(target_item.get("price", 0.0)) if target_item else 0.0
+
+        # Category families for domain coherence
+        category_families = {
+            "audio": ["audio", "mobile-accessories"],
+            "laptops": ["laptops", "electronics"],
+            "electronics": ["electronics", "laptops"],
+            "smartphones": ["smartphones", "tablets", "mobile-accessories"],
+            "tablets": ["tablets", "smartphones", "laptops"],
+            "wearables": ["wearables", "mens-watches", "womens-watches"],
+            "mens-watches": ["mens-watches", "wearables", "womens-watches"],
+            "womens-watches": ["womens-watches", "wearables", "mens-watches"],
+            "beauty": ["beauty", "skin-care"],
+            "skin-care": ["skin-care", "beauty"],
+            "fragrances": ["fragrances", "beauty"],
+            "furniture": ["furniture", "home-decoration"],
+            "kitchen-accessories": ["kitchen-accessories", "home-decoration"],
+            "home-decoration": ["home-decoration", "furniture"],
+            "womens-jewellery": ["womens-jewellery", "fragrances"],
+            "gaming-peripherals": ["gaming-peripherals", "gaming", "electronics", "audio", "laptops"],
+            "gaming": ["gaming-peripherals", "gaming", "electronics", "audio", "laptops"],
+            "womens-bags": ["womens-bags", "sunglasses"],
+            "sunglasses": ["sunglasses", "womens-bags", "sports-accessories"],
+            "sports-accessories": ["sports-accessories", "fitness"],
+        }
+        allowed_family = category_families.get(target_cat, [target_cat]) if target_cat else []
+
         candidates_indices: List[int] = []
 
         if target_idx is not None and self.catalog_embeddings is not None and target_idx < len(self.catalog_embeddings):
             target_emb = self.catalog_embeddings[target_idx]
-            target_cat = self.items[target_idx].get("category", "")
             
             # Cosine similarity against normalized embeddings
             sims = np.dot(self.catalog_embeddings, target_emb).copy()
-            sims[target_idx] = -999.0  # Exclude self
-            
-            # Category affinity boost to keep recommendations tightly related
+            sims[target_idx] = -999.0  # Strictly exclude the exact target product
+
             for j, it in enumerate(self.items):
-                if it.get("category") == target_cat:
+                it_id = it.get("id")
+                # Strictly exclude exact product and duplicate titles
+                if it_id == product_id or (target_title and (it.get("title") or "").lower() == target_title):
+                    sims[j] = -999.0
+                    continue
+
+                it_cat = (it.get("category") or "").lower()
+                it_cat_norm = "gaming-peripherals" if ("gaming" in it_cat or "peripherals" in it_cat) else it_cat
+                it_brand = (it.get("brand") or "").lower()
+                it_price = float(it.get("price", 0.0))
+
+                # 1. Category Coherence Boost
+                if it_cat_norm == target_cat or it_cat == target_cat:
+                    sims[j] += 0.35
+                elif it_cat_norm in allowed_family or it_cat in allowed_family:
+                    sims[j] += 0.15
+                else:
+                    # Penalize unrelated categories so laptops never recommend earrings or mascara
+                    sims[j] -= 0.60
+
+                # 2. Alternative Brand Boost (Fulfill user request: similar products from another brand)
+                if it_brand and target_brand and it_brand != target_brand:
                     sims[j] += 0.20
-            
-            top_indices = np.argsort(sims)[::-1][:top_k]
-            candidates_indices = [int(i) for i in top_indices]
-        else:
-            # Fallback: same category items
-            target_item = next((it for it in self.items if it.get("id") == product_id), None)
-            target_cat = target_item.get("category") if target_item else None
-            same_cat = [i for i, it in enumerate(self.items) if it.get("id") != product_id and (not target_cat or it.get("category") == target_cat)]
-            other = [i for i, it in enumerate(self.items) if it.get("id") != product_id and i not in same_cat]
-            candidates_indices = (same_cat + other)[:top_k]
+
+                # 3. Different Specs / Price Variety Boost
+                if target_price > 0 and abs(it_price - target_price) > 0.08 * target_price:
+                    sims[j] += 0.08
+
+            top_indices = np.argsort(sims)[::-1]
+            valid_indices = [int(i) for i in top_indices if sims[i] > -100.0]
+            candidates_indices = valid_indices[:top_k]
+
+        # Fallback if embeddings or filtered count is low
+        if len(candidates_indices) < top_k:
+            fallback_same_cat = [
+                i for i, it in enumerate(self.items)
+                if it.get("id") != product_id
+                and i not in candidates_indices
+                and (it.get("category") or "").lower() == target_cat
+            ]
+            fallback_family = [
+                i for i, it in enumerate(self.items)
+                if it.get("id") != product_id
+                and i not in candidates_indices
+                and i not in fallback_same_cat
+                and (it.get("category") or "").lower() in allowed_family
+            ]
+            candidates_indices.extend((fallback_same_cat + fallback_family)[: top_k - len(candidates_indices)])
 
         results = []
-        for idx in candidates_indices:
+        for idx in candidates_indices[:top_k]:
             it = self.items[idx]
             usd_price = float(it.get("price", 0.0))
-            price_inr = round(usd_price * 83)
-            mrp_inr = round(usd_price * 83 * 1.35)
+            price_inr = round(usd_price * 83) if usd_price > 0 else 999
+            mrp_inr = round(price_inr * 1.35)
             discount_pct = round((1 - (price_inr / mrp_inr)) * 100) if mrp_inr > price_inr else 25
 
             item_id = it.get("id", idx + 1)
@@ -449,6 +575,226 @@ class DenseDwellRecommender:
                 "discount_pct": discount_pct,
                 "rating": round(4.2 + (item_id % 7) * 0.1, 1),
                 "review_count": 850 + (item_id * 190) % 8500,
+                "image_url": it.get("image_url") or "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80",
+            })
+        return results
+
+    def get_bought_together_products(self, product_id: int, top_k: int = 5) -> List[Dict[str, Any]]:
+        """
+        Retrieves co-usage complementary gear and accessories that work alongside the viewed product.
+        Strictly excludes the product itself and duplicate products of the same type.
+        E.g.:
+          - Laptop -> Charger, Sleeve/Backpack, Mechanical Keyboard, Display, Headphones.
+          - Smartphone -> Phone Case, Wireless Earbuds, Fast Charger, MagSafe Battery, Smart Watch.
+          - Audio/Headphones -> Charging Dock, Smart Watch, Backpack, Audio Source Player.
+          - Smart Watch -> Workout Earphones, Insulated Water Bottle, Magnetic Charger, Sunglasses.
+          - Beauty/Mascara -> Eyeshadow Palette, Lipstick, Setting Powder, Skin Prep.
+        """
+        target_item = next((it for it in self.items if it.get("id") == product_id), None)
+        target_cat = (target_item.get("category") or "").lower() if target_item else ""
+        if "gaming" in target_cat or "peripherals" in target_cat:
+            target_cat = "gaming-peripherals"
+        target_title = (target_item.get("title") or "").lower() if target_item else ""
+
+        # Complementary co-usage schema per category
+        complementary_rules = {
+            "laptops": [
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "cable", "battery", "adapter"], "avoid": ["phone"]},
+                {"cats": ["womens-bags"], "tokens": ["backpack", "leather", "bag"], "avoid": []},
+                {"cats": ["electronics"], "tokens": ["keyboard", "display", "curved", "desk"], "avoid": ["laptop", "macbook", "xps", "matebook", "zenbook"]},
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["headphones", "airpods", "beats", "wireless", "earphones"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["echo", "homepod", "speaker", "magsafe"], "avoid": []},
+            ],
+            "electronics": [
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "cable", "battery"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["backpack", "bag", "leather"], "avoid": []},
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["headphones", "airpods", "beats", "wireless"], "avoid": []},
+                {"cats": ["electronics"], "tokens": ["keyboard", "display"], "avoid": ["laptop", "macbook", "xps"]},
+            ],
+            "smartphones": [
+                {"cats": ["mobile-accessories"], "tokens": ["case", "silicone", "magsafe", "plum"], "avoid": []},
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["airpods", "beats", "earphones", "headphones"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "battery pack"], "avoid": []},
+                {"cats": ["wearables", "mens-watches"], "tokens": ["watch", "ultra", "fit"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["monopod", "selfie", "lamp", "tripod"], "avoid": []},
+            ],
+            "tablets": [
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "cable"], "avoid": []},
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["airpods", "beats", "earphones"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["backpack", "bag"], "avoid": []},
+                {"cats": ["wearables", "mens-watches"], "tokens": ["watch", "ultra"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["monopod", "selfie", "pedestal"], "avoid": []},
+            ],
+            "audio": [
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "battery pack", "dock"], "avoid": []},
+                {"cats": ["wearables", "mens-watches"], "tokens": ["watch", "ultra", "pulsefit"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["backpack", "leather", "bag"], "avoid": []},
+                {"cats": ["smartphones"], "tokens": ["iphone", "phone"], "avoid": []},
+                {"cats": ["sports-accessories", "fitness"], "tokens": ["bottle", "steel", "water"], "avoid": []},
+            ],
+            "wearables": [
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["headphones", "airpods", "beats", "wireless", "earphones"], "avoid": []},
+                {"cats": ["fitness", "sports-accessories"], "tokens": ["bottle", "steel", "water", "sport"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "cable"], "avoid": []},
+                {"cats": ["sunglasses"], "tokens": ["glasses", "sun"], "avoid": []},
+                {"cats": ["smartphones"], "tokens": ["iphone", "phone"], "avoid": []},
+            ],
+            "mens-watches": [
+                {"cats": ["sunglasses"], "tokens": ["glasses", "sun", "classic", "black"], "avoid": []},
+                {"cats": ["fragrances"], "tokens": ["eau", "toilette", "ck", "dior", "perfume"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["leather", "backpack", "bag"], "avoid": []},
+                {"cats": ["audio", "mobile-accessories"], "tokens": ["headphones", "airpods", "beats"], "avoid": []},
+            ],
+            "womens-watches": [
+                {"cats": ["womens-jewellery"], "tokens": ["pendant", "earrings", "necklace", "ring"], "avoid": []},
+                {"cats": ["sunglasses"], "tokens": ["glasses", "sun"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["handbag", "bag", "prada", "heshe"], "avoid": []},
+                {"cats": ["fragrances"], "tokens": ["eau", "perfume", "dior", "gucci", "chanel"], "avoid": []},
+            ],
+            "womens-jewellery": [
+                {"cats": ["fragrances"], "tokens": ["eau", "perfume", "chanel", "dior", "gucci"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["handbag", "bag", "prada"], "avoid": []},
+                {"cats": ["sunglasses"], "tokens": ["glasses", "sun"], "avoid": []},
+                {"cats": ["beauty"], "tokens": ["lipstick", "palette"], "avoid": []},
+            ],
+            "gaming-peripherals": [
+                {"cats": ["gaming-peripherals"], "tokens": ["mouse", "keyboard", "controller", "headset"], "avoid": []},
+                {"cats": ["audio"], "tokens": ["headphones", "airpods", "headset"], "avoid": []},
+                {"cats": ["laptops"], "tokens": ["laptop", "macbook", "pro"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "cable", "stand"], "avoid": []},
+            ],
+            "gaming": [
+                {"cats": ["gaming-peripherals"], "tokens": ["mouse", "keyboard", "controller", "headset"], "avoid": []},
+                {"cats": ["audio"], "tokens": ["headphones", "airpods"], "avoid": []},
+                {"cats": ["laptops"], "tokens": ["laptop", "macbook", "pro"], "avoid": []},
+                {"cats": ["mobile-accessories"], "tokens": ["charger", "cable", "stand"], "avoid": []},
+            ],
+            "beauty": [
+                {"cats": ["beauty"], "tokens": ["eyeshadow", "palette", "mirror"], "avoid": ["mascara"]},
+                {"cats": ["beauty"], "tokens": ["lipstick", "lip", "satin"], "avoid": ["mascara"]},
+                {"cats": ["beauty"], "tokens": ["powder", "canister"], "avoid": ["mascara"]},
+                {"cats": ["skin-care"], "tokens": ["cream", "serum", "cleanser", "moisturizer"], "avoid": []},
+                {"cats": ["fragrances"], "tokens": ["eau", "perfume", "bloom", "dior"], "avoid": []},
+            ],
+            "skin-care": [
+                {"cats": ["beauty"], "tokens": ["powder", "lipstick", "eyeshadow"], "avoid": []},
+                {"cats": ["fragrances"], "tokens": ["eau", "perfume", "dior", "gucci"], "avoid": []},
+                {"cats": ["beauty"], "tokens": ["palette", "nail"], "avoid": []},
+            ],
+            "fragrances": [
+                {"cats": ["womens-jewellery"], "tokens": ["pendant", "necklace", "earrings"], "avoid": []},
+                {"cats": ["sunglasses"], "tokens": ["glasses", "sun"], "avoid": []},
+                {"cats": ["womens-bags"], "tokens": ["handbag", "bag"], "avoid": []},
+                {"cats": ["beauty"], "tokens": ["lipstick", "palette"], "avoid": []},
+            ],
+            "furniture": [
+                {"cats": ["furniture"], "tokens": ["table", "bedside", "chair"], "avoid": ["bed", "sofa"]},
+                {"cats": ["home-decoration"], "tokens": ["lamp", "table lamp", "light"], "avoid": []},
+                {"cats": ["home-decoration"], "tokens": ["plant", "pot", "frame", "swing"], "avoid": []},
+            ],
+            "kitchen-accessories": [
+                {"cats": ["kitchen-accessories"], "tokens": ["spatula", "board", "chopping", "wok", "whisk", "blender"], "avoid": []},
+                {"cats": ["groceries"], "tokens": ["coffee", "beans", "tea"], "avoid": []},
+            ],
+            "home-decoration": [
+                {"cats": ["home-decoration"], "tokens": ["lamp", "plant", "pot", "frame"], "avoid": []},
+                {"cats": ["furniture"], "tokens": ["table", "chair"], "avoid": []},
+            ],
+        }
+
+        rules = complementary_rules.get(target_cat, [
+            {"cats": ["mobile-accessories"], "tokens": ["charger", "airpower", "battery"], "avoid": []},
+            {"cats": ["womens-bags"], "tokens": ["backpack", "bag"], "avoid": []},
+            {"cats": ["sunglasses"], "tokens": ["glasses", "sun"], "avoid": []},
+            {"cats": ["audio"], "tokens": ["headphones", "airpods"], "avoid": []},
+        ])
+
+        matched_items: List[Dict[str, Any]] = []
+        used_ids = {product_id}
+
+        for rule in rules:
+            cats = rule.get("cats", [])
+            tokens = rule.get("tokens", [])
+            avoids = rule.get("avoid", [])
+
+            candidates = []
+            for it in self.items:
+                it_id = it.get("id")
+                if it_id in used_ids:
+                    continue
+                it_cat = (it.get("category") or "").lower()
+                it_cat_norm = "gaming-peripherals" if ("gaming" in it_cat or "peripherals" in it_cat) else it_cat
+                if it_cat not in cats and it_cat_norm not in cats:
+                    continue
+
+                corpus = f"{it.get('title', '')} {it.get('description', '')}".lower()
+                # Check avoids
+                if any(av in corpus for av in avoids):
+                    continue
+
+                # Check tokens
+                match_count = sum(1 for tok in tokens if tok in corpus)
+                if match_count > 0:
+                    candidates.append((match_count, it))
+
+            candidates.sort(key=lambda x: x[0], reverse=True)
+            for _, chosen in candidates:
+                if chosen["id"] not in used_ids:
+                    matched_items.append(chosen)
+                    used_ids.add(chosen["id"])
+                    break  # Take one best representative per complementary rule
+
+            if len(matched_items) >= top_k:
+                break
+
+        # Dynamic fallback tailored to the target item domain
+        if len(matched_items) < top_k:
+            if target_cat in ["laptops", "smartphones", "tablets", "audio", "wearables", "electronics", "gaming", "gaming-peripherals"]:
+                safe_accessory_cats = ["gaming-peripherals", "mobile-accessories", "audio", "wearables", "womens-bags", "sunglasses"]
+                avoid_words = ["laptop", "macbook", "xps", target_title.split()[0].lower() if target_title else ""]
+            elif target_cat in ["beauty", "skin-care", "fragrances", "womens-jewellery"]:
+                safe_accessory_cats = ["beauty", "skin-care", "fragrances", "womens-jewellery", "womens-bags"]
+                avoid_words = [target_title.split()[0].lower() if target_title else ""]
+            elif target_cat in ["furniture", "kitchen-accessories", "home-decoration"]:
+                safe_accessory_cats = ["home-decoration", "furniture", "kitchen-accessories"]
+                avoid_words = ["bed" if "bed" in target_title else "", "sofa" if "sofa" in target_title else ""]
+            else:
+                safe_accessory_cats = ["mobile-accessories", "womens-bags", "sunglasses", "sports-accessories"]
+                avoid_words = []
+
+            for it in self.items:
+                it_id = it.get("id")
+                it_cat = (it.get("category") or "").lower()
+                it_cat_norm = "gaming-peripherals" if ("gaming" in it_cat or "peripherals" in it_cat) else it_cat
+                it_title_lower = (it.get("title") or "").lower()
+                if it_id not in used_ids and (it_cat in safe_accessory_cats or it_cat_norm in safe_accessory_cats):
+                    if avoid_words and any(w and w in it_title_lower for w in avoid_words):
+                        continue
+                    matched_items.append(it)
+                    used_ids.add(it_id)
+                    if len(matched_items) >= top_k:
+                        break
+
+        results = []
+        for it in matched_items[:top_k]:
+            usd_price = float(it.get("price", 0.0))
+            price_inr = round(usd_price * 83) if usd_price > 0 else 999
+            mrp_inr = round(price_inr * 1.35)
+            discount_pct = round((1 - (price_inr / mrp_inr)) * 100) if mrp_inr > price_inr else 25
+
+            item_id = it.get("id", 1)
+            results.append({
+                "id": item_id,
+                "title": it.get("title", ""),
+                "brand": it.get("brand") or (it.get("category") or "ACCESSORY").upper(),
+                "category": it.get("category", ""),
+                "description": it.get("description", ""),
+                "price": usd_price,
+                "price_inr": price_inr,
+                "mrp_inr": mrp_inr,
+                "discount_pct": discount_pct,
+                "rating": round(4.3 + (item_id % 6) * 0.1, 1),
+                "review_count": 650 + (item_id * 120) % 6500,
                 "image_url": it.get("image_url") or "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80",
             })
         return results

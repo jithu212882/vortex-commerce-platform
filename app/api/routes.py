@@ -21,6 +21,7 @@ from app.models.schemas import (
     RecommendationRequest,
     RecommendationResponse,
     RecommendationResult,
+    SearchResultItem,
     VisualSearchResponse,
 )
 from app.services.agent_workflow import agent_workflow_service
@@ -102,6 +103,199 @@ def get_catalog(
         )
         for it in items
     ]
+
+
+@router.get("/search", response_model=List[SearchResultItem], tags=["Enterprise Search"])
+def search_products(
+    q: str = Query("", description="Keyword search query"),
+    category: Optional[str] = Query(None, description="Optional category filter"),
+    limit: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    """
+    Real-time keyword-based product search engine matching Amazon / Flipkart relevance architecture.
+    Normalizes multi-word queries, scores across title, brand, category, tags, and description fields,
+    and returns sorted matching products with full retail pricing and ratings metadata.
+    """
+    q_norm = (q or "").strip().lower()
+    if not q_norm:
+        return []
+
+    tokens = [t for t in q_norm.split() if len(t) > 0]
+    if not tokens:
+        return []
+
+    # Category normalization and mapping
+    cat_raw = (category or "").strip().lower()
+    cat_filter = None if (not cat_raw or cat_raw in ("all", "all categories")) else cat_raw
+
+    category_mappings = {
+        "electronics": ["electronics", "laptops", "smartphones", "tablets", "mobile-accessories", "gaming", "gaming-peripherals"],
+        "audio": ["audio", "mobile-accessories"],
+        "wearables": ["wearables", "mens-watches", "womens-watches", "sports-accessories"],
+        "gaming": ["gaming", "gaming-peripherals", "gaming & peripherals"],
+        "gaming-peripherals": ["gaming", "gaming-peripherals", "gaming & peripherals"],
+        "furniture": ["furniture", "home-decoration", "kitchen-accessories"],
+        "beauty": ["beauty", "skin-care"],
+        "fragrances": ["fragrances"],
+        "groceries": ["groceries"],
+        "laptops": ["laptops"],
+    }
+    allowed_cats = category_mappings.get(cat_filter, [cat_filter]) if cat_filter else []
+
+    # Retrieve all catalog items from DB (with fallback to recommender_service)
+    db_items = db.query(Item).all()
+    if db_items:
+        items_pool = [it.to_dict() for it in db_items]
+    elif recommender_service.items:
+        items_pool = recommender_service.items
+    else:
+        items_pool = []
+
+    scored_results: List[SearchResultItem] = []
+
+    for it in items_pool:
+        it_cat = (it.get("category") or "").lower()
+
+        # Category scoping if category filter specified
+        if cat_filter:
+            matches_cat = (
+                it_cat in allowed_cats
+                or any(c in it_cat for c in allowed_cats)
+                or cat_filter in it_cat
+            )
+            if not matches_cat:
+                continue
+
+        it_id = int(it.get("id") or 1)
+        it_title = (it.get("title") or "").lower()
+        it_brand = (it.get("brand") or (it.get("category") or "VORTEX")).lower()
+        it_desc = (it.get("description") or "").lower()
+
+        it_tags = ""
+        if "tags" in it and it["tags"]:
+            it_tags = " ".join(str(t) for t in it["tags"]).lower() if isinstance(it["tags"], list) else str(it["tags"]).lower()
+        elif "keywords" in it and it["keywords"]:
+            it_tags = " ".join(str(t) for t in it["keywords"]).lower() if isinstance(it["keywords"], list) else str(it["keywords"]).lower()
+
+        relevance = 0.0
+
+        # 1. Exact Full Phrase Matches (Highest Priority)
+        if it_title == q_norm:
+            relevance += 250.0
+        elif it_title.startswith(q_norm):
+            relevance += 150.0
+        elif q_norm in it_title:
+            relevance += 100.0
+
+        if it_brand == q_norm:
+            relevance += 200.0
+        elif it_brand.startswith(q_norm):
+            relevance += 120.0
+        elif q_norm in it_brand:
+            relevance += 80.0
+
+        if q_norm == it_cat:
+            relevance += 70.0
+        elif q_norm in it_cat:
+            relevance += 40.0
+
+        if it_tags:
+            if q_norm in it_tags:
+                relevance += 45.0
+
+        if q_norm in it_desc:
+            relevance += 25.0
+
+        # 2. Token-level Matching across fields: title, brand, category, tags, description
+        matched_token_count = 0
+        for token in tokens:
+            token_matched = False
+
+            # Title matching
+            if f" {token} " in f" {it_title} ":
+                relevance += 40.0
+                token_matched = True
+            elif token in it_title:
+                relevance += 25.0
+                token_matched = True
+
+            # Brand matching
+            if f" {token} " in f" {it_brand} ":
+                relevance += 35.0
+                token_matched = True
+            elif token in it_brand:
+                relevance += 20.0
+                token_matched = True
+
+            # Category matching
+            if f" {token} " in f" {it_cat} ":
+                relevance += 25.0
+                token_matched = True
+            elif token in it_cat:
+                relevance += 15.0
+                token_matched = True
+
+            # Tags / Keywords matching
+            if it_tags:
+                if f" {token} " in f" {it_tags} ":
+                    relevance += 20.0
+                    token_matched = True
+                elif token in it_tags:
+                    relevance += 12.0
+                    token_matched = True
+
+            # Description matching
+            if f" {token} " in f" {it_desc} ":
+                relevance += 10.0
+                token_matched = True
+            elif token in it_desc:
+                relevance += 5.0
+                token_matched = True
+
+            if token_matched:
+                matched_token_count += 1
+
+        # Multi-word token co-occurrence:
+        # e.g., "sony wireless" matches items containing both "sony" and "wireless"
+        if len(tokens) > 1:
+            if matched_token_count < len(tokens):
+                continue
+            relevance += 50.0
+        elif matched_token_count == 0:
+            continue
+
+        if relevance > 0.0:
+            price_usd = float(it.get("price") or 0.0)
+            price_inr = round(price_usd * 83) if price_usd > 0 else 999.0
+            discount_pct = 20 + ((it_id * 3) % 15)
+            mrp_inr = round(price_inr * (1 + discount_pct / 100.0))
+            mrp_usd = round(price_usd * (1 + discount_pct / 100.0), 2)
+            rating = round(4.4 + ((it_id * 7) % 6) / 10.0, 1)
+            review_count = 850 + it_id * 39
+
+            scored_results.append(
+                SearchResultItem(
+                    id=it_id,
+                    title=it.get("title") or "Product Item",
+                    brand=(it.get("brand") or (it.get("category") or "VORTEX")).upper(),
+                    category=it.get("category") or "general",
+                    description=it.get("description") or "",
+                    price=price_usd,
+                    price_inr=float(price_inr),
+                    mrp=mrp_usd,
+                    mrp_inr=float(mrp_inr),
+                    discount_pct=discount_pct,
+                    rating=rating,
+                    review_count=review_count,
+                    image_url=it.get("image_url") or "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80",
+                    relevance_score=round(relevance, 2),
+                )
+            )
+
+    # Sort primarily by relevance_score descending, secondarily by review_count
+    scored_results.sort(key=lambda x: (x.relevance_score, x.review_count), reverse=True)
+    return scored_results[:limit]
 
 
 def enrich_product_payload(it: Dict[str, Any]) -> Dict[str, Any]:
@@ -239,6 +433,37 @@ def enrich_product_payload(it: Dict[str, Any]) -> Dict[str, Any]:
                 "Not Covered": "Ear cushion wear from extensive usage, headband snap from physical drop",
             },
         }
+    elif any(k in cat for k in ["gaming", "peripherals", "keyboard", "mouse", "controller"]):
+        specs = {
+            "General": {
+                "Model Name": title,
+                "Color": "Carbon Black / Matte Space Gray",
+                "In the Box": f"{title}, Type-C to Type-A Braided Cable, 2.4GHz Wireless Dongle, Quick Start Guide, Warranty Card",
+                "Model Number": model_num,
+            },
+            "Performance / Specs": {
+                "Sensor / Switches": "Optical Precision Switches / Sub-1ms Optical Sensor",
+                "Polling Rate": "Up to 4000Hz / 8000Hz Hyper-Polling",
+                "Programmable Buttons": "Custom Macro Layer Support (QMK/VIA / On-board Memory)",
+                "RGB / Illumination": "Per-Key / Dynamic Zone RGB Lighting",
+            },
+            "Connectivity & Ports": {
+                "Wireless Technology": "Ultra-Low-Latency 2.4GHz Wireless + Bluetooth 5.2",
+                "Wired Interface": "Detachable Braided USB Type-C",
+                "Compatibility": "Windows 11/10, macOS, Linux, PS5, Xbox Series X",
+                "Battery Type": "Fast-Charging Rechargeable Lithium Polymer",
+            },
+            "Dimensions & Battery": {
+                "Weight": "Ultra-Lightweight Precision Chassis",
+                "Battery Backup": "Up to 90 Hours Continuous Gameplay",
+                "Charging Time": "Fast Charge (15 mins = 10 Hours play)",
+            },
+            "Warranty": {
+                "Warranty Summary": "2 Years Manufacturer Warranty",
+                "Covered in Warranty": "Switch failure, sensor tracking issues, wireless receiver defects",
+                "Not Covered": "Physical liquid damage or intentional disassembly",
+            },
+        }
     elif any(k in cat for k in ["beauty", "skin-care", "fragrance", "groceries"]):
         specs = {
             "General": {
@@ -347,9 +572,20 @@ def get_similar_products(product_id: int, limit: int = Query(5, ge=1, le=10)):
     """
     Retrieves nearest neighbor products from sentence-transformers vector index,
     matching category coherence and semantic embedding similarity.
+    Strictly excludes the viewed product itself and boosts alternative brands.
     """
     similar_items = recommender_service.get_similar_products(product_id=product_id, top_k=limit)
     return similar_items
+
+
+@router.get("/recommend/bought-together/{product_id}", tags=["Dense Recommendations"])
+def get_bought_together_products(product_id: int, limit: int = Query(5, ge=1, le=10)):
+    """
+    Retrieves co-usage complementary gear and accessories that can be used alongside the viewed product.
+    Strictly excludes the product itself and duplicate products of the same type.
+    """
+    bought_together = recommender_service.get_bought_together_products(product_id=product_id, top_k=limit)
+    return bought_together
 
 
 @router.get("/catalog/{item_id}", response_model=ProductItem, tags=["Enterprise Catalog"])
@@ -485,6 +721,8 @@ def get_dwell_weighted_recommendations(
             category_filter=payload.category_filter,
             min_price=payload.min_price,
             max_price=payload.max_price,
+            exclude_item_ids=payload.exclude_item_ids,
+            exclude_interacted=payload.exclude_interacted,
         )
 
         return RecommendationResponse(
@@ -511,6 +749,8 @@ def legacy_recommend(payload: RecommendationRequest):
             query_text=query,
             recent_interactions=payload.recent_interactions,
             top_k=payload.top_k,
+            exclude_item_ids=payload.exclude_item_ids,
+            exclude_interacted=payload.exclude_interacted,
         )
         return {
             "user_id": payload.user_id,

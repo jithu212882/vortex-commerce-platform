@@ -17,9 +17,12 @@
     catalog: [],
     recommended: [],
     cartItems: [], // [{ id, title, price, image_url, quantity }]
-    recentInteractions: [], // [{ product_id, dwell_time_seconds }]
+    recentInteractions: JSON.parse(sessionStorage.getItem("vx_recent_interactions") || "[]"), // [{ product_id, dwell_time_seconds }]
     activeCategory: "",
     searchQuery: "",
+    searchResultsAll: [],
+    searchFilterCategory: "",
+    searchSort: "relevance",
     currentQuickViewProduct: null,
     dwellStartTimestamp: 0,
   };
@@ -42,9 +45,17 @@
     gridHome: document.getElementById("gridHome"),
     shelfCare: document.getElementById("shelf-care"),
     gridCare: document.getElementById("gridCare"),
-    storeSearchInput: document.getElementById("storeSearchInput"),
+    globalSearchInput: document.getElementById("globalSearchInput") || document.getElementById("storeSearchInput"),
+    storeSearchInput: document.getElementById("globalSearchInput") || document.getElementById("storeSearchInput"),
     btnSearchSubmit: document.getElementById("btnSearchSubmit"),
     categorySelectDropdown: document.getElementById("categorySelectDropdown"),
+    searchSuggestDropdown: document.getElementById("searchSuggestDropdown"),
+    searchSuggestList: document.getElementById("searchSuggestList"),
+    searchSuggestSeeAll: document.getElementById("searchSuggestSeeAll"),
+    suggestSeeAllText: document.getElementById("suggestSeeAllText"),
+    searchResultsSort: document.getElementById("searchResultsSort"),
+    searchFilterPillsRow: document.getElementById("searchFilterPillsRow"),
+    vxBrandLogo: document.getElementById("vxBrandLogo") || document.querySelector(".vx-logo-cluster"),
     btnSearchPhotoTrigger: document.getElementById("btnSearchPhotoTrigger"),
     btnTriggerHeroVisualSearch: document.getElementById("btnTriggerHeroVisualSearch"),
     btnExploreCollection: document.getElementById("btnExploreCollection"),
@@ -107,7 +118,7 @@
     footerCustomerCare: document.getElementById("footerCustomerCare"),
   };
 
-  const FALLBACK_THUMB = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80";
+  const FALLBACK_THUMB = "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80";
 
   // Helpers for INR currency display
   function formatInr(usdPrice) {
@@ -129,6 +140,30 @@
     fetchCatalog();
     fetchInitialRecommendations();
 
+    // GSAP 3 Motion Choreography
+    if (window.gsap) {
+      gsap.from(".vx-command-dock", {
+        y: -18,
+        opacity: 0,
+        duration: 0.65,
+        ease: "power3.out",
+      });
+      gsap.from(".bento-cell", {
+        y: 28,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+      gsap.from(".category-nav-bar-wrapper", {
+        y: 14,
+        opacity: 0,
+        duration: 0.6,
+        delay: 0.25,
+        ease: "power2.out",
+      });
+    }
+
     // Check for openSupport deep link from PDP
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("openSupport") === "true") {
@@ -142,56 +177,499 @@
   }
 
   // ============================================================================
+  // SEARCH ENGINE UX & REAL-TIME AUTO-SUGGEST
+  // ============================================================================
+
+  let suggestDebounceTimer = null;
+  let currentSuggestions = [];
+  let selectedSuggestIndex = -1;
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function highlightMatch(title, query) {
+    if (!title) return "";
+    if (!query) return escapeHtml(title);
+    const tokens = query
+      .trim()
+      .split(/\s+/)
+      .filter((t) => t.length > 0);
+    if (!tokens.length) return escapeHtml(title);
+
+    try {
+      const pattern = `(${tokens.map(escapeRegExp).join("|")})`;
+      const regex = new RegExp(pattern, "gi");
+      const parts = title.split(regex);
+      return parts
+        .map((part) => {
+          if (tokens.some((tok) => tok.toLowerCase() === part.toLowerCase())) {
+            return `<strong style="font-weight: 700; color: #0F172A;">${escapeHtml(part)}</strong>`;
+          }
+          return escapeHtml(part);
+        })
+        .join("");
+    } catch (e) {
+      return escapeHtml(title);
+    }
+  }
+
+  function closeSuggestDropdown() {
+    if (el.searchSuggestDropdown) {
+      el.searchSuggestDropdown.style.display = "none";
+    }
+    selectedSuggestIndex = -1;
+    currentSuggestions = [];
+  }
+
+  function updateSuggestHighlight() {
+    if (!el.searchSuggestDropdown) return;
+    const items = el.searchSuggestDropdown.querySelectorAll(".suggest-item, .suggest-footer-row");
+    items.forEach((item, idx) => {
+      if (idx === selectedSuggestIndex) {
+        item.classList.add("selected");
+        item.style.backgroundColor = "#F1F5F9";
+      } else {
+        item.classList.remove("selected");
+        item.style.backgroundColor = "";
+      }
+    });
+  }
+
+  function renderSuggestDropdown(query, items) {
+    if (!el.searchSuggestDropdown || !el.searchSuggestList) return;
+
+    if (!items || items.length === 0) {
+      closeSuggestDropdown();
+      return;
+    }
+
+    selectedSuggestIndex = -1;
+    el.searchSuggestList.innerHTML = items
+      .map((it, idx) => {
+        const thumb = it.image_url || FALLBACK_THUMB;
+        const brand = (it.brand || it.category || "VORTEX").toUpperCase();
+        const priceInr = it.price_inr
+          ? Math.round(it.price_inr)
+          : Math.round(Number(it.price) * 83);
+        const highlightedTitle = highlightMatch(it.title, query);
+
+        return `
+        <div class="suggest-item" data-index="${idx}" data-id="${it.id}">
+          <div class="suggest-thumb-box" style="width: 36px; height: 36px; border-radius: 6px; background-color: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; padding: 2px;">
+            <img src="${thumb || '/static/images/placeholder.png'}" alt="${escapeHtml(it.title)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
+          </div>
+          <div class="suggest-info-col" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+            <div class="suggest-title" style="font-size: 13px; font-weight: 500; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;">
+              ${highlightedTitle}
+            </div>
+            <div class="suggest-meta-row" style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+              <span class="suggest-brand-badge" style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #475569; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 4px; padding: 1px 5px; letter-spacing: 0.04em;">${escapeHtml(brand)}</span>
+              <span class="suggest-price" style="font-size: 12.5px; font-weight: 700; color: #0F172A;">₹${priceInr.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" style="margin-left: auto; flex-shrink: 0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      `;
+      })
+      .join("");
+
+    if (el.suggestSeeAllText) {
+      el.suggestSeeAllText.innerHTML = `See all results for &lsquo;<strong>${escapeHtml(query)}</strong>&rsquo; &rarr;`;
+    }
+
+    el.searchSuggestDropdown.style.display = "block";
+
+    // Bind click events on suggestions
+    el.searchSuggestList.querySelectorAll(".suggest-item").forEach((row) => {
+      row.addEventListener("click", () => {
+        const id = row.getAttribute("data-id");
+        if (id) {
+          recordCardClickDwell(parseInt(id, 10));
+          closeSuggestDropdown();
+          window.location.href = `/product/${id}`;
+        }
+      });
+    });
+
+    if (el.searchSuggestSeeAll) {
+      el.searchSuggestSeeAll.onclick = () => {
+        closeSuggestDropdown();
+        executeSearch(query);
+      };
+    }
+  }
+
+  async function fetchAndRenderSuggestions(query) {
+    const category = el.categorySelectDropdown ? el.categorySelectDropdown.value : "";
+    const params = new URLSearchParams({
+      q: query,
+      limit: "5",
+    });
+    if (category) {
+      params.append("category", category);
+    }
+
+    try {
+      const res = await fetch(`/api/v1/search?${params.toString()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const items = await res.json();
+      currentSuggestions = items.slice(0, 5);
+      renderSuggestDropdown(query, currentSuggestions);
+    } catch (err) {
+      console.error("Auto-suggest fetch error:", err);
+      closeSuggestDropdown();
+    }
+  }
+
+  function setViewMode(mode) {
+    const isSearch = mode === "search";
+    const bentoHero = document.querySelector(".vx-bento-hero");
+    const heroCarousel = document.querySelector(".vx-hero");
+    const bentoSection = document.querySelector(".vx-bento-section");
+    const categoryNav = document.querySelector(".category-nav-bar-wrapper");
+    const homeShelves = [
+      el.shelfRecommended,
+      el.shelfTech,
+      el.shelfJewellery,
+      el.shelfHome,
+      el.shelfCare,
+    ].filter(Boolean);
+
+    if (isSearch) {
+      if (bentoHero) bentoHero.style.display = "none";
+      if (heroCarousel) heroCarousel.style.display = "none";
+      if (bentoSection) bentoSection.style.display = "none";
+      if (categoryNav) categoryNav.style.display = "none";
+      homeShelves.forEach((shelf) => {
+        shelf.style.display = "none";
+      });
+      if (el.shelfSearchResults) {
+        el.shelfSearchResults.style.display = "block";
+      }
+    } else {
+      if (bentoHero) bentoHero.style.display = "";
+      if (heroCarousel) heroCarousel.style.display = "";
+      if (bentoSection) bentoSection.style.display = "";
+      if (categoryNav) categoryNav.style.display = "";
+      homeShelves.forEach((shelf) => {
+        shelf.style.display = "";
+      });
+      if (el.shelfSearchResults) {
+        el.shelfSearchResults.style.display = "none";
+      }
+    }
+  }
+
+  async function executeSearch(query, category = null) {
+    closeSuggestDropdown();
+    const cleanQuery = (query || "").trim();
+    if (!cleanQuery) {
+      clearSearch();
+      return;
+    }
+
+    state.searchQuery = cleanQuery;
+    const cat = category !== null 
+      ? category 
+      : (el.categorySelectDropdown ? el.categorySelectDropdown.value : "");
+    state.activeCategory = cat;
+    state.searchFilterCategory = "";
+
+    // Sync input value
+    const input = el.globalSearchInput || el.storeSearchInput;
+    if (input) input.value = cleanQuery;
+
+    // Reset filter pills to All
+    if (el.searchFilterPillsRow) {
+      el.searchFilterPillsRow.querySelectorAll(".search-cat-pill").forEach((p) => {
+        if (!p.getAttribute("data-cat")) p.classList.add("active");
+        else p.classList.remove("active");
+      });
+    }
+
+    // Switch view mode to search results
+    setViewMode("search");
+
+    // Loading skeleton in grid
+    if (el.storeCatalogGrid) {
+      el.storeCatalogGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--vx-text-muted);">
+          <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid #CBD5E1; border-top-color: #0F172A; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+          <div style="font-size: 14px; font-weight: 600; color: #0F172A;">Searching inventory for &ldquo;${escapeHtml(cleanQuery)}&rdquo;...</div>
+        </div>
+      `;
+    }
+
+    try {
+      const params = new URLSearchParams({
+        q: cleanQuery,
+        limit: "100",
+      });
+      if (cat) {
+        params.append("category", cat);
+      }
+      const res = await fetch(`/api/v1/search?${params.toString()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const items = await res.json();
+      state.searchResultsAll = items;
+      renderSearchResultsView();
+      smoothScrollTo("#shelfSearchResults");
+    } catch (err) {
+      console.error("Search execution error:", err);
+      if (el.storeCatalogGrid) {
+        el.storeCatalogGrid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--vx-text-muted);">
+            Unable to retrieve search results right now. Please try again.
+          </div>`;
+      }
+    }
+  }
+
+  function renderSearchResultsView() {
+    if (!el.shelfSearchResults) return;
+    el.shelfSearchResults.style.display = "block";
+
+    let filtered = [...state.searchResultsAll];
+
+    // Filter by active pill category if selected
+    if (state.searchFilterCategory) {
+      const cat = state.searchFilterCategory.toLowerCase();
+      filtered = filtered.filter((it) => {
+        const itCat = (it.category || "").toLowerCase();
+        if (cat === "electronics") {
+          return ['electronics', 'laptops', 'smartphones', 'tablets', 'mobile-accessories'].includes(itCat);
+        } else if (cat === "audio") {
+          return ['audio', 'mobile-accessories'].includes(itCat);
+        } else if (cat === "wearables") {
+          return ['wearables', 'mens-watches', 'womens-watches', 'sports-accessories'].includes(itCat);
+        } else if (cat === "furniture") {
+          return ['furniture', 'home-decoration', 'kitchen-accessories'].includes(itCat);
+        } else if (cat === "beauty") {
+          return ['beauty', 'skin-care'].includes(itCat);
+        }
+        return itCat.includes(cat) || cat.includes(itCat);
+      });
+    }
+
+    // Sort matching results
+    const sortVal = el.searchResultsSort ? el.searchResultsSort.value : "relevance";
+    if (sortVal === "price_low") {
+      filtered.sort((a, b) => (Number(a.price_inr) || Number(a.price) * 83) - (Number(b.price_inr) || Number(b.price) * 83));
+    } else if (sortVal === "price_high") {
+      filtered.sort((a, b) => (Number(b.price_inr) || Number(b.price) * 83) - (Number(a.price_inr) || Number(a.price) * 83));
+    } else if (sortVal === "rating") {
+      filtered.sort((a, b) => (Number(b.rating) || 4.5) - (Number(a.rating) || 4.5));
+    } else {
+      // Relevance
+      filtered.sort((a, b) => (Number(b.relevance_score) || 0) - (Number(a.relevance_score) || 0));
+    }
+
+    // Update Result Header
+    if (el.searchResultsTitle) {
+      el.searchResultsTitle.innerHTML = `Results for &ldquo;<span style="color: #2563EB;">${escapeHtml(state.searchQuery)}</span>&rdquo; <span style="font-size: 14px; font-weight: normal; color: #64748B;">(${filtered.length} items found)</span>`;
+    }
+    if (el.catalogCountNote) {
+      el.catalogCountNote.textContent = `Showing ${filtered.length} matching products across inventory`;
+    }
+
+    // If 0 items match
+    if (!filtered || filtered.length === 0) {
+      el.storeCatalogGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 56px 20px; text-align: center; background: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin: 8px 0;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; color: #64748B;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21 21-4.34-4.34"/>
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="8" y1="8" x2="14" y2="14"/>
+              <line x1="14" y1="8" x2="8" y2="14"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 8px;">No results found</h3>
+          <p style="font-size: 13.5px; color: #64748B; max-width: 480px; margin: 0 auto 20px auto; line-height: 1.5;">
+            We couldn't find any items matching &lsquo;<strong>${escapeHtml(state.searchQuery)}</strong>&rsquo;. Try checking for typos or searching for a broader term like &lsquo;headphones&rsquo;, &lsquo;laptop&rsquo;, or &lsquo;watch&rsquo;.
+          </p>
+          <button type="button" class="btn-clear-search-fallback" style="padding: 8px 16px; background: #0F172A; color: #FFFFFF; font-size: 12.5px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none;">
+            Clear Search &times;
+          </button>
+        </div>
+      `;
+      const fallbackBtn = el.storeCatalogGrid.querySelector(".btn-clear-search-fallback");
+      if (fallbackBtn) fallbackBtn.addEventListener("click", clearSearch);
+      return;
+    }
+
+    // Render in standard 4-column product grid with clean dual-tone card layout
+    el.storeCatalogGrid.innerHTML = filtered
+      .map((it, idx) => renderProductCard(it, idx))
+      .join("");
+
+    bindCardInteractions(el.storeCatalogGrid);
+  }
+
+  function clearSearch() {
+    state.searchQuery = "";
+    state.activeCategory = "";
+    state.searchFilterCategory = "";
+    state.searchResultsAll = [];
+
+    const input = el.globalSearchInput || el.storeSearchInput;
+    if (input) input.value = "";
+    if (el.categorySelectDropdown) el.categorySelectDropdown.value = "";
+    updateCategoryStripActive("");
+
+    closeSuggestDropdown();
+    setViewMode("home");
+    fetchCatalog();
+    smoothScrollTo("#shelf-recommended");
+  }
+
+  // ============================================================================
   // EVENT BINDINGS
   // ============================================================================
 
   function bindEvents() {
-    // Search input
-    if (el.btnSearchSubmit) {
-      el.btnSearchSubmit.addEventListener("click", () => {
-        state.searchQuery = el.storeSearchInput ? el.storeSearchInput.value.trim() : "";
-        fetchCatalog();
-        smoothScrollTo("#shelfSearchResults");
-      });
-    }
+    const searchInput = el.globalSearchInput || el.storeSearchInput;
 
-    if (el.storeSearchInput) {
-      el.storeSearchInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          state.searchQuery = el.storeSearchInput.value.trim();
-          fetchCatalog();
-          smoothScrollTo("#shelfSearchResults");
+    // Search input & Debounced Auto-Suggest
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        clearTimeout(suggestDebounceTimer);
+        const query = searchInput.value.trim();
+        if (query.length < 2) {
+          closeSuggestDropdown();
+          return;
+        }
+        suggestDebounceTimer = setTimeout(() => {
+          fetchAndRenderSuggestions(query);
+        }, 200);
+      });
+
+      // Keyboard navigation (ArrowDown, ArrowUp, Enter, Escape)
+      searchInput.addEventListener("keydown", (e) => {
+        const isDropdownOpen = el.searchSuggestDropdown && el.searchSuggestDropdown.style.display !== "none";
+
+        if (e.key === "ArrowDown") {
+          if (isDropdownOpen && currentSuggestions.length > 0) {
+            e.preventDefault();
+            const totalNav = currentSuggestions.length + 1; // items + footer
+            selectedSuggestIndex = (selectedSuggestIndex + 1) % totalNav;
+            updateSuggestHighlight();
+          }
+        } else if (e.key === "ArrowUp") {
+          if (isDropdownOpen && currentSuggestions.length > 0) {
+            e.preventDefault();
+            const totalNav = currentSuggestions.length + 1;
+            selectedSuggestIndex = (selectedSuggestIndex - 1 + totalNav) % totalNav;
+            updateSuggestHighlight();
+          }
+        } else if (e.key === "Enter") {
+          if (isDropdownOpen && selectedSuggestIndex >= 0) {
+            e.preventDefault();
+            if (selectedSuggestIndex < currentSuggestions.length) {
+              const selectedItem = currentSuggestions[selectedSuggestIndex];
+              closeSuggestDropdown();
+              recordCardClickDwell(selectedItem.id);
+              window.location.href = `/product/${selectedItem.id}`;
+              return;
+            } else if (selectedSuggestIndex === currentSuggestions.length) {
+              closeSuggestDropdown();
+              executeSearch(searchInput.value.trim());
+              return;
+            }
+          }
+          closeSuggestDropdown();
+          executeSearch(searchInput.value.trim());
+        } else if (e.key === "Escape") {
+          closeSuggestDropdown();
+        }
+      });
+
+      // Focus back re-triggers suggestions if >= 2 chars
+      searchInput.addEventListener("focus", () => {
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+          fetchAndRenderSuggestions(query);
         }
       });
     }
 
-    // Clear Search & Filter Button
-    if (el.btnClearSearch) {
-      el.btnClearSearch.addEventListener("click", () => {
-        state.searchQuery = "";
-        state.activeCategory = "";
-        if (el.storeSearchInput) el.storeSearchInput.value = "";
-        if (el.categorySelectDropdown) el.categorySelectDropdown.value = "";
-        updateCategoryStripActive("");
-        if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
-        fetchCatalog();
-        smoothScrollTo("#shelf-recommended");
+    // Submit button click
+    if (el.btnSearchSubmit) {
+      el.btnSearchSubmit.addEventListener("click", () => {
+        const query = searchInput ? searchInput.value.trim() : "";
+        executeSearch(query);
       });
     }
 
-    // Category dropdown
+    // Dismiss suggestion dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      const searchBar = document.querySelector(".vx-search-bar");
+      if (searchBar && !searchBar.contains(e.target)) {
+        closeSuggestDropdown();
+      }
+    });
+
+    // Clear Search Button
+    if (el.btnClearSearch) {
+      el.btnClearSearch.addEventListener("click", clearSearch);
+    }
+
+    // Brand Logo: resets view back to standard curated shelves
+    const brandLogo = document.getElementById("vxBrandLogo") || document.querySelector(".vx-logo-cluster");
+    if (brandLogo) {
+      brandLogo.addEventListener("click", (e) => {
+        e.preventDefault();
+        clearSearch();
+        window.history.pushState({}, "", "/");
+      });
+    }
+
+    // Category dropdown on the left of search bar
     if (el.categorySelectDropdown) {
       el.categorySelectDropdown.addEventListener("change", (e) => {
         state.activeCategory = e.target.value;
         updateCategoryStripActive(state.activeCategory);
-        if (state.activeCategory) {
+        const query = searchInput ? searchInput.value.trim() : "";
+        if (query) {
+          executeSearch(query, state.activeCategory);
+        } else if (state.activeCategory) {
           fetchCatalog();
           smoothScrollTo("#shelfSearchResults");
         } else {
-          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+          setViewMode("home");
           fetchCatalog();
           smoothScrollTo("#shelf-recommended");
         }
+      });
+    }
+
+    // Category Filter Pills inside Search Results View
+    if (el.searchFilterPillsRow) {
+      el.searchFilterPillsRow.querySelectorAll(".search-cat-pill").forEach((pill) => {
+        pill.addEventListener("click", () => {
+          el.searchFilterPillsRow.querySelectorAll(".search-cat-pill").forEach((p) => p.classList.remove("active"));
+          pill.classList.add("active");
+          state.searchFilterCategory = pill.getAttribute("data-cat") || "";
+          renderSearchResultsView();
+        });
+      });
+    }
+
+    // Sort Dropdown in Search Results View
+    if (el.searchResultsSort) {
+      el.searchResultsSort.addEventListener("change", () => {
+        renderSearchResultsView();
       });
     }
 
@@ -205,15 +683,11 @@
         updateCategoryStripActive(cat);
 
         if (target) {
-          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+          setViewMode("home");
           smoothScrollTo(target);
         } else {
           // "All Curated Collections": Reset any search, scroll to top recommended
-          state.searchQuery = "";
-          if (el.storeSearchInput) el.storeSearchInput.value = "";
-          if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
-          fetchCatalog();
-          smoothScrollTo("#shelf-recommended");
+          clearSearch();
         }
       });
     });
@@ -225,7 +699,7 @@
         let target = "#shelf-recommended";
         if (cat === "audio" || cat === "electronics" || cat === "wearables") {
           target = "#shelf-tech";
-        } else if (cat === "fragrances") {
+        } else if (cat === "gaming" || cat === "gaming-peripherals" || cat === "fragrances") {
           target = "#shelf-jewellery";
         } else if (cat === "furniture") {
           target = "#shelf-home";
@@ -263,7 +737,7 @@
         updateCategoryStripActive(cat);
         let target = "#shelf-recommended";
         if (cat === "audio" || cat === "electronics" || cat === "wearables") target = "#shelf-tech";
-        else if (cat === "fragrances") target = "#shelf-jewellery";
+        else if (cat === "gaming" || cat === "gaming-peripherals" || cat === "fragrances") target = "#shelf-jewellery";
         else if (cat === "furniture") target = "#shelf-home";
         else if (cat === "beauty") target = "#shelf-care";
         smoothScrollTo(target);
@@ -301,7 +775,9 @@
 
     // Visual Search Modal (YOLOv8)
     const openVisualModal = () => el.visualSearchModal.classList.add("open");
-    el.btnSearchPhotoTrigger.addEventListener("click", openVisualModal);
+    if (el.btnSearchPhotoTrigger) {
+      el.btnSearchPhotoTrigger.addEventListener("click", openVisualModal);
+    }
     if (el.btnTriggerHeroVisualSearch) {
       el.btnTriggerHeroVisualSearch.addEventListener("click", openVisualModal);
     }
@@ -373,25 +849,57 @@
       el.drawerChatForm.dispatchEvent(new Event("submit"));
     });
 
+    // Global Keyboard Shortcut: ⌘K or / to focus search input
+    window.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const input = el.globalSearchInput || el.storeSearchInput;
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      } else if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        const input = el.globalSearchInput || el.storeSearchInput;
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+    });
+
     // Keyboard ESC to close any open modal/drawer
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
-        if (el.quickViewModal.classList.contains("open")) closeQuickViewAndTrackDwell();
-        if (el.visualSearchModal.classList.contains("open")) el.visualSearchModal.classList.remove("open");
-        if (el.supportDrawer.classList.contains("open")) el.supportDrawer.classList.remove("open");
-        if (el.cartDrawer.classList.contains("open")) el.cartDrawer.classList.remove("open");
+        if (el.quickViewModal && el.quickViewModal.classList.contains("open")) closeQuickViewAndTrackDwell();
+        if (el.visualSearchModal && el.visualSearchModal.classList.contains("open")) el.visualSearchModal.classList.remove("open");
+        if (el.supportDrawer && el.supportDrawer.classList.contains("open")) el.supportDrawer.classList.remove("open");
+        if (el.cartDrawer && el.cartDrawer.classList.contains("open")) el.cartDrawer.classList.remove("open");
       }
     });
   }
 
   function updateCategoryStripActive(category) {
+    let activePill = null;
     document.querySelectorAll(".vx-cat-pill").forEach((pill) => {
-      if (pill.getAttribute("data-cat") === category) {
+      const match = (pill.getAttribute("data-cat") || "") === (category || "");
+      if (match) {
         pill.classList.add("active");
+        activePill = pill;
       } else {
         pill.classList.remove("active");
       }
     });
+
+    const slidingPill = document.getElementById("categorySlidingPill");
+    const track = document.getElementById("categoryNavTrack");
+    if (slidingPill && track && activePill) {
+      const trackRect = track.getBoundingClientRect();
+      const pillRect = activePill.getBoundingClientRect();
+      const leftOffset = pillRect.left - trackRect.left + track.scrollLeft;
+      slidingPill.style.width = `${pillRect.width}px`;
+      slidingPill.style.transform = `translateX(${leftOffset - 6}px)`;
+    }
   }
 
   function smoothScrollTo(selector) {
@@ -452,7 +960,7 @@
         const cat = btn.getAttribute("data-cat") || "";
         let target = "#shelf-recommended";
         if (cat === "audio" || cat === "electronics") target = "#shelf-tech";
-        else if (cat === "fragrances") target = "#shelf-jewellery";
+        else if (cat === "gaming" || cat === "gaming-peripherals" || cat === "fragrances") target = "#shelf-jewellery";
         else if (cat === "furniture") target = "#shelf-home";
         updateCategoryStripActive(cat);
         smoothScrollTo(target);
@@ -566,7 +1074,7 @@
 
         return `
         <div class="vx-cart-item-card">
-          <img src="${item.image_url}" alt="${item.title}" class="vx-cart-item-thumb" onerror="this.src='${FALLBACK_THUMB}'">
+          <img src="${item.image_url || '/static/images/placeholder.png'}" alt="${item.title}" class="vx-cart-item-thumb" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
           <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
             <div style="font-size: 13px; font-weight: 600; color: var(--vx-text); line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
               ${item.title}
@@ -637,42 +1145,47 @@
     const ratingScore = (4.4 + ((it.id * 7) % 6) / 10).toFixed(1);
     const reviewCount = (850 + it.id * 39).toLocaleString('en-IN');
     const discountPct = 20 + ((it.id * 3) % 15);
-    const isPrime = it.id % 2 === 0;
 
     return `
-    <article class="product-card vx-card-showcase group relative" data-id="${it.id}">
-      <!-- Upper Zone: The Framed Product Stage (#F8FAFC to #F1F5F9) -->
-      <div class="card-stage card-square-visual aspect-square bg-slate-100/80 rounded-xl p-4 flex items-center justify-center border border-slate-200/60 overflow-hidden relative">
-        ${isPrime ? `<span class="card-stage-tag absolute top-2.5 left-2.5 bg-white/95 text-slate-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-slate-200 shadow-xs z-10">Plus</span>` : ''}
-        <button type="button" class="btn-card-wishlist w-7 h-7 bg-white/90 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-white shadow-xs absolute top-2.5 right-2.5 z-10 transition-all duration-200" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <article class="product-card vx-card-showcase bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" data-id="${it.id}">
+      <!-- Upper Zone: Soft Warm Studio Plinth Stage (#F6F5F2) -->
+      <div class="card-plinth-stage card-stage card-square-visual bg-[#F6F5F2] rounded-xl h-52 flex items-center justify-center p-6 relative overflow-hidden border border-black/5">
+        <span class="card-discount-badge absolute top-2.5 left-2.5 bg-[#FF3B00] text-white font-mono text-[11px] font-bold px-2 py-0.5 rounded-md shadow-xs z-10">${discountPct}% OFF</span>
+        
+        <div class="card-rating-pill absolute top-2.5 right-2.5 bg-white/90 backdrop-blur text-[#111111] font-mono text-[11px] font-bold px-2 py-0.5 rounded-md border border-black/5 flex items-center gap-1 z-10">
+          <span class="text-[#059669]">★</span> ${ratingScore}
+        </div>
+
+        <button type="button" class="btn-card-wishlist w-7 h-7 bg-white/80 hover:bg-white rounded-full border border-black/5 flex items-center justify-center text-zinc-400 hover:text-rose-500 shadow-xs absolute bottom-2.5 right-2.5 z-10 transition-all duration-200" aria-label="Save to Wishlist" title="Save to Wishlist" data-id="${it.id}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
           </svg>
         </button>
-        <img src="${thumb}" alt="${it.title}" class="card-square-img object-contain max-h-40 w-auto group-hover:scale-105 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" loading="lazy" onerror="this.src='${FALLBACK_THUMB}'">
+
+        <img 
+          src="${it.image_url || thumb || '/static/images/placeholder.png'}" 
+          alt="${it.title}" 
+          loading="lazy" 
+          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';" 
+          style="max-height: 140px; max-width: 85%; object-fit: contain;" 
+          class="card-square-img group-hover:scale-105 transition-transform duration-300"
+        />
       </div>
 
-      <!-- Lower Zone: High-Contrast Info Stage (#FFFFFF) -->
+      <!-- Lower Zone: Crisp High-Contrast Editorial Stage -->
       <div class="card-content-wrap card-info-stage mt-3 space-y-1.5 bg-white">
-        <span class="card-brand-label text-[11px] font-bold text-slate-500 uppercase tracking-wider block">${brand}</span>
-        <h3 class="card-title-text text-sm font-semibold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600 transition-colors" title="${it.title}">${it.title}</h3>
+        <span class="card-brand-label card-brand-overline font-mono text-[10px] uppercase tracking-widest text-[#71717A] mt-2 block">${brand}</span>
+        <h3 class="card-title-text card-product-title font-semibold text-[14px] text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${it.title}">${it.title}</h3>
         
-        <div class="card-rating-pill flex items-center gap-1.5">
-          <span class="rating-badge card-rating-badge bg-emerald-700 text-white font-bold text-[11px] px-1.5 py-0.5 rounded inline-flex items-center gap-0.5 leading-none">
-            ${ratingScore} ★
-          </span>
-          <span class="rating-count-sub text-slate-400 text-xs font-normal">(${reviewCount})</span>
-        </div>
-
-        <div class="card-price-cluster card-price-row flex items-baseline gap-2 pt-0.5">
-          <span class="text-price card-price-curr text-base font-extrabold text-slate-950">&#8377;${inr}</span>
-          <span class="card-price-orig card-price-mrp text-xs text-slate-400 line-through">&#8377;${mrp}</span>
-          <span class="badge-discount card-save-pill text-xs font-bold text-emerald-600">${discountPct}% off</span>
+        <div class="card-price-cluster card-price-row flex items-baseline gap-2 pt-1">
+          <span class="text-price card-current-price card-price-curr font-mono text-base font-extrabold text-[#111111]">&#8377;${inr}</span>
+          <span class="card-mrp-price card-price-orig card-price-mrp font-mono text-[11px] text-[#71717A] line-through">&#8377;${mrp}</span>
+          <span class="badge-discount card-save-pill font-mono text-[11px] font-bold text-[#FF3B00]">${discountPct}% off</span>
         </div>
       </div>
 
       <!-- Action CTA -->
-      <button type="button" class="btn-shelf-add-cart btn-add-bag w-full mt-2 bg-slate-900 hover:bg-black text-white font-medium text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-id="${it.id}">
+      <button type="button" class="btn-shelf-add-cart btn-add-bag btn-card-add w-full mt-3 bg-[#111111] hover:bg-[#FF3B00] text-white font-mono text-xs font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-id="${it.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
           <path d="M3 6h18"></path>
@@ -686,6 +1199,16 @@
 
   function bindCardInteractions(container) {
     if (!container) return;
+
+    if (window.gsap) {
+      const cards = container.querySelectorAll(".vx-card-showcase");
+      if (cards.length > 0) {
+        gsap.fromTo(cards, 
+          { y: 10 }, 
+          { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", overwrite: "auto", clearProps: "all" }
+        );
+      }
+    }
 
     // 1. Direct card click navigates to PDP (/product/:id) with dwell capture
     container.querySelectorAll(".vx-card-showcase").forEach((card) => {
@@ -733,11 +1256,13 @@
   }
 
   function recordCardClickDwell(productId) {
-    if (!productId) return;
+    const pid = parseInt(productId, 10);
+    if (!pid || isNaN(pid)) return;
     state.recentInteractions.push({
-      product_id: productId,
+      product_id: pid,
       dwell_time_seconds: 2.0,
     });
+    sessionStorage.setItem("vx_recent_interactions", JSON.stringify(state.recentInteractions));
     dispatchDwellTelemetry();
   }
 
@@ -753,12 +1278,13 @@
       bindCardInteractions(el.gridTech);
     }
 
-    // 2. Fine Jewellery & Luxury Accents (Heritage Craft & Watches) - 4 Flagship Items
+    // 2. Gaming & Pro Peripherals (Custom Keyboards, Mice & Controllers) - 4 Flagship Items
     if (el.gridJewellery) {
-      const jewelItems = items.filter((p) =>
-        ['womens-jewellery', 'mens-watches', 'womens-watches', 'fragrances'].includes(p.category)
-      ).slice(0, 4);
-      el.gridJewellery.innerHTML = jewelItems.map((p, i) => renderProductCard(p, i)).join("");
+      const gamingItems = items.filter((p) => {
+        const cat = (p.category || '').toLowerCase();
+        return cat.includes('gaming') || cat.includes('peripherals') || ['gaming', 'gaming-peripherals'].includes(p.category);
+      }).slice(0, 4);
+      el.gridJewellery.innerHTML = gamingItems.map((p, i) => renderProductCard(p, i)).join("");
       bindCardInteractions(el.gridJewellery);
     }
 
@@ -813,8 +1339,10 @@
   }
 
   async function fetchCatalog() {
+    if (state.searchQuery) {
+      return executeSearch(state.searchQuery, state.activeCategory);
+    }
     const params = new URLSearchParams({ limit: "200" });
-    if (state.searchQuery) params.append("search", state.searchQuery);
     if (state.activeCategory) params.append("category", state.activeCategory);
 
     try {
@@ -823,7 +1351,7 @@
       const items = await res.json();
       state.catalog = items;
 
-      if (state.searchQuery || (state.activeCategory && state.activeCategory !== "")) {
+      if (state.activeCategory && state.activeCategory !== "") {
         renderSearchFilterResults(items);
       } else {
         if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
@@ -849,6 +1377,10 @@
     state.dwellStartTimestamp = performance.now();
 
     el.modalImg.src = product.image_url || FALLBACK_THUMB;
+    el.modalImg.onerror = function () {
+      this.onerror = null;
+      this.src = FALLBACK_THUMB;
+    };
     el.modalBrand.textContent = (product.brand || (product.category || 'VORTEX SELECT')).toUpperCase();
     el.modalTitle.textContent = product.title;
     el.modalPrice.textContent = `₹${formatInr(product.price)}`;
@@ -880,6 +1412,7 @@
       product_id: viewedProduct.id,
       dwell_time_seconds: elapsedSeconds,
     });
+    sessionStorage.setItem("vx_recent_interactions", JSON.stringify(state.recentInteractions));
 
     // Dispatch background telemetry beacon to recalibrate vector recommendations
     dispatchDwellTelemetry();
@@ -892,10 +1425,19 @@
         el.recsFreshIndicator.textContent = "Updating...";
       }
 
+      const validInteractions = (state.recentInteractions || [])
+        .filter((it) => it && it.product_id != null && !isNaN(parseInt(it.product_id, 10)))
+        .map((it) => ({
+          product_id: parseInt(it.product_id, 10),
+          dwell_time_seconds: Math.max(0.0, parseFloat(it.dwell_time_seconds) || 1.0),
+        }));
+
       const payload = {
         user_id: state.userId,
         query_text: state.searchQuery || null,
-        recent_interactions: state.recentInteractions,
+        recent_interactions: validInteractions,
+        exclude_item_ids: validInteractions.map((i) => i.product_id),
+        exclude_interacted: true,
         top_k: 6,
       };
 
@@ -925,13 +1467,22 @@
 
   async function fetchInitialRecommendations() {
     try {
+      const validInteractions = (state.recentInteractions || [])
+        .filter((it) => it && it.product_id != null && !isNaN(parseInt(it.product_id, 10)))
+        .map((it) => ({
+          product_id: parseInt(it.product_id, 10),
+          dwell_time_seconds: Math.max(0.0, parseFloat(it.dwell_time_seconds) || 1.0),
+        }));
+      const hasInteractions = validInteractions.length > 0;
       const res = await fetch("/api/v1/recommend/dwell", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: state.userId,
-          query_text: "audio laptops wearables living essentials",
-          recent_interactions: [],
+          query_text: hasInteractions ? null : "audio laptops wearables living essentials",
+          recent_interactions: validInteractions,
+          exclude_item_ids: validInteractions.map((i) => i.product_id),
+          exclude_interacted: true,
           top_k: 6,
         }),
       });
@@ -1012,7 +1563,7 @@
             return `
             <div class="vx-card-showcase" style="padding: 10px; cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
               <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
-                <img src="${thumb}" alt="${it.title}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <img src="${thumb || '/static/images/placeholder.png'}" alt="${it.title}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
               </div>
               <div style="font-size: 11.5px; font-weight: 600; line-height: 1.25; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                 ${it.title}

@@ -26,6 +26,14 @@ class RecommendationRequest(BaseModel):
     category_filter: Optional[str] = Field(None, description="Optional category filter")
     min_price: Optional[float] = Field(None, ge=0.0, description="Minimum price filter")
     max_price: Optional[float] = Field(None, ge=0.0, description="Maximum price filter")
+    exclude_item_ids: Optional[List[int]] = Field(
+        default_factory=list,
+        description="Product IDs to strictly exclude from recommendations"
+    )
+    exclude_interacted: bool = Field(
+        True,
+        description="Whether to automatically exclude items the user has recently interacted with"
+    )
     
     # Backwards compatibility attributes
     user_interests: Optional[List[str]] = Field(None, description="Legacy interest tags")
@@ -65,6 +73,24 @@ class EnhancedProductResponse(BaseModel):
     bank_offers: List[str] = Field(default_factory=list)
     detailed_description: List[str] = Field(default_factory=list)
     specs_sections: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+
+
+class SearchResultItem(BaseModel):
+    """Keyword search result object with relevance scoring and retail pricing metadata."""
+    id: int
+    title: str
+    brand: str
+    category: str
+    description: str = ""
+    price: float = 0.0
+    price_inr: float = 0.0
+    mrp: float = 0.0
+    mrp_inr: float = 0.0
+    discount_pct: int = 25
+    rating: float = 4.5
+    review_count: int = 850
+    image_url: str = ""
+    relevance_score: float = 0.0
 
 
 class RecommendationResult(BaseModel):

@@ -3,311 +3,239 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0F172A">
+  <meta name="theme-color" content="#111111">
   <meta name="application-name" content="Vortex Commerce">
-  <meta name="description" content="Shop audio, computing, smart wearables, home essentials, and lifestyle goods at Vortex Commerce. Enjoy verified quality, express delivery, and easy returns.">
-  <title>Vortex Commerce &bull; Modern Retail &amp; Daily Essentials</title>
+  <meta name="description" content="Vortex Commerce: Architectural Flagship Store for acoustics, silicon, custom gaming peripherals, and precision lifestyle goods.">
+  <title>Vortex Commerce &bull; Architectural Flagship Store</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS v3 Play CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            canvas: '#EFECE6',
+            card: '#FFFFFF',
+            plinth: '#F6F5F2',
+            ink: '#111111',
+            accent: '#FF3B00',
+            emerald: '#059669',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP 3 & ScrollTrigger for Motion Choreography -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Vortex Architectural Stylesheet -->
+  <link rel="stylesheet" href="/static/styles.css?v=12.0">
 </head>
-<body style="background-color: #F1F3F6 !important;" class="text-slate-900 antialiased min-h-screen">
+<body style="background-color: #EFECE6 !important;" class="text-[#111111] antialiased min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
 
   <!-- =========================================================================
-       1. GLOBAL HEADER (64px, #0F172A)
+       1. FLOATING GLASSMORPHIC COMMAND DOCK HEADER
        ========================================================================= -->
-  <header class="vx-header">
+  <div class="vx-command-header-wrapper w-full max-w-[1400px] mx-auto px-4 z-50 sticky top-3">
+    <header class="vx-command-dock h-16 w-full flex items-center justify-between px-6 bg-[#111111]/92 backdrop-blur-xl border border-white/10 rounded-2xl text-white shadow-2xl gap-4" role="banner">
 
-    <!-- Logo: VORTEX. GLOBAL STORE -->
-    <a href="/" class="vx-logo-cluster" title="Vortex Commerce Home">
-      <span class="vx-logo-text">VORTEX<span class="vx-logo-dot">.</span></span>
-      <span class="vx-logo-badge">GLOBAL</span>
-    </a>
-
-    <!-- Delivery Selector -->
-    <div class="vx-delivery-selector" id="vxDeliverySelector" title="Delivery Destination">
-      <svg class="vx-delivery-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-      <div>Deliver to <span class="vx-delivery-bold">Sreejith</span> &bull; Marthandam 629165</div>
-    </div>
-
-    <!-- High-Utility Search Bar -->
-    <div class="vx-search-bar">
-      <select class="vx-search-category" id="categorySelectDropdown" aria-label="Filter category">
-        <option value="">All Categories</option>
-        <option value="electronics">Electronics &amp; Computing</option>
-        <option value="audio">Audio &amp; Acoustics</option>
-        <option value="wearables">Smart Wearables</option>
-        <option value="furniture">Home &amp; Living</option>
-        <option value="beauty">Beauty &amp; Daily Care</option>
-        <option value="fragrances">Fine Fragrances</option>
-        <option value="groceries">Pantry &amp; Gourmet</option>
-      </select>
-
-      <input type="text" id="storeSearchInput" class="vx-search-input" placeholder="Search across 10,000+ curated products, brands, models..." autocomplete="off">
-
-      <!-- Camera button inside search bar (YOLOv8 Visual Search) -->
-      <button type="button" class="btn-vx-camera" id="btnSearchPhotoTrigger" title="Search by Photo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-      </button>
-
-      <!-- Search Trigger Button -->
-      <button type="button" class="btn-vx-search-submit" id="btnSearchSubmit" title="Execute Search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </button>
-    </div>
-
-    <!-- Header Right Controls -->
-    <div class="vx-header-right">
-      <a href="/account" class="vx-nav-pill-btn" title="Account profile" style="text-decoration: none; color: inherit;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Account</span>
+      <!-- Brand Logo Cluster -->
+      <a href="/" class="vx-logo-cluster flex items-center gap-2 text-white no-underline group flex-shrink-0" id="vxBrandLogo" title="Vortex Commerce Flagship">
+        <span class="font-extrabold tracking-tighter text-xl text-white">VORTEX<span class="text-[#FF3B00]">.</span></span>
       </a>
 
-      <a href="/orders" class="vx-nav-pill-btn" id="navOrdersBtn" title="Track active orders" style="text-decoration: none; color: inherit;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-        <span>Orders</span>
-      </a>
+      <!-- Delivery Pin Selector -->
+      <div class="hidden lg:flex items-center gap-2 font-mono text-xs text-zinc-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl cursor-pointer hover:border-white/20 hover:text-white transition-all flex-shrink-0" id="vxDeliverySelector" title="Delivery Destination">
+        <svg class="w-3.5 h-3.5 text-[#FF3B00]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span>PIN: <strong class="text-white font-mono">629165</strong> (Marthandam)</span>
+      </div>
 
-      <!-- Slide-Out Cart Trigger -->
-      <button type="button" class="vx-cart-pill-btn" id="btnCartTrigger" title="View Shopping Cart">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span>Cart</span>
-        <span class="vx-cart-badge" id="cartCountBadge">0</span>
-      </button>
-    </div>
+      <!-- Properly Aligned & Simplified Search Command Bar -->
+      <div class="vx-search-bar flex-1 max-w-xl mx-4 lg:mx-6 flex items-center bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden focus-within:border-slate-900 transition-colors relative">
+        <select class="vx-search-category bg-stone-50 text-stone-700 text-xs font-medium px-3.5 py-2.5 border-r border-stone-200 outline-none cursor-pointer" id="categorySelectDropdown" aria-label="Filter category">
+          <option value="">All Categories</option>
+          <option value="electronics">Electronics &amp; Computing</option>
+          <option value="audio">Audio &amp; Acoustics</option>
+          <option value="wearables">Smart Wearables</option>
+          <option value="gaming">Gaming &amp; Peripherals</option>
+          <option value="furniture">Home &amp; Living</option>
+          <option value="beauty">Beauty &amp; Daily Care</option>
+          <option value="fragrances">Fine Fragrances</option>
+          <option value="groceries">Pantry &amp; Gourmet</option>
+        </select>
 
-  </header>
+        <input type="text" id="globalSearchInput" name="globalSearchInput" class="vx-search-input flex-1 bg-transparent text-stone-900 placeholder-stone-400 text-xs px-4 py-2.5 outline-none" placeholder="Search across products, brands, categories..." autocomplete="off">
+
+        <button type="button" class="btn-vx-search-submit bg-slate-900 hover:bg-black text-white px-5 py-2.5 flex items-center justify-center transition-colors flex-shrink-0" id="btnSearchSubmit" title="Execute Search">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+
+        <!-- Real-Time Auto-Suggest Dropdown Panel (Amazon / Flipkart Style) -->
+        <div id="searchSuggestDropdown" class="search-suggest-dropdown absolute left-0 right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-[#E4E2DD] shadow-2xl overflow-hidden" style="display: none;">
+          <div id="searchSuggestList" class="suggest-items-list"></div>
+          <div id="searchSuggestSeeAll" class="suggest-footer-row">
+            <span id="suggestSeeAllText">See all results for &rarr;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Right Controls -->
+      <div class="vx-header-right flex items-center gap-2.5 flex-shrink-0">
+        <a href="/account" class="vx-nav-pill-btn text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1.5" title="Account profile">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span class="hidden sm:inline">Account</span>
+        </a>
+
+        <a href="/orders" class="vx-nav-pill-btn text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1.5" id="navOrdersBtn" title="Track active orders">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span class="hidden sm:inline">Orders</span>
+        </a>
+
+        <!-- Slide-Out Cart Trigger in Surgical Orange -->
+        <button type="button" class="vx-cart-pill-btn flex items-center gap-2 bg-[#FF3B00] hover:bg-[#E03400] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm" id="btnCartTrigger" title="View Shopping Cart">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Cart</span>
+          <span class="vx-cart-badge bg-black/40 px-1.5 py-0.5 rounded-full text-[10px] font-mono" id="cartCountBadge">0</span>
+        </button>
+      </div>
+
+    </header>
+  </div>
 
   <!-- =========================================================================
-       2. SECONDARY CATEGORY STRIP (42px, #1E293B)
+       2. ASYMMETRIC 3-CELL EDITORIAL BENTO GRID HERO
        ========================================================================= -->
-  <nav class="vx-category-strip">
-    <div class="vx-cat-pill active" data-cat="" data-target="">All Curated Collections</div>
-    <div class="vx-cat-pill" data-cat="audio" data-target="#shelf-tech">Audio &amp; Acoustics</div>
-    <div class="vx-cat-pill" data-cat="electronics" data-target="#shelf-tech">Workstations &amp; Computing</div>
-    <div class="vx-cat-pill" data-cat="fragrances" data-target="#shelf-jewellery">Fine Jewellery &amp; Luxury</div>
-    <div class="vx-cat-pill" data-cat="furniture" data-target="#shelf-home">Home &amp; Kitchen</div>
-    <div class="vx-cat-pill" data-cat="beauty" data-target="#shelf-care">Daily Care &amp; Wellness</div>
-    <div class="vx-strip-right-badge">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      <span>Verified 24h Dispatch to Marthandam</span>
+  <section class="vx-bento-hero" aria-label="Editorial Bento Merchandising Showcase">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-8">
+
+      <!-- Main Flagship Cell (8 columns, 400px tall, Obsidian #141413) -->
+      <article class="lg:col-span-8 bg-[#141413] text-white rounded-3xl p-8 lg:p-10 relative overflow-hidden flex flex-col justify-between border border-white/10 shadow-2xl bento-cell group min-h-[400px]">
+        <div class="relative z-10 max-w-md lg:max-w-lg">
+          <div class="bento-flagship-pill">
+            ACOUSTICS &amp; SILICON // VORTEX ONE
+          </div>
+          <h1 class="text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.12] text-white mb-4">
+            Acoustics &amp; Silicon.<br><span class="text-zinc-400 font-medium">Engineered for Precision.</span>
+          </h1>
+          <div class="flex items-center gap-3 font-mono text-sm text-zinc-400 mb-8">
+            <span>Studio Flagships from</span>
+            <span class="text-2xl font-extrabold text-white">₹24,990</span>
+            <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Studio Master Sound</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="button" class="btn-bento-primary" id="btnExploreCollection" data-cat="audio">
+              <span>Explore Flagships &rarr;</span>
+            </button>
+            <button type="button" class="btn-bento-secondary" id="btnTriggerHeroVisualSearch" title="Search by Photo">
+              <svg class="w-4 h-4 text-[#FF3B00]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Visual Search</span>
+            </button>
+          </div>
+        </div>
+        <div class="bento-flagship-visual">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Sony WH-1000XM5 Studio Acoustics" class="bento-flagship-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';">
+        </div>
+      </article>
+
+      <!-- Side Column Container (4 columns) -->
+      <div class="lg:col-span-4 flex flex-col gap-5">
+        <!-- Cell 2: Top-Right Gaming & Pro Peripherals Surface -->
+        <article class="bento-cell-champagne bento-cell bento-filter-trigger group" data-cat="gaming" title="Explore Mechanical & Optical Gear">
+          <div class="relative z-10 max-w-[190px]">
+            <span class="bento-sub-tag text-amber-800">ESPORTS // CUSTOM GEAR</span>
+            <h3 class="bento-sub-title group-hover:text-[#FF3B00] transition-colors">Gaming &amp; Pro Peripherals</h3>
+            <span class="bento-sub-cta font-mono mt-3">Explore Mechanical &amp; Optical &rarr;</span>
+          </div>
+          <div class="bento-sub-visual">
+            <img src="https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80" alt="Custom Mechanical Keyboard" class="bento-sub-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80';">
+          </div>
+        </article>
+
+        <!-- Cell 3: Bottom-Right Cool Anodized Silver Surface (#E5E7EB) -->
+        <article class="bento-cell-silver bento-cell bento-filter-trigger group" data-cat="furniture" title="Explore Home & Living">
+          <div class="relative z-10 max-w-[190px]">
+            <span class="bento-sub-tag text-zinc-700">SMART LIVING &bull; CARE</span>
+            <h3 class="bento-sub-title group-hover:text-[#FF3B00] transition-colors">Smart Home &amp; Daily Formulations</h3>
+            <span class="bento-sub-cta font-mono mt-3">Discover Collection &rarr;</span>
+          </div>
+          <div class="bento-sub-visual">
+            <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80" alt="Smart Home Appliances" class="bento-sub-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       3. INTERACTIVE CATEGORY FILTER BAR WITH SLIDING ACTIVE INDICATOR
+       ========================================================================= -->
+  <nav class="category-nav-bar-wrapper">
+    <div class="category-nav-track" id="categoryNavTrack">
+      <div class="category-sliding-pill" id="categorySlidingPill"></div>
+      <button type="button" class="vx-cat-pill active" data-cat="" data-target="">All Curated</button>
+      <button type="button" class="vx-cat-pill" data-cat="audio" data-target="#shelf-tech">Audio &amp; Studio</button>
+      <button type="button" class="vx-cat-pill" data-cat="electronics" data-target="#shelf-tech">Computing</button>
+      <button type="button" class="vx-cat-pill" data-cat="wearables" data-target="#shelf-tech">Wearables</button>
+      <button type="button" class="vx-cat-pill" data-cat="gaming" data-target="#shelf-jewellery">Gaming &amp; Peripherals</button>
+      <button type="button" class="vx-cat-pill" data-cat="furniture" data-target="#shelf-home">Home &amp; Living</button>
+      <button type="button" class="vx-cat-pill" data-cat="beauty" data-target="#shelf-care">Daily Care</button>
+      <div class="category-dispatch-badge hidden sm:flex">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Verified 24h Dispatch // Marthandam 629165</span>
+      </div>
     </div>
   </nav>
 
   <!-- =========================================================================
-       3. EDITORIAL HERO MERCHANDISING BANNER (APPLE / CROMA / AMAZON STANDARDS)
-       ========================================================================= -->
-  <section class="vx-hero" aria-label="Commercial Merchandising Showcase">
-    <div class="hero-carousel-wrapper" id="heroCarousel">
-      <!-- Sliding Track -->
-      <div class="hero-track" id="carouselTrack">
-
-        <!-- Slide 1: Sony WH-1000XM5 (Acoustic Studio) -->
-        <article class="hero-slide slide-sony" data-index="0">
-          <div class="hero-slide-inner">
-            <div class="hero-slide-copy">
-              <span class="hero-tag">NOISE CANCELING HEADPHONES</span>
-              <h2 class="hero-headline">Studio Precision. Zero Distraction.</h2>
-              <div class="hero-deal-pill">
-                <span class="deal-price">From &#8377;26,990</span>
-                <span class="deal-divider">&bull;</span>
-                <span class="deal-offer">Instant Bank Discount Available</span>
-              </div>
-              <div class="hero-actions">
-                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="audio">
-                  Shop Audio Series &rarr;
-                </button>
-                <button type="button" class="btn-hero-secondary" id="btnTriggerHeroVisualSearch" title="View Specifications &amp; Visual Search">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                  View Specifications
-                </button>
-              </div>
-            </div>
-            <div class="hero-slide-visual">
-              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80" alt="Sony WH-1000XM5 Studio Headphones" class="hero-product-img" loading="eager">
-            </div>
-          </div>
-        </article>
-
-        <!-- Slide 2: Dell XPS 14 & Workstation Hub -->
-        <article class="hero-slide slide-dell" data-index="1">
-          <div class="hero-slide-inner">
-            <div class="hero-slide-copy">
-              <span class="hero-tag">PERFORMANCE COMPUTING</span>
-              <h2 class="hero-headline">Raw Intel Ultra Power. Ultra Thin.</h2>
-              <div class="hero-deal-pill">
-                <span class="deal-price">From &#8377;89,990</span>
-                <span class="deal-divider">&bull;</span>
-                <span class="deal-offer">Flat 15% Instant Cashback &bull; Free Express Delivery</span>
-              </div>
-              <div class="hero-actions">
-                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="electronics">
-                  Explore Laptops &rarr;
-                </button>
-                <button type="button" class="btn-hero-secondary hero-slide-cta" data-cat="electronics">
-                  View Specifications
-                </button>
-              </div>
-            </div>
-            <div class="hero-slide-visual">
-              <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&q=80" alt="Dell XPS 14 Workstation" class="hero-product-img" loading="lazy">
-            </div>
-          </div>
-        </article>
-
-        <!-- Slide 3: 22K Heritage Jewellery (Fine Craft) -->
-        <article class="hero-slide slide-jewellery" data-index="2">
-          <div class="hero-slide-inner">
-            <div class="hero-slide-copy">
-              <span class="hero-tag">CERTIFIED GOLD &amp; SILVER</span>
-              <h2 class="hero-headline">Authentic 22K (916) Heritage Craft.</h2>
-              <div class="hero-deal-pill">
-                <span class="deal-price">From &#8377;12,490</span>
-                <span class="deal-divider">&bull;</span>
-                <span class="deal-offer">0% Making Charges on Select Craft</span>
-              </div>
-              <div class="hero-actions">
-                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="fragrances">
-                  Browse Collections &rarr;
-                </button>
-                <button type="button" class="btn-hero-secondary hero-slide-cta" data-cat="fragrances">
-                  View Specifications
-                </button>
-              </div>
-            </div>
-            <div class="hero-slide-visual">
-              <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80" alt="22K Heritage Jewellery" class="hero-product-img" loading="lazy">
-            </div>
-          </div>
-        </article>
-
-        <!-- Slide 4: Philips Rapid Air & Kitchen Modern -->
-        <article class="hero-slide slide-kitchen" data-index="3">
-          <div class="hero-slide-inner">
-            <div class="hero-slide-copy">
-              <span class="hero-tag">SMART APPLIANCES</span>
-              <h2 class="hero-headline">Healthy Frying. 90% Less Oil.</h2>
-              <div class="hero-deal-pill">
-                <span class="deal-price">From &#8377;6,999</span>
-                <span class="deal-divider">&bull;</span>
-                <span class="deal-offer">Save Up to 33% &bull; 2-Year Official Brand Warranty</span>
-              </div>
-              <div class="hero-actions">
-                <button type="button" class="btn-hero-primary hero-slide-cta" data-cat="furniture">
-                  View Kitchen Essentials &rarr;
-                </button>
-                <button type="button" class="btn-hero-secondary hero-slide-cta" data-cat="furniture">
-                  View Specifications
-                </button>
-              </div>
-            </div>
-            <div class="hero-slide-visual">
-              <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=800&q=80" alt="Philips Rapid Air Modern Kitchen" class="hero-product-img" loading="lazy">
-            </div>
-          </div>
-        </article>
-
-      </div>
-
-      <!-- Floating Navigation Chevrons -->
-      <button type="button" class="hero-chevron prev" id="btnCarouselPrev" aria-label="Previous Slide">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-      <button type="button" class="hero-chevron next" id="btnCarouselNext" aria-label="Next Slide">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-
-      <!-- Progress Indicators (Bottom Center) -->
-      <div class="hero-progress" id="carouselPagination" aria-label="Slide Selector">
-        <button type="button" class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
-        <button type="button" class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
-        <button type="button" class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
-        <button type="button" class="hero-dot" data-slide="3" aria-label="Slide 4"></button>
-      </div>
-    </div>
-  </section>
-
-  <!-- =========================================================================
-       4. SHOP BY CATEGORY (CLEAN ROUNDED-2XL TILES, CROMA / APPLE STORE STANDARDS)
-       ========================================================================= -->
-  <section class="vx-bento-section">
-    <div class="vx-section-title-row">
-      <div>
-        <h2 class="vx-section-title">Shop by Category</h2>
-        <div class="vx-section-sub">Curated collections across tech, workstations, and daily lifestyle</div>
-      </div>
-    </div>
-
-    <div class="vx-category-tiles-grid">
-      <!-- 1. Audio -->
-      <div class="cat-tile bento-filter-trigger" data-cat="audio">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80" alt="Audio & Acoustics" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Audio &amp; Studio</span>
-        <span class="cat-tile-sub">Acoustics</span>
-      </div>
-
-      <!-- 2. Computing -->
-      <div class="cat-tile bento-filter-trigger" data-cat="electronics">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400&q=80" alt="Workstations & Computing" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Computing</span>
-        <span class="cat-tile-sub">Laptops &amp; Hubs</span>
-      </div>
-
-      <!-- 3. Wearables -->
-      <div class="cat-tile bento-filter-trigger" data-cat="wearables">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80" alt="Smart Wearables" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Wearables</span>
-        <span class="cat-tile-sub">Smart Devices</span>
-      </div>
-
-      <!-- 4. Fine Jewellery & Accents -->
-      <div class="cat-tile bento-filter-trigger" data-cat="fragrances">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80" alt="Fine Accents" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Fine Accents</span>
-        <span class="cat-tile-sub">22K Craft</span>
-      </div>
-
-      <!-- 5. Living & Kitchen -->
-      <div class="cat-tile bento-filter-trigger" data-cat="furniture">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80" alt="Home & Kitchen" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Home &amp; Living</span>
-        <span class="cat-tile-sub">Appliances</span>
-      </div>
-
-      <!-- 6. Daily Care -->
-      <div class="cat-tile bento-filter-trigger" data-cat="beauty">
-        <div class="cat-tile-visual">
-          <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80" alt="Daily Care" class="cat-tile-img" loading="lazy">
-        </div>
-        <span class="cat-tile-label">Daily Care</span>
-        <span class="cat-tile-sub">Formulations</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- =========================================================================
-       DYNAMIC SEARCH & FILTER RESULTS SHOWCASE (Appears on Search/Filter)
+       DYNAMIC SEARCH & FILTER RESULTS SHOWCASE (Dedicated Search Results View)
        ========================================================================= -->
   <section class="vx-shelf-section" id="shelfSearchResults" style="display: none;">
-    <div class="vx-section-title-row">
+    <div class="vx-section-title-row" style="flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px;">
       <div>
-        <h2 class="vx-section-title" id="searchResultsTitle">Matched Products</h2>
-        <div class="vx-section-sub" id="catalogCountNote">Showing matched items</div>
+        <h2 class="vx-section-title" id="searchResultsTitle">Results for ""</h2>
+        <div class="vx-section-sub" id="catalogCountNote">Showing 0 matching items</div>
       </div>
-      <button type="button" class="vx-shelf-action-btn" id="btnClearSearch">
-        Clear Filter &times;
-      </button>
+      <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+        <select id="searchResultsSort" class="vx-search-sort-select" style="padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border-subtle); font-size: 12.5px; background: #FFFFFF; color: var(--ink-primary); cursor: pointer; outline: none; font-family: var(--font-sans);">
+          <option value="relevance">Sort by: Most Relevant</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+          <option value="rating">Customer Rating</option>
+        </select>
+        <button type="button" class="vx-shelf-action-btn" id="btnClearSearch" style="background: #FFFFFF; border: 1px solid var(--border-subtle); color: var(--ink-primary); padding: 8px 14px; border-radius: 10px; font-weight: 700; font-family: var(--font-sans);">
+          Clear Search &times;
+        </button>
+      </div>
     </div>
-    <div class="vx-shelf-grid" id="storeCatalogGrid">
+
+    <!-- Category Filter Pills inside Search Results -->
+    <div class="search-filter-pills-row" id="searchFilterPillsRow">
+      <button type="button" class="search-cat-pill active" data-cat="">All</button>
+      <button type="button" class="search-cat-pill" data-cat="audio">Audio</button>
+      <button type="button" class="search-cat-pill" data-cat="wearables">Wearables</button>
+      <button type="button" class="search-cat-pill" data-cat="laptops">Laptops</button>
+      <button type="button" class="search-cat-pill" data-cat="electronics">Electronics</button>
+      <button type="button" class="search-cat-pill" data-cat="furniture">Home &amp; Living</button>
+      <button type="button" class="search-cat-pill" data-cat="beauty">Daily Care</button>
+      <button type="button" class="search-cat-pill" data-cat="gaming">Gaming &amp; Peripherals</button>
+      <button type="button" class="search-cat-pill" data-cat="fragrances">Fragrances</button>
+      <button type="button" class="search-cat-pill" data-cat="groceries">Groceries</button>
+    </div>
+
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="storeCatalogGrid">
       <!-- Search results dynamically rendered in 4-column layout -->
     </div>
   </section>
@@ -321,11 +249,11 @@
         <h2 class="vx-section-title">Recommended For You</h2>
         <div class="vx-section-sub">Tuned in real-time to your browsing interests</div>
       </div>
-      <span class="vx-dwell-indicator" id="recsFreshIndicator" style="display: none;">Tuned for you</span>
+      <span id="recsFreshIndicator" style="display: none;"></span>
     </div>
-    <div class="vx-shelf-grid" id="recommendedGrid">
-      <!-- Top 4 dwell-weighted flagship products -->
-      <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--vx-text-muted);">
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="recommendedGrid">
+      <!-- Top dwell-weighted flagship products -->
+      <div style="grid-column: 1 / -1; padding: 48px; text-align: center; color: var(--ink-muted);">
         Loading personalized recommendations...
       </div>
     </div>
@@ -341,29 +269,29 @@
         <div class="vx-section-sub">High-fidelity acoustics, studio workstations, and active wearables</div>
       </div>
       <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="electronics">
-        Explore Tech &rarr;
+        <span>Explore Tech &rarr;</span>
       </button>
     </div>
-    <div class="vx-shelf-grid" id="gridTech">
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="gridTech">
       <!-- 4 Flagship tech items -->
     </div>
   </section>
 
   <!-- =========================================================================
-       SECTION 3: FINE JEWELLERY & LUXURY ACCENTS
+       SECTION 3: GAMING & PRO PERIPHERALS
        ========================================================================= -->
   <section class="vx-shelf-section" id="shelf-jewellery">
     <div class="vx-section-title-row">
       <div>
-        <h2 class="vx-section-title">Heritage Craft &amp; Fine Jewellery</h2>
-        <div class="vx-section-sub">Hallmarked 22K gold, certified 925 sterling silver, and fine accents</div>
+        <h2 class="vx-section-title">Gaming &amp; Pro Peripherals</h2>
+        <div class="vx-section-sub">Custom mechanical keyboards, lightweight optical sensors, and low-latency controllers</div>
       </div>
-      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="fragrances">
-        View Hallmarked Collection &rarr;
+      <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="gaming">
+        <span>Explore Esports Gear &rarr;</span>
       </button>
     </div>
-    <div class="vx-shelf-grid" id="gridJewellery">
-      <!-- 4 Flagship jewellery & luxury items -->
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="gridJewellery">
+      <!-- 4 Flagship gaming items -->
     </div>
   </section>
 
@@ -377,10 +305,10 @@
         <div class="vx-section-sub">Precision culinary tools, ergonomic lounge furniture, and living craft</div>
       </div>
       <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="furniture">
-        Shop Home &rarr;
+        <span>Shop Home &rarr;</span>
       </button>
     </div>
-    <div class="vx-shelf-grid" id="gridHome">
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="gridHome">
       <!-- 4 Flagship home items -->
     </div>
   </section>
@@ -395,16 +323,16 @@
         <div class="vx-section-sub">Clinically tested formulations, gentle daily care, and self-care staples</div>
       </div>
       <button type="button" class="vx-shelf-action-btn btn-shelf-explore" data-cat="beauty">
-        Browse Care &rarr;
+        <span>Browse Care &rarr;</span>
       </button>
     </div>
-    <div class="vx-shelf-grid" id="gridCare">
+    <div class="vx-shelf-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="gridCare">
       <!-- 4 Flagship care items -->
     </div>
   </section>
 
   <!-- =========================================================================
-       7. PRODUCT QUICK-VIEW MODAL
+       PRODUCT QUICK-VIEW MODAL
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="quickViewModal">
     <div class="modal-content-smooth">
@@ -417,8 +345,8 @@
 
       <div class="vx-modal-body">
         <!-- Left: Product Image -->
-        <div class="vx-modal-img-box">
-          <img id="modalImg" src="" alt="Product view" class="vx-modal-img">
+        <div class="vx-modal-img-box bg-[#F6F5F2] rounded-2xl flex items-center justify-center p-6">
+          <img id="modalImg" src="" alt="Product view" class="vx-modal-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
         </div>
 
         <!-- Right: Specifications & Pricing -->
@@ -426,47 +354,47 @@
           <div class="vx-modal-brand-tag" id="modalBrand">VORTEX SELECT</div>
           <h3 class="vx-modal-product-title" id="modalTitle">Product Title</h3>
 
-          <div class="vx-rating-row">
-            <span class="vx-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-            <span style="font-weight: 600; color: var(--vx-text);">4.8</span>
-            <span class="vx-review-count">&bull; (3,420 customer ratings)</span>
+          <div class="vx-rating-row" style="margin-bottom: 12px;">
+            <span class="vx-stars text-amber-500">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span style="font-weight: 700; color: var(--ink-primary); font-family: var(--font-mono);">4.8</span>
+            <span class="vx-review-count font-mono text-xs">&bull; (3,420 customer ratings)</span>
           </div>
 
           <div class="vx-modal-price-box">
             <div style="display: flex; align-items: baseline; gap: 8px;">
-              <span class="vx-price-main" style="font-size: 24px;" id="modalPrice">&#8377;0</span>
-              <span class="vx-mrp-strikethrough" style="font-size: 14px;" id="modalMrp">&#8377;0</span>
-              <span class="vx-savings-tag" id="modalDiscount">SAVE 25%</span>
+              <span class="vx-price-main font-mono text-2xl font-extrabold" id="modalPrice">&#8377;0</span>
+              <span class="vx-mrp-strikethrough font-mono text-xs line-through text-zinc-400" id="modalMrp">&#8377;0</span>
+              <span class="badge-discount" id="modalDiscount">SAVE 25%</span>
             </div>
-            <div style="font-size: 12px; color: var(--vx-text-muted); margin-top: 4px;">
+            <div style="font-size: 11.5px; color: var(--ink-muted); margin-top: 4px;">
               Inclusive of all taxes &bull; Free express delivery to Marthandam
             </div>
           </div>
 
-          <p style="font-size: 13px; color: var(--vx-text-secondary); line-height: 1.5; margin-bottom: 12px;" id="modalDesc">
+          <p style="font-size: 13px; color: var(--ink-secondary); line-height: 1.5; margin-bottom: 12px;" id="modalDesc">
             Product specifications and description.
           </p>
 
           <ul class="vx-modal-bullets">
             <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
               <span>100% Genuine guaranteed with verified manufacturer warranty</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
               <span>Complimentary 24-hour dispatch with live delivery tracking</span>
             </li>
             <li>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
               <span>Hassle-free 7-day return policy on all eligible purchases</span>
             </li>
           </ul>
 
           <div class="vx-modal-cta-row">
-            <button type="button" class="btn-vx-primary" id="btnAddToCartModal" style="flex: 1; height: 38px;">
+            <button type="button" class="btn-card-add" id="btnAddToCartModal" style="flex: 1; height: 40px; font-size: 13px;">
               Add to Cart
             </button>
-            <button type="button" class="btn-vx-secondary" id="btnDismissModal" style="height: 38px;">
+            <button type="button" class="btn-vx-secondary" id="btnDismissModal" style="height: 40px; border-radius: 8px; font-weight: 700;">
               Done
             </button>
           </div>
@@ -476,13 +404,13 @@
   </div>
 
   <!-- =========================================================================
-       8. INTERACTIVE SHOPPING CART DRAWER
+       INTERACTIVE SHOPPING CART DRAWER
        ========================================================================= -->
   <aside class="vx-drawer" id="cartDrawer">
     <div class="vx-drawer-head">
       <div style="display: flex; align-items: center; gap: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span class="vx-drawer-title">Your Cart</span>
+        <span class="vx-drawer-title font-extrabold tracking-tight">Your Cart</span>
       </div>
       <button type="button" class="vx-close-btn" id="btnCloseCartDrawer" style="color: #FFFFFF;" aria-label="Close cart">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -490,14 +418,14 @@
     </div>
 
     <!-- Free Delivery Progress Pill -->
-    <div style="padding: 10px 18px; background-color: #F1F5F9; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: #334155;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <div style="padding: 10px 18px; background-color: var(--bg-plinth); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--ink-secondary);">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
       <span>Free Express Delivery Unlocked!</span>
     </div>
 
     <!-- Cart Items Stream -->
     <div class="vx-cart-items-stream" id="cartItemsStream">
-      <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
+      <div style="text-align: center; padding: 48px 16px; color: var(--ink-muted);">
         Your cart is empty.
       </div>
     </div>
@@ -506,19 +434,19 @@
     <div class="vx-cart-footer">
       <div class="vx-cart-total-row">
         <span>Order Subtotal:</span>
-        <span id="cartSubtotalVal">&#8377;0</span>
+        <span id="cartSubtotalVal" class="font-mono">&#8377;0</span>
       </div>
-      <p style="font-size: 11.5px; color: var(--vx-text-muted); margin-bottom: 14px;">
+      <p style="font-size: 11.5px; color: var(--ink-muted); margin-bottom: 14px;">
         Applicable taxes and express delivery calculated at checkout.
       </p>
-      <button type="button" class="btn-vx-primary" id="btnCheckoutCart" style="width: 100%; height: 42px; font-size: 13px;">
+      <button type="button" class="btn-card-add" id="btnCheckoutCart" style="width: 100%; height: 42px; font-size: 13px; justify-content: center;">
         Proceed to Secure Checkout &rarr;
       </button>
     </div>
   </aside>
 
   <!-- =========================================================================
-       9. YOLOv8 VISUAL SEARCH MODAL
+       YOLOv8 VISUAL SEARCH MODAL
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="visualSearchModal">
     <div class="modal-content-smooth" style="max-width: 620px;">
@@ -530,33 +458,33 @@
       </div>
 
       <div style="padding: 24px;">
-        <p style="font-size: 13px; color: var(--vx-text-secondary); margin-bottom: 16px;">
+        <p style="font-size: 13px; color: var(--ink-secondary); margin-bottom: 16px;">
           Upload or drop an image to find visually matching products across our catalog.
         </p>
 
         <div class="vx-dropzone" id="storefrontDropzone">
           <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
-          <svg style="width: 36px; height: 36px; color: #64748B; margin-bottom: 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <div style="font-weight: 600; font-size: 13.5px; color: #0F172A;">Drag &amp; drop product photo here</div>
-          <div style="font-size: 12px; color: #64748B; margin-top: 4px;">Supports JPG, PNG, and WEBP formats</div>
-          <button type="button" class="btn-vx-primary" id="btnTriggerBrowsePhoto" style="margin-top: 14px; height: 34px; padding: 0 16px; font-size: 12px;">
+          <svg style="width: 36px; height: 36px; color: #64748B; margin: 0 auto 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <div style="font-weight: 700; font-size: 13.5px; color: var(--ink-primary);">Drag &amp; drop product photo here</div>
+          <div style="font-size: 12px; color: var(--ink-muted); margin-top: 4px;">Supports JPG, PNG, and WEBP formats</div>
+          <button type="button" class="btn-card-add" id="btnTriggerBrowsePhoto" style="margin: 14px auto 0; height: 34px; padding: 0 16px; font-size: 12px; width: auto;">
             Select from Device
           </button>
         </div>
 
         <!-- YOLOv8 Inference Output Preview -->
         <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
-          <div style="display: flex; gap: 14px; align-items: center; background-color: var(--vx-surface-subtle); padding: 12px; border-radius: 8px; border: 1px solid var(--vx-border);">
-            <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--vx-border);">
+          <div style="display: flex; gap: 14px; align-items: center; background-color: var(--bg-plinth); padding: 12px; border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-subtle);" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
             <div style="flex: 1;">
-              <div style="font-size: 13px; font-weight: 700; color: var(--vx-text);" id="visualLabelNotice">Detected: Object</div>
-              <div style="font-size: 12px; color: var(--vx-text-secondary);" id="visualStatusNotice">Finding visually matching items...</div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--ink-primary);" id="visualLabelNotice">Detected: Object</div>
+              <div style="font-size: 12px; color: var(--ink-secondary);" id="visualStatusNotice">Finding visually matching items...</div>
             </div>
           </div>
         </div>
 
         <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
-          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--vx-text); text-transform: uppercase; letter-spacing: 0.05em;">Matching Products</div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--ink-primary); text-transform: uppercase; letter-spacing: 0.05em;">Matching Products</div>
           <div class="vx-product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
         </div>
       </div>
@@ -564,13 +492,13 @@
   </div>
 
   <!-- =========================================================================
-       10. CUSTOMER SERVICE DRAWER (LANGGRAPH AGENT)
+       CUSTOMER SERVICE DRAWER (LANGGRAPH AGENT)
        ========================================================================= -->
   <aside class="vx-drawer" id="supportDrawer">
     <div class="vx-drawer-head">
       <div style="display: flex; align-items: center; gap: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        <span class="vx-drawer-title">Vortex Customer Support</span>
+        <span class="vx-drawer-title font-extrabold tracking-tight">Vortex Customer Support</span>
       </div>
       <button type="button" class="vx-close-btn" id="btnCloseSupportDrawer" style="color: #FFFFFF;" aria-label="Close support">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -585,16 +513,16 @@
     </div>
 
     <!-- Quick Prompt Chips -->
-    <div style="padding: 10px 16px; background-color: #FFFFFF; border-top: 1px solid var(--vx-border); display: flex; flex-wrap: wrap; gap: 6px;">
-      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipTrackOrder">Track package #ORD-98214</button>
-      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipRefundPrompt">Request a refund</button>
-      <button type="button" class="vx-cat-pill" style="color: var(--vx-text); background-color: var(--vx-surface-subtle); border: 1px solid var(--vx-border); font-size: 11.5px; padding: 4px 10px;" id="chipCheckStock">Check stock availability</button>
+    <div style="padding: 10px 16px; background-color: #FFFFFF; border-top: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; gap: 6px;">
+      <button type="button" class="vx-cat-pill" style="color: var(--ink-primary); background-color: var(--bg-plinth); border: 1px solid var(--border-subtle); font-size: 11.5px; padding: 4px 10px;" id="chipTrackOrder">Track package #ORD-98214</button>
+      <button type="button" class="vx-cat-pill" style="color: var(--ink-primary); background-color: var(--bg-plinth); border: 1px solid var(--border-subtle); font-size: 11.5px; padding: 4px 10px;" id="chipRefundPrompt">Request a refund</button>
+      <button type="button" class="vx-cat-pill" style="color: var(--ink-primary); background-color: var(--bg-plinth); border: 1px solid var(--border-subtle); font-size: 11.5px; padding: 4px 10px;" id="chipCheckStock">Check stock availability</button>
     </div>
 
     <!-- Input Form -->
-    <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: #F8FAFC; border-top: 1px solid var(--vx-border);" id="drawerChatForm">
-      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--vx-border-strong); border-radius: 6px; padding: 0 12px; font-size: 13px; outline: none;" placeholder="Type your message..." autocomplete="off" required>
-      <button type="submit" class="btn-vx-primary" style="height: 38px; padding: 0 16px; font-size: 13px;">Send</button>
+    <form style="display: flex; gap: 8px; padding: 12px 16px; background-color: var(--bg-plinth); border-top: 1px solid var(--border-subtle);" id="drawerChatForm">
+      <input type="text" id="drawerChatInput" style="flex: 1; height: 38px; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0 12px; font-size: 13px; outline: none; background: #FFFFFF;" placeholder="Type your message..." autocomplete="off" required>
+      <button type="submit" class="btn-card-add" style="height: 38px; padding: 0 16px; font-size: 13px; width: auto; margin-top: 0;">Send</button>
     </form>
   </aside>
 
@@ -605,61 +533,61 @@
   </button>
 
   <!-- =========================================================================
-       11. REAL RETAIL 4-COLUMN FOOTER
+       EDITORIAL FLAGSHIP FOOTER
        ========================================================================= -->
-  <footer class="vx-footer">
-    <div class="vx-footer-grid">
+  <footer class="vx-footer mt-auto" style="background-color: #111111; color: #FFFFFF; border-top: 1px solid rgba(255,255,255,0.1); padding: 56px 24px 32px;">
+    <div class="vx-footer-grid max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
       <div>
-        <div class="vx-footer-col-title">Get to Know Us</div>
-        <ul class="vx-footer-list">
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Press Releases</a></li>
-          <li><a href="#">Vortex Science</a></li>
+        <div class="vx-footer-col-title font-extrabold text-sm tracking-wider uppercase text-white mb-4">Architecture</div>
+        <ul class="vx-footer-list space-y-2 text-sm text-zinc-400">
+          <li><a href="#" class="hover:text-white transition-colors">Vortex Labs</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Engineering &amp; Silicon</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Acoustics Studio</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Esports &amp; Pro Gear Standards</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">Customer Care</div>
-        <ul class="vx-footer-list">
-          <li><a href="#" id="footerCustomerCare">Help &amp; Support</a></li>
-          <li><a href="#" id="footerTrackOrders">Track Order</a></li>
-          <li><a href="#" id="footerReturnsHelp">Return &amp; Replacement</a></li>
-          <li><a href="#">Shipping Rates &amp; Policies</a></li>
+        <div class="vx-footer-col-title font-extrabold text-sm tracking-wider uppercase text-white mb-4">Customer Care</div>
+        <ul class="vx-footer-list space-y-2 text-sm text-zinc-400">
+          <li><a href="#" id="footerCustomerCare" class="hover:text-white transition-colors">Help &amp; Support</a></li>
+          <li><a href="#" id="footerTrackOrders" class="hover:text-white transition-colors">Track Order</a></li>
+          <li><a href="#" id="footerReturnsHelp" class="hover:text-white transition-colors">Return &amp; Replacement</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Express Delivery Policy</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">Policies</div>
-        <ul class="vx-footer-list">
-          <li><a href="#">Privacy Notice</a></li>
-          <li><a href="#">Terms of Sale</a></li>
-          <li><a href="#">Security</a></li>
-          <li><a href="#">Grievance Officer</a></li>
+        <div class="vx-footer-col-title font-extrabold text-sm tracking-wider uppercase text-white mb-4">Governance</div>
+        <ul class="vx-footer-list space-y-2 text-sm text-zinc-400">
+          <li><a href="#" class="hover:text-white transition-colors">Privacy Notice</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Terms of Sale</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Security Audit</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Grievance Officer</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="vx-footer-col-title">Connect</div>
-        <ul class="vx-footer-list">
-          <li><a href="#">Facebook</a></li>
-          <li><a href="#">Twitter / X</a></li>
-          <li><a href="#">Instagram</a></li>
-          <li><a href="#">LinkedIn</a></li>
+        <div class="vx-footer-col-title font-extrabold text-sm tracking-wider uppercase text-white mb-4">Command</div>
+        <ul class="vx-footer-list space-y-2 text-sm text-zinc-400">
+          <li><a href="/orders" class="hover:text-white transition-colors">Order Terminal</a></li>
+          <li><a href="/account" class="hover:text-white transition-colors">Client Profile</a></li>
+          <li><a href="/admin" class="staff-console-link hover:text-white transition-colors" title="Staff Management Console">Operations Cockpit</a></li>
+          <li><span class="font-mono text-xs text-zinc-500">v2.6.0 &bull; 2026</span></li>
         </ul>
       </div>
     </div>
 
-    <div class="vx-footer-bottom">
+    <div class="vx-footer-bottom max-w-[1400px] mx-auto pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-500 gap-4">
       <div>
-        &copy; 2026 Vortex Retail Pvt Ltd. All rights reserved. &bull; <a href="#">Privacy Policy</a> &bull; <a href="#">Terms of Sale</a> &bull; <a href="#">Security</a> &bull; <a href="/admin" class="staff-console-link" title="Staff Management Console">Staff Console</a>
+        &copy; 2026 Vortex Retail Pvt Ltd. All rights reserved. &bull; <a href="#" class="hover:underline">Privacy Policy</a> &bull; <a href="#" class="hover:underline">Terms of Sale</a>
       </div>
-      <div>
-        100% Secure Payments &bull; Verified Merchants &bull; Fast Delivery
+      <div class="font-mono text-[11px] text-zinc-400">
+        100% Encrypted &bull; Verified Merchants &bull; Express Dispatch
       </div>
     </div>
   </footer>
 
-  <script src="/storefront.js"></script>
+  <script src="/static/storefront.js?v=11.0"></script>
 </body>
 </html>

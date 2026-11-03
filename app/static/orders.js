@@ -135,6 +135,40 @@
       });
     }
 
+    // Header Search
+    const headerSearchInput = document.getElementById("headerSearchInput") || document.getElementById("globalSearchInput");
+    const btnHeaderSearch = document.getElementById("btnHeaderSearch") || document.getElementById("btnSearchSubmit");
+    const headerSearchCategory = document.getElementById("categorySelectDropdown");
+    function executeHeaderSearch() {
+      if (!headerSearchInput) return;
+      const q = headerSearchInput.value.trim();
+      const cat = headerSearchCategory ? headerSearchCategory.value : "";
+      if (q || cat) {
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        if (cat) params.set("cat", cat);
+        window.location.href = `/?${params.toString()}`;
+      }
+    }
+    if (headerSearchInput) {
+      headerSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          executeHeaderSearch();
+        }
+      });
+    }
+    if (btnHeaderSearch) {
+      btnHeaderSearch.addEventListener("click", executeHeaderSearch);
+    }
+
+    // GSAP Entrance
+    if (window.gsap) {
+      gsap.from("#vxCommandDock", { y: -20, opacity: 0, duration: 0.5, ease: "power3.out" });
+      gsap.from(".vx-sidebar-card", { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, ease: "power3.out" });
+      gsap.from(".vx-orders-search-bar", { y: 15, opacity: 0, duration: 0.4, delay: 0.1, ease: "power3.out" });
+    }
+
     // ESC to close modal
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
