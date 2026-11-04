@@ -185,6 +185,22 @@ def analyze_image_multimodal(image_bytes: bytes, yolo_label: str = "object") -> 
         try:
             from google.genai import types
 
+            # Fast downsampling if payload exceeds 60KB to keep latency under 3-5 seconds
+            if len(image_bytes) > 60 * 1024:
+                try:
+                    import io
+                    from PIL import Image
+                    _pil = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    _w, _h = _pil.size
+                    if max(_w, _h) > 512:
+                        _scale = 512.0 / float(max(_w, _h))
+                        _pil = _pil.resize((max(1, int(_w * _scale)), max(1, int(_h * _scale))), Image.Resampling.BILINEAR)
+                    _buf = io.BytesIO()
+                    _pil.save(_buf, format="JPEG", quality=80, optimize=True)
+                    image_bytes = _buf.getvalue()
+                except Exception as _comp_err:
+                    logger.debug(f"Image pre-compression pass-through: {_comp_err}")
+
             prompt = (
                 f"You are an expert e-commerce computer vision system. An object was detected by YOLO as '{clean_yolo}'. "
                 f"Examine this product crop carefully and extract precise retail product attributes strictly as JSON:\n"

@@ -41,7 +41,7 @@ async def visual_search_endpoint(
             image_bytes=content,
             recommender_svc=recommender_service,
             top_k=top_k,
-            timeout_seconds=12.0,
+            timeout_seconds=28.0,
         )
         if response.status_message and "timed out" in response.status_message.lower():
             response.error = "timeout"

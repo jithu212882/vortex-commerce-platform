@@ -1970,7 +1970,7 @@
     formData.append("top_k", "6");
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const res = await fetch("/api/v1/search/visual", {
@@ -2111,7 +2111,7 @@
       const isTimeout = err.name === "AbortError";
       if (el.visualStatusNotice) {
         el.visualStatusNotice.textContent = isTimeout
-          ? "Visual search request timed out after 15 seconds. Please try another angle or a smaller photo."
+          ? "Visual search request timed out after 30 seconds. Please try another angle or a smaller photo."
           : "Unable to process photo: " + err.message;
       }
       if (el.visualUploadSection) el.visualUploadSection.style.display = "none";
