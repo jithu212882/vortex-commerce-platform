@@ -25,6 +25,7 @@
     searchSort: "relevance",
     currentQuickViewProduct: null,
     dwellStartTimestamp: 0,
+    visualObjectUrl: null,
   };
 
   // DOM Elements
@@ -1852,10 +1853,18 @@
   let selectedVisualFile = null;
 
   function setSelectedVisualFile(file) {
+    if (state.visualObjectUrl) {
+      try {
+        URL.revokeObjectURL(state.visualObjectUrl);
+      } catch (e) {}
+      state.visualObjectUrl = null;
+    }
+
     if (!file) {
       selectedVisualFile = null;
       if (el.visualSelectedPreviewBox) el.visualSelectedPreviewBox.style.display = "none";
       if (el.visualSelectedThumb) el.visualSelectedThumb.src = "";
+      if (el.visualPreviewImg) el.visualPreviewImg.src = "";
       if (el.visualSelectedFileName) el.visualSelectedFileName.textContent = "";
       if (el.cameraFileInput) el.cameraFileInput.value = "";
       if (el.galleryFileInput) el.galleryFileInput.value = "";
@@ -1870,11 +1879,32 @@
 
     selectedVisualFile = file;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (el.visualSelectedThumb) el.visualSelectedThumb.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    try {
+      state.visualObjectUrl = URL.createObjectURL(file);
+    } catch (e) {
+      state.visualObjectUrl = null;
+    }
+
+    if (state.visualObjectUrl) {
+      if (el.visualSelectedThumb) el.visualSelectedThumb.src = state.visualObjectUrl;
+      if (el.visualPreviewImg) el.visualPreviewImg.src = state.visualObjectUrl;
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (el.visualSelectedThumb) el.visualSelectedThumb.src = e.target.result;
+        if (el.visualPreviewImg) el.visualPreviewImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Defensive fallback: ensure preview never falls back to an unrelated external placeholder
+    if (el.visualPreviewImg) {
+      el.visualPreviewImg.onerror = function () {
+        if (state.visualObjectUrl && this.src !== state.visualObjectUrl) {
+          this.src = state.visualObjectUrl;
+        }
+      };
+    }
 
     if (el.visualSelectedFileName) el.visualSelectedFileName.textContent = file.name || "Captured Photo.jpg";
     if (el.visualSelectedFileSize) {
@@ -1913,6 +1943,11 @@
 
     if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Analyzing object features with YOLOv8 & Gemini 2.5 Flash...";
 
+    // Ensure preview image retains user's uploaded thumbnail
+    if (el.visualPreviewImg && state.visualObjectUrl) {
+      el.visualPreviewImg.src = state.visualObjectUrl;
+    }
+
     const formData = new FormData();
     formData.append("file", selectedVisualFile);
     formData.append("top_k", "6");
@@ -1935,17 +1970,37 @@
       if (el.visualUploadSection) el.visualUploadSection.style.display = "none";
       if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
 
-      if (el.visualPreviewImg && data.cropped_image_base64) {
-        el.visualPreviewImg.src = data.cropped_image_base64;
+      // PRESERVE USER UPLOADED PHOTO:
+      // If server returned a valid cropped bounding box base64, display it.
+      // Otherwise, retain the user's actual uploaded photo (state.visualObjectUrl).
+      // NEVER fall back to a generic product placeholder (e.g. perfume).
+      if (el.visualPreviewImg) {
+        if (data && data.cropped_image_base64) {
+          el.visualPreviewImg.src = data.cropped_image_base64;
+        } else if (state.visualObjectUrl) {
+          el.visualPreviewImg.src = state.visualObjectUrl;
+        }
       }
+
       if (el.visualLabelNotice) {
         el.visualLabelNotice.textContent = data.detection_found && data.detected_label
           ? `Detected: ${data.detected_label.toUpperCase()}`
           : "Detected: Unidentified Product";
       }
-      if (el.visualStatusNotice) {
+
+      if (data && data.error) {
+        if (el.visualStatusNotice) {
+          el.visualStatusNotice.textContent = data.status_message || (data.error === "timeout"
+            ? "Visual search timed out while analyzing image. Please try another angle or a smaller photo."
+            : `Unable to process photo: ${data.error}`);
+        }
+        if (el.visualPreviewImg && state.visualObjectUrl) {
+          el.visualPreviewImg.src = state.visualObjectUrl;
+        }
+      } else if (el.visualStatusNotice) {
         el.visualStatusNotice.textContent = data.gemini_description || data.status_message || "Visual analysis complete.";
       }
+
       if (el.visualConfidencePill) {
         const conf = data.bounding_box && data.bounding_box.confidence
           ? Math.round(data.bounding_box.confidence * 100)
@@ -1974,7 +2029,7 @@
 
       if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "block";
 
-      if (items && items.length > 0 && data.detection_found) {
+      if (items && items.length > 0 && data.detection_found && !data.error) {
         if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "block";
         if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "grid";
         if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "none";
@@ -2037,11 +2092,25 @@
       const isTimeout = err.name === "AbortError";
       if (el.visualStatusNotice) {
         el.visualStatusNotice.textContent = isTimeout
-          ? "Visual search request timed out after 15 seconds. Please try again."
+          ? "Visual search request timed out after 15 seconds. Please try another angle or a smaller photo."
           : "Unable to process photo: " + err.message;
       }
       if (el.visualUploadSection) el.visualUploadSection.style.display = "none";
       if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
+
+      // PRESERVE USER UPLOADED PHOTO: Retain user's actual photo during errors and timeouts
+      if (el.visualPreviewImg && state.visualObjectUrl) {
+        el.visualPreviewImg.src = state.visualObjectUrl;
+      }
+      if (el.visualLabelNotice) {
+        el.visualLabelNotice.textContent = "Detected: Unidentified Product";
+      }
+      if (el.visualConfidencePill) {
+        el.visualConfidencePill.textContent = "Low Confidence";
+      }
+      if (el.visualGeminiTags) el.visualGeminiTags.innerHTML = "";
+      if (el.visualAttributesPills) el.visualAttributesPills.innerHTML = "";
+
       if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "block";
       if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "none";
       if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "none";

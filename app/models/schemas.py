@@ -156,6 +156,7 @@ class VisualSearchResponse(BaseModel):
     detected_brand: Optional[str] = None
     detected_category: Optional[str] = None
     detected_attributes: Dict[str, Any] = Field(default_factory=dict)
+    error: Optional[str] = None
 
 
 # ==============================================================================

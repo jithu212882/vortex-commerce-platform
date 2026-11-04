@@ -4,6 +4,8 @@ Provides endpoints for keyword search, real-time auto-suggest,
 and dual YOLOv8 + Gemini API multimodal visual search.
 """
 
+import asyncio
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
@@ -41,11 +43,29 @@ async def visual_search_endpoint(
             top_k=top_k,
             timeout_seconds=12.0,
         )
+        if response.status_message and "timed out" in response.status_message.lower():
+            response.error = "timeout"
+            response.matches = []
+            response.recommendations = []
+            response.cropped_image_base64 = None
         return response
     except HTTPException:
         raise
+    except (asyncio.TimeoutError, FuturesTimeoutError):
+        logger.warning("Visual search endpoint timed out.")
+        return VisualSearchResponse(
+            detection_found=False,
+            bounding_box=None,
+            detected_label=None,
+            status_message="Visual search timed out while analyzing image. Please try another angle or a smaller photo.",
+            cropped_image_base64=None,
+            recommendations=[],
+            matches=[],
+            error="timeout",
+        )
     except Exception as e:
         logger.error(f"Visual search pipeline error: {e}")
+        is_timeout = "timeout" in str(e).lower()
         return VisualSearchResponse(
             detection_found=False,
             bounding_box=None,
@@ -54,6 +74,7 @@ async def visual_search_endpoint(
             cropped_image_base64=None,
             recommendations=[],
             matches=[],
+            error="timeout" if is_timeout else str(e),
         )
 
 

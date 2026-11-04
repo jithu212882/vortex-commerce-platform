@@ -253,6 +253,7 @@ class VisionPreprocessingService:
                 cropped_image_base64=None,
                 recommendations=[],
                 matches=[],
+                error="timeout",
             )
 
 

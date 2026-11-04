@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -975,12 +977,40 @@ async def visual_feature_search(
         if len(RECENT_VISUAL_DETECTIONS) > 20:
             RECENT_VISUAL_DETECTIONS.pop()
 
+        if response.status_message and "timed out" in response.status_message.lower():
+            response.error = "timeout"
+            response.matches = []
+            response.recommendations = []
+            response.cropped_image_base64 = None
+
         return response
     except HTTPException:
         raise
+    except (asyncio.TimeoutError, FuturesTimeoutError):
+        logger.warning("Visual feature search timed out.")
+        return VisualSearchResponse(
+            detection_found=False,
+            bounding_box=None,
+            detected_label=None,
+            status_message="Visual search timed out while analyzing image. Please try another angle or a smaller photo.",
+            cropped_image_base64=None,
+            recommendations=[],
+            matches=[],
+            error="timeout",
+        )
     except Exception as e:
         logger.error(f"Visual search failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Visual processing error: {str(e)}")
+        is_timeout = "timeout" in str(e).lower()
+        return VisualSearchResponse(
+            detection_found=False,
+            bounding_box=None,
+            detected_label=None,
+            status_message=f"Unable to analyze image: {str(e)}",
+            cropped_image_base64=None,
+            recommendations=[],
+            matches=[],
+            error="timeout" if is_timeout else str(e),
+        )
 
 
 # ==============================================================================
