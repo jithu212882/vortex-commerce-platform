@@ -169,3 +169,4 @@ def classify_support_intent(message: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.info(f"Gemini intent classification fallback: {e}")
         return None
+
