@@ -94,6 +94,16 @@
     btnCloseVisualModal: document.getElementById("btnCloseVisualModal"),
     storefrontDropzone: document.getElementById("storefrontDropzone"),
     storefrontFileInput: document.getElementById("storefrontFileInput"),
+    cameraFileInput: document.getElementById("cameraFileInput"),
+    galleryFileInput: document.getElementById("galleryFileInput"),
+    btnUseCamera: document.getElementById("btnUseCamera"),
+    btnUploadGallery: document.getElementById("btnUploadGallery"),
+    visualSelectedPreviewBox: document.getElementById("visualSelectedPreviewBox"),
+    visualSelectedThumb: document.getElementById("visualSelectedThumb"),
+    visualSelectedFileName: document.getElementById("visualSelectedFileName"),
+    visualSelectedFileSize: document.getElementById("visualSelectedFileSize"),
+    btnRemoveSelectedImage: document.getElementById("btnRemoveSelectedImage"),
+    executeVisualSearchBtn: document.getElementById("executeVisualSearchBtn"),
     btnTriggerBrowsePhoto: document.getElementById("btnTriggerBrowsePhoto"),
     visualInspectionBox: document.getElementById("visualInspectionBox"),
     visualPreviewImg: document.getElementById("visualPreviewImg"),
@@ -101,6 +111,8 @@
     visualStatusNotice: document.getElementById("visualStatusNotice"),
     visualMatchesContainer: document.getElementById("visualMatchesContainer"),
     visualMatchesGrid: document.getElementById("visualMatchesGrid"),
+    visualMatchesHeading: document.getElementById("visualMatchesHeading"),
+    visualEmptyNotice: document.getElementById("visualEmptyNotice"),
 
     // Support Drawer
     supportDrawer: document.getElementById("supportDrawer"),
@@ -711,26 +723,26 @@
       });
     });
 
-    // Sector Shelf Action Buttons ("Explore Tech →", "Shop Home →", etc.)
+    // Sector Shelf Action Buttons ("Explore Tech →", "Shop Home →", etc.) -> Navigate to Dedicated Category Page
     document.querySelectorAll(".btn-shelf-explore").forEach((btn) => {
       btn.addEventListener("click", () => {
         const cat = btn.getAttribute("data-cat") || "";
         if (cat) {
-          state.activeCategory = cat;
-          state.searchQuery = "";
-          if (el.storeSearchInput) el.storeSearchInput.value = "";
-          if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
-          updateCategoryStripActive(cat);
-          fetchCatalog();
-          smoothScrollTo("#shelfSearchResults");
+          window.location.href = `/categories/${encodeURIComponent(cat)}`;
         }
       });
     });
 
-    // Footer category links
+    // Footer category links -> Navigate to Dedicated Category Page
     document.querySelectorAll(".footer-cat-link").forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
+        const cat = link.getAttribute("data-cat") || "";
+        if (cat) {
+          window.location.href = `/categories/${encodeURIComponent(cat)}`;
+        }
+      });
+    });
         const cat = link.getAttribute("data-cat") || "";
         state.activeCategory = cat;
         if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
@@ -807,27 +819,55 @@
       if (e.target === el.visualSearchModal) el.visualSearchModal.classList.remove("open");
     });
 
-    // File Drag & Drop for Visual Search
-    el.btnTriggerBrowsePhoto.addEventListener("click", () => el.storefrontFileInput.click());
-    el.storefrontDropzone.addEventListener("click", (e) => {
-      if (e.target !== el.btnTriggerBrowsePhoto) el.storefrontFileInput.click();
-    });
-    el.storefrontFileInput.addEventListener("change", handleVisualUpload);
+    // Visual Search (Camera, Gallery & Drag-and-Drop)
+    if (el.btnUseCamera && el.cameraFileInput) {
+      el.btnUseCamera.addEventListener("click", () => el.cameraFileInput.click());
+      el.cameraFileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) setSelectedVisualFile(e.target.files[0]);
+      });
+    }
 
-    el.storefrontDropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      el.storefrontDropzone.classList.add("dragover");
-    });
-    el.storefrontDropzone.addEventListener("dragleave", () => {
-      el.storefrontDropzone.classList.remove("dragover");
-    });
-    el.storefrontDropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      el.storefrontDropzone.classList.remove("dragover");
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        uploadPhotoForVisualMatch(e.dataTransfer.files[0]);
-      }
-    });
+    if (el.btnUploadGallery && el.galleryFileInput) {
+      el.btnUploadGallery.addEventListener("click", () => el.galleryFileInput.click());
+      el.galleryFileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) setSelectedVisualFile(e.target.files[0]);
+      });
+    }
+
+    if (el.btnTriggerBrowsePhoto) {
+      el.btnTriggerBrowsePhoto.addEventListener("click", () => el.storefrontFileInput.click());
+    }
+
+    if (el.storefrontFileInput) {
+      el.storefrontFileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) setSelectedVisualFile(e.target.files[0]);
+      });
+    }
+
+    if (el.btnRemoveSelectedImage) {
+      el.btnRemoveSelectedImage.addEventListener("click", () => setSelectedVisualFile(null));
+    }
+
+    if (el.executeVisualSearchBtn) {
+      el.executeVisualSearchBtn.addEventListener("click", executeVisualSearch);
+    }
+
+    if (el.storefrontDropzone) {
+      el.storefrontDropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        el.storefrontDropzone.classList.add("dragover");
+      });
+      el.storefrontDropzone.addEventListener("dragleave", () => {
+        el.storefrontDropzone.classList.remove("dragover");
+      });
+      el.storefrontDropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        el.storefrontDropzone.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          setSelectedVisualFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
 
     // Support Drawer
     const openSupportDrawer = () => {
@@ -1524,29 +1564,73 @@
   }
 
   // ============================================================================
-  // YOLOv8 VISUAL SEARCH
+  // YOLOv8 VISUAL SEARCH (Camera, Gallery & Multi-Angle YOLO)
   // ============================================================================
 
-  function handleVisualUpload(e) {
-    if (e.target.files && e.target.files[0]) {
-      uploadPhotoForVisualMatch(e.target.files[0]);
-    }
-  }
+  let selectedVisualFile = null;
 
-  async function uploadPhotoForVisualMatch(file) {
-    el.visualStatusNotice.textContent = "Analyzing image and finding visually matching products...";
-    el.visualInspectionBox.style.display = "block";
-    el.visualMatchesContainer.style.display = "none";
+  function setSelectedVisualFile(file) {
+    if (!file) {
+      selectedVisualFile = null;
+      if (el.visualSelectedPreviewBox) el.visualSelectedPreviewBox.style.display = "none";
+      if (el.executeVisualSearchBtn) {
+        el.executeVisualSearchBtn.disabled = true;
+        el.executeVisualSearchBtn.style.opacity = "0.5";
+        el.executeVisualSearchBtn.style.cursor = "not-allowed";
+      }
+      return;
+    }
+
+    selectedVisualFile = file;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      el.visualPreviewImg.src = e.target.result;
+      if (el.visualSelectedThumb) el.visualSelectedThumb.src = e.target.result;
     };
     reader.readAsDataURL(file);
 
+    if (el.visualSelectedFileName) el.visualSelectedFileName.textContent = file.name || "Captured Photo.jpg";
+    if (el.visualSelectedFileSize) {
+      const kb = Math.round(file.size / 1024);
+      el.visualSelectedFileSize.textContent = `${kb} KB • Ready for multi-angle AI detection`;
+    }
+    if (el.visualSelectedPreviewBox) el.visualSelectedPreviewBox.style.display = "block";
+    if (el.visualInspectionBox) el.visualInspectionBox.style.display = "none";
+    if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "none";
+    if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "none";
+
+    if (el.executeVisualSearchBtn) {
+      el.executeVisualSearchBtn.disabled = false;
+      el.executeVisualSearchBtn.style.opacity = "1";
+      el.executeVisualSearchBtn.style.cursor = "pointer";
+    }
+  }
+
+  function handleVisualUpload(e) {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedVisualFile(e.target.files[0]);
+    }
+  }
+
+  async function executeVisualSearch() {
+    if (!selectedVisualFile) return;
+
+    if (el.executeVisualSearchBtn) {
+      el.executeVisualSearchBtn.disabled = true;
+      el.executeVisualSearchBtn.innerHTML = `
+        <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
+        <span>Running Multi-Angle Detection...</span>
+      `;
+    }
+
+    if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Analyzing object features with YOLOv8...";
+    if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
+    if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "none";
+    if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "none";
+
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("top_k", "4");
+    formData.append("file", selectedVisualFile);
+    formData.append("top_k", "6");
 
     try {
       const res = await fetch("/api/v1/search/visual", {
@@ -1557,18 +1641,32 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      el.visualLabelNotice.textContent = `Detected: ${data.detected_label || 'Product'}`;
-      el.visualStatusNotice.textContent = "Matching products found in catalog.";
-
-      if (data.cropped_image_base64) {
-        el.visualPreviewImg.src = `data:image/jpeg;base64,${data.cropped_image_base64}`;
+      if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
+      if (el.visualPreviewImg && data.cropped_image_base64) {
+        el.visualPreviewImg.src = data.cropped_image_base64;
+      }
+      if (el.visualLabelNotice) {
+        el.visualLabelNotice.textContent = data.detection_found && data.detected_label
+          ? `Detected: ${data.detected_label.toUpperCase()}`
+          : "Detection: No confident object";
+      }
+      if (el.visualStatusNotice) {
+        el.visualStatusNotice.textContent = data.status_message || "Visual analysis complete.";
       }
 
-      if (data.recommendations && data.recommendations.length > 0) {
-        el.visualMatchesContainer.style.display = "block";
-        el.visualMatchesGrid.innerHTML = data.recommendations
+      const items = (data.matches && data.matches.length > 0) ? data.matches : (data.recommendations || []);
+
+      if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "block";
+
+      if (items && items.length > 0 && data.detection_found) {
+        if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "block";
+        if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "grid";
+        if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "none";
+
+        el.visualMatchesGrid.innerHTML = items
           .map((it) => {
             const thumb = it.image_url || FALLBACK_THUMB;
+            const priceVal = it.price_inr || (it.price ? Math.round(it.price * 83) : 999);
             return `
             <div class="vx-card-showcase" style="padding: 10px; cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
               <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
@@ -1577,15 +1675,37 @@
               <div style="font-size: 11.5px; font-weight: 600; line-height: 1.25; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                 ${it.title}
               </div>
-              <div style="font-weight: 700; font-size: 13px;">&#8377;${formatInr(it.price)}</div>
-            </div>
-          `;
+              <div style="font-weight: 700; font-size: 13px;">&#8377;${formatInr(priceVal)}</div>
+            </div>`;
           })
           .join("");
+      } else {
+        // Anti-Hallucination: No fake products!
+        if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "none";
+        if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "none";
+        if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "block";
       }
     } catch (err) {
-      el.visualStatusNotice.textContent = "Unable to process photo: " + err.message;
+      if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Unable to process photo: " + err.message;
+      if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "block";
+      if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "none";
+      if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "none";
+      if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "block";
+    } finally {
+      if (el.executeVisualSearchBtn) {
+        el.executeVisualSearchBtn.disabled = false;
+        el.executeVisualSearchBtn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Find Matching Products</span>
+        `;
+      }
     }
+  }
+
+  // Backward compatible helper
+  async function uploadPhotoForVisualMatch(file) {
+    setSelectedVisualFile(file);
+    await executeVisualSearch();
   }
 
   // ============================================================================

@@ -243,24 +243,35 @@
       </section>
     </div>
 
-    <!-- Bottom Carousel Shelf 1: Similar Products (Category Correlation) -->
+    <!-- Bottom Carousel Shelf 1: Similar Products (Dense Semantic Embeddings all-MiniLM-L6-v2) -->
     <section class="pdp-shelf-wrapper">
       <div class="pdp-shelf-header">
         <h2 class="pdp-shelf-title">Similar Products</h2>
-        <div class="pdp-shelf-subtitle">Customers browsing this item also considered</div>
+        <div class="pdp-shelf-subtitle">Customers browsing this item also considered (Vector Semantic Matching)</div>
       </div>
       <div class="pdp-shelf-grid" id="pdpSimilarGrid">
         <!-- Rendered by product.js -->
       </div>
     </section>
 
-    <!-- Bottom Carousel Shelf 2: Frequently Bought Together -->
-    <section class="pdp-shelf-wrapper">
+    <!-- Bottom Carousel Shelf 2: More from the Same Primary Category -->
+    <section class="pdp-shelf-wrapper" id="pdpCategoryShelf">
       <div class="pdp-shelf-header">
-        <h2 class="pdp-shelf-title">Frequently Bought Together</h2>
-        <div class="pdp-shelf-subtitle">Popular cross-category accessories & complementary gear</div>
+        <h2 class="pdp-shelf-title" id="pdpCategoryShelfTitle">More in this Category</h2>
+        <div class="pdp-shelf-subtitle" id="pdpCategoryShelfSubtitle">Explore additional models and editions in this primary category</div>
       </div>
-      <div class="pdp-shelf-grid" id="pdpBoughtTogetherGrid">
+      <div class="pdp-shelf-grid" id="pdpCategoryGrid">
+        <!-- Rendered by product.js -->
+      </div>
+    </section>
+
+    <!-- Bottom Carousel Shelf 3: Complementary Compatible Accessories -->
+    <section class="pdp-shelf-wrapper" id="pdpAccessoriesShelf">
+      <div class="pdp-shelf-header">
+        <h2 class="pdp-shelf-title">Compatible Accessories &amp; Complementary Gear</h2>
+        <div class="pdp-shelf-subtitle">Co-usage essentials engineered to work seamlessly alongside your selection</div>
+      </div>
+      <div class="pdp-shelf-grid" id="pdpAccessoriesGrid">
         <!-- Rendered by product.js -->
       </div>
     </section>
@@ -288,6 +299,6 @@
   </aside>
 
   <!-- Dedicated Product Client Script -->
-  <script src="/static/product.js?v=11.0"></script>
+  <script src="/static/product.js?v=16.0"></script>
 </body>
 </html>

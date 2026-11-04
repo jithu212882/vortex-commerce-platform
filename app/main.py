@@ -112,6 +112,16 @@ def get_product_detail(item_id: int):
         return FileResponse(product_file)
     return FileResponse(settings.STATIC_DIR / "storefront.html")
 
+@app.get("/categories/{category_name}", include_in_schema=False)
+@app.get("/category/{category_name}", include_in_schema=False)
+@app.get("/shop", include_in_schema=False)
+def get_category_page(category_name: str = ""):
+    """Serves dedicated category storefront view."""
+    category_file = settings.STATIC_DIR / "category.html"
+    if category_file.exists():
+        return FileResponse(category_file)
+    return FileResponse(settings.STATIC_DIR / "storefront.html")
+
 # Mount static directory
 app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static_assets")
 app.mount("/", StaticFiles(directory=str(settings.STATIC_DIR), html=True), name="static")

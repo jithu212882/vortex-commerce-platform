@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category • VORTEX COMMERCE</title>
+  <meta name="description" content="Explore curated products by category on VORTEX COMMERCE.">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS v3 Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            canvas: '#EFECE6',
+            card: '#FFFFFF',
+            plinth: '#F6F5F2',
+            ink: '#111111',
+            accent: '#FF3B00',
+            emerald: '#059669',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- GSAP 3 CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Shared Design System CSS -->
+  <link rel="stylesheet" href="/static/styles.css?v=16.0">
+</head>
+<body class="bg-[#EFECE6] text-[#111111] font-sans antialiased min-h-screen selection:bg-[#FF3B00] selection:text-white">
+
+  <!-- =========================================================================
+       1. FLOATING GLASSMORPHIC COMMAND DOCK
+       ========================================================================= -->
+  <div class="vx-command-header-wrapper w-full max-w-[1400px] mx-auto px-4 z-50 sticky top-3">
+    <header class="vx-command-dock h-16 w-full flex items-center justify-between px-6 bg-[#111111]/92 backdrop-blur-xl border border-white/10 rounded-2xl text-white shadow-2xl gap-4" id="vxCommandDock" role="banner">
+      <div class="vx-dock-left flex items-center gap-4 flex-shrink-0">
+        <a href="/" class="vx-dock-brand flex items-center gap-2 group" id="vxBrandLogo" title="VORTEX Global Flagship">
+          <span class="font-extrabold tracking-tighter text-xl text-white">VORTEX<span class="text-[#FF3B00]">.</span></span>
+        </a>
+        <div class="hidden lg:flex items-center gap-1.5 text-xs font-mono text-zinc-400 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>PIN: 629165 (Marthandam)</span>
+        </div>
+      </div>
+
+      <!-- Search Command Bar -->
+      <div class="vx-search-bar flex-1 max-w-xl mx-4 lg:mx-6 flex items-center bg-white rounded-xl border border-stone-300 shadow-sm overflow-hidden focus-within:border-slate-900 transition-colors relative">
+        <select class="vx-search-category bg-stone-50 text-stone-700 text-xs font-medium px-3.5 py-2.5 border-r border-stone-200 outline-none cursor-pointer" id="headerCategorySelect" aria-label="Filter category">
+          <option value="">All Categories</option>
+          <option value="electronics">Electronics</option>
+          <option value="laptops">Laptops</option>
+          <option value="audio">Audio</option>
+          <option value="wearables">Wearables</option>
+          <option value="gaming">Gaming &amp; Peripherals</option>
+          <option value="smartphones">Smartphones</option>
+          <option value="furniture">Furniture</option>
+          <option value="beauty">Beauty &amp; Care</option>
+          <option value="fragrances">Fragrances</option>
+          <option value="groceries">Groceries</option>
+        </select>
+
+        <input type="text" id="headerSearchInput" class="vx-search-input flex-1 bg-transparent text-stone-900 placeholder-stone-400 text-xs px-4 py-2.5 outline-none" placeholder="Search within this category or full catalog..." autocomplete="off">
+
+        <button type="button" class="btn-vx-search-submit bg-slate-900 hover:bg-black text-white px-5 py-2.5 flex items-center justify-center transition-colors flex-shrink-0" id="btnHeaderSearch" title="Search">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+      </div>
+
+      <div class="vx-dock-actions flex items-center gap-2.5 flex-shrink-0">
+        <a href="/" class="text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">Marketplace</a>
+        <a href="/orders" class="text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">Orders</a>
+        <a href="/account" class="text-xs text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">Account</a>
+        <button type="button" class="btn-dock-cart flex items-center gap-2 bg-[#FF3B00] hover:bg-[#E03400] text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm" id="btnCartTrigger" title="Shopping Cart">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Cart</span>
+          <span class="bg-black/40 px-1.5 py-0.5 rounded-full text-[10px] font-mono" id="cartCountBadge">0</span>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <!-- =========================================================================
+       2. DEDICATED CATEGORY MAIN CONTAINER
+       ========================================================================= -->
+  <main class="w-full max-w-[1400px] mx-auto px-4 py-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-stone-500 mb-6 font-medium" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-stone-900 transition-colors">Home</a>
+      <span>&rsaquo;</span>
+      <span class="text-stone-500">Categories</span>
+      <span>&rsaquo;</span>
+      <span class="text-stone-900 font-semibold" id="categoryBreadcrumbLabel">All Products</span>
+    </nav>
+
+    <!-- Category Hero Header Banner -->
+    <div class="bg-white rounded-3xl p-6 lg:p-8 border border-stone-200/80 shadow-xs mb-8 relative overflow-hidden">
+      <div class="max-w-3xl relative z-10">
+        <div class="inline-flex items-center gap-2 bg-stone-100 text-stone-800 text-[11px] font-mono font-semibold px-3 py-1 rounded-full mb-3 border border-stone-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Verified Direct Dispatch • Marthandam 629165</span>
+        </div>
+        <h1 class="text-2xl lg:text-3xl font-extrabold text-stone-900 tracking-tight" id="categoryPageTitle">
+          Computing &amp; Laptops
+        </h1>
+        <p class="text-stone-600 text-sm mt-2 max-w-2xl" id="categoryPageDescription">
+          Explore high-performance computing devices, enterprise workstations, and certified ultrabooks engineered for speed, endurance, and uncompromising build quality.
+        </p>
+      </div>
+    </div>
+
+    <!-- Category Switcher Pill Track -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none" id="categoryPillTrack">
+      <!-- Injected via category.js -->
+    </div>
+
+    <!-- Results Toolbar & Sorting Controls -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-stone-200/80 mb-6 shadow-xs">
+      <div class="text-xs text-stone-600 font-medium" id="categoryCountStatus">
+        Showing <span class="font-bold text-stone-900" id="itemCountVal">0</span> products in this category
+      </div>
+
+      <div class="flex items-center gap-3">
+        <label for="categorySortSelect" class="text-xs font-semibold text-stone-700 whitespace-nowrap">Sort by:</label>
+        <select id="categorySortSelect" class="bg-stone-50 text-stone-800 text-xs font-medium px-3.5 py-2 rounded-xl border border-stone-200 outline-none cursor-pointer focus:border-stone-900 transition-colors">
+          <option value="featured">Featured / Best Match</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="rating">Customer Rating (High to Low)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="categoryProductGrid">
+      <!-- Product cards injected by category.js -->
+    </div>
+
+    <!-- Clean Empty State -->
+    <div id="categoryEmptyState" class="hidden text-center py-20 bg-white rounded-3xl border border-stone-200 shadow-xs mt-6">
+      <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 text-stone-400">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+      </div>
+      <h3 class="text-base font-bold text-stone-900">No products found in this category</h3>
+      <p class="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
+        We could not find items matching this category. Try switching categories or clearing search filters.
+      </p>
+      <a href="/" class="inline-block mt-5 bg-stone-900 hover:bg-black text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-colors">
+        Browse All Collections
+      </a>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex items-center justify-center gap-2 mt-10" id="categoryPagination">
+      <!-- Pagination buttons injected by category.js -->
+    </div>
+
+  </main>
+
+  <!-- =========================================================================
+       3. SHOPPING CART DRAWER
+       ========================================================================= -->
+  <aside class="vx-drawer" id="cartDrawer" aria-label="Shopping Cart Drawer">
+    <div class="vx-drawer-head flex items-center justify-between p-5 border-b border-stone-200">
+      <div class="flex items-center gap-2.5">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span class="font-bold text-sm text-stone-900">Your Shopping Cart</span>
+      </div>
+      <button type="button" class="vx-close-btn text-stone-400 hover:text-stone-900" id="btnCloseCartDrawer" aria-label="Close cart drawer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="vx-drawer-body p-5 flex-1 overflow-y-auto" id="cartItemsStream">
+      <div class="text-xs text-stone-400 text-center py-10" id="cartEmptyState">Your cart is empty.</div>
+    </div>
+
+    <div class="vx-drawer-foot p-5 border-t border-stone-200 bg-stone-50">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-semibold text-stone-600">Subtotal:</span>
+        <span class="text-base font-extrabold text-stone-900" id="cartSubtotalVal">&#8377;0</span>
+      </div>
+      <button type="button" class="w-full bg-[#FF3B00] hover:bg-[#E03400] text-white py-3 rounded-xl text-xs font-bold transition-all shadow-sm" id="btnCheckoutCart">
+        Proceed to Secure Checkout &rarr;
+      </button>
+    </div>
+  </aside>
+
+  <!-- Scripts -->
+  <script src="/static/category.js?v=16.0"></script>
+</body>
+</html>

@@ -61,78 +61,76 @@ class VisionPreprocessingService:
 
         if yolo is not None:
             try:
-                results = yolo(image, verbose=False)
-                best_box = None
-                max_area = 0.0
+                # Configure Ultralytics YOLOv8 with augment=True, agnostic_nms=True, and conf=0.25
+                # for robust multi-angle detection of rotated or skewed product images.
+                results = yolo(
+                    image,
+                    verbose=False,
+                    augment=True,
+                    agnostic_nms=True,
+                    conf=self.min_confidence,
+                )
+            except Exception as e_aug:
+                logger.warning(f"YOLO augmented inference error, retrying standard: {e_aug}")
+                try:
+                    results = yolo(image, verbose=False, conf=self.min_confidence)
+                except Exception as e:
+                    logger.warning(f"YOLO inference error: {e}")
+                    results = []
 
-                for r in results:
-                    boxes = r.boxes
-                    if boxes is None or len(boxes) == 0:
+            best_box = None
+            max_area = 0.0
+
+            for r in results:
+                boxes = r.boxes
+                if boxes is None or len(boxes) == 0:
+                    continue
+                for box in boxes:
+                    conf = float(box.conf[0])
+                    if conf < self.min_confidence:
                         continue
-                    for box in boxes:
-                        conf = float(box.conf[0])
-                        if conf < self.min_confidence:
-                            continue
-                        
-                        cls_id = int(box.cls[0])
-                        cls_name = r.names.get(cls_id, "object")
-                        coords = box.xyxy[0].tolist()
-                        x1, y1, x2, y2 = coords
-                        
-                        # Calculate area
-                        w = max(0.0, x2 - x1)
-                        h = max(0.0, y2 - y1)
-                        area = w * h
+                    
+                    cls_id = int(box.cls[0])
+                    cls_name = r.names.get(cls_id, "object")
+                    coords = box.xyxy[0].tolist()
+                    x1, y1, x2, y2 = coords
+                    
+                    # Calculate area
+                    w = max(0.0, x2 - x1)
+                    h = max(0.0, y2 - y1)
+                    area = w * h
 
-                        # Prefer prominent bounding boxes with good confidence
-                        if area > max_area and w > 10 and h > 10:
-                            max_area = area
-                            best_box = (x1, y1, x2, y2, conf, cls_name)
+                    # Prefer prominent bounding boxes with good confidence
+                    if area > max_area and w > 10 and h > 10:
+                        max_area = area
+                        best_box = (x1, y1, x2, y2, conf, cls_name)
 
-                if best_box:
-                    x1, y1, x2, y2, conf, label = best_box
-                    detection_found = True
-                    detected_label = label
-                    # Clamp to image boundaries
-                    x1 = max(0.0, min(float(x1), float(img_width)))
-                    y1 = max(0.0, min(float(y1), float(img_height)))
-                    x2 = max(x1 + 1.0, min(float(x2), float(img_width)))
-                    y2 = max(y1 + 1.0, min(float(y2), float(img_height)))
+            if best_box:
+                x1, y1, x2, y2, conf, label = best_box
+                detection_found = True
+                detected_label = label
+                # Clamp to image boundaries
+                x1 = max(0.0, min(float(x1), float(img_width)))
+                y1 = max(0.0, min(float(y1), float(img_height)))
+                x2 = max(x1 + 1.0, min(float(x2), float(img_width)))
+                y2 = max(y1 + 1.0, min(float(y2), float(img_height)))
 
-                    primary_box = BoundingBox(
-                        x1=round(x1, 1),
-                        y1=round(y1, 1),
-                        x2=round(x2, 1),
-                        y2=round(y2, 1),
-                        width=round(x2 - x1, 1),
-                        height=round(y2 - y1, 1),
-                        confidence=round(conf, 4),
-                        label=label,
-                    )
-            except Exception as e:
-                logger.warning(f"YOLO inference error: {e}")
+                primary_box = BoundingBox(
+                    x1=round(x1, 1),
+                    y1=round(y1, 1),
+                    x2=round(x2, 1),
+                    y2=round(y2, 1),
+                    width=round(x2 - x1, 1),
+                    height=round(y2 - y1, 1),
+                    confidence=round(conf, 4),
+                    label=label,
+                )
 
-        # If no YOLO detection or model unavailable, use central region crop
+        # Anti-Hallucination: If no confident objects are detected, do NOT hallucinate fake products
         if not detection_found or primary_box is None:
-            # Fallback to centered crop (removes standard periphery noise)
-            cx1 = img_width * 0.1
-            cy1 = img_height * 0.1
-            cx2 = img_width * 0.9
-            cy2 = img_height * 0.9
-            primary_box = BoundingBox(
-                x1=round(cx1, 1),
-                y1=round(cy1, 1),
-                x2=round(cx2, 1),
-                y2=round(cy2, 1),
-                width=round(cx2 - cx1, 1),
-                height=round(cy2 - cy1, 1),
-                confidence=0.50,
-                label="primary_focal_region",
-            )
-            detected_label = "focal_object"
-            status_message = "Object isolated via focal center extraction (YOLO fallback active)."
-        else:
-            status_message = f"Object detected: '{primary_box.label}' (confidence: {primary_box.confidence * 100:.1f}%)."
+            return None, None, "", "No confident objects detected. Please try another angle or a well-lit photo."
+
+        status_message = f"Object detected: '{primary_box.label}' (confidence: {primary_box.confidence * 100:.1f}%)."
 
         # Perform crop
         crop_region = (
@@ -155,39 +153,44 @@ class VisionPreprocessingService:
     ) -> VisualSearchResponse:
         """
         Executes end-to-end visual search:
-        1. Crops primary detected object.
+        1. Crops primary detected object using multi-angle augmented YOLOv8.
         2. Converts crop to Base64 for enterprise dashboard inspection.
-        3. Retrieves closest catalog matches matching visual feature semantics.
+        3. Retrieves matching catalog items matching visual feature semantics.
+        4. No Hallucination: Returns clean empty state ({"matches": []}) if no confident detection.
         """
         cropped_bytes, bbox, label, msg = self.process_image_upload(image_bytes)
 
-        if not cropped_bytes:
+        if not cropped_bytes or bbox is None:
             return VisualSearchResponse(
                 detection_found=False,
                 bounding_box=None,
                 detected_label=None,
-                status_message=msg,
+                status_message=msg or "No confident objects detected. Please try another angle or a well-lit photo.",
                 cropped_image_base64=None,
                 recommendations=[],
+                matches=[],
             )
 
         # Base64 string for preview
         b64_crop = base64.b64encode(cropped_bytes).decode("utf-8")
 
         # Map detected label to catalog query
-        query_text = label if label and label not in ("primary_focal_region", "focal_object") else "popular quality product"
+        query_text = label if label else "product"
         recommendations, _ = recommender_svc.recommend_dwell(
             query_text=query_text,
             top_k=top_k,
         )
 
+        matches = recommendations or []
+
         return VisualSearchResponse(
-            detection_found=(bbox.label != "primary_focal_region"),
+            detection_found=True,
             bounding_box=bbox,
             detected_label=label,
             status_message=msg,
             cropped_image_base64=f"data:image/jpeg;base64,{b64_crop}",
-            recommendations=recommendations,
+            recommendations=matches,
+            matches=matches,
         )
 
 

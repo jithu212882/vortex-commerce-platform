@@ -578,14 +578,150 @@ def get_similar_products(product_id: int, limit: int = Query(5, ge=1, le=10)):
     return similar_items
 
 
-@router.get("/recommend/bought-together/{product_id}", tags=["Dense Recommendations"])
-def get_bought_together_products(product_id: int, limit: int = Query(5, ge=1, le=10)):
+@router.get("/recommend/category/{product_id}", tags=["Dense Recommendations"])
+def get_same_category_products(product_id: int, limit: int = Query(6, ge=1, le=12)):
     """
-    Retrieves co-usage complementary gear and accessories that can be used alongside the viewed product.
+    Retrieves more items from the exact same primary category as the viewed product.
+    Strictly excludes the currently viewed product.
+    """
+    target = next((p for p in recommender_service.items if p.get("id") == product_id), None)
+    if not target:
+        return []
+    
+    target_cat = (target.get("category") or "").lower()
+    matches = []
+    for it in recommender_service.items:
+        if it.get("id") == product_id:
+            continue
+        if (it.get("category") or "").lower() == target_cat:
+            usd_price = float(it.get("price", 0.0))
+            price_inr = round(usd_price * 83) if usd_price > 0 else 999
+            mrp_inr = round(price_inr * 1.35)
+            discount_pct = round((1 - (price_inr / mrp_inr)) * 100) if mrp_inr > price_inr else 25
+            rating = round(4.2 + (it.get("id", 1) % 7) * 0.1, 1)
+
+            matches.append({
+                "id": it.get("id"),
+                "title": it.get("title"),
+                "brand": it.get("brand") or (it.get("category") or "VORTEX").upper(),
+                "category": it.get("category"),
+                "description": it.get("description", ""),
+                "price": usd_price,
+                "price_inr": price_inr,
+                "mrp_inr": mrp_inr,
+                "discount_pct": discount_pct,
+                "rating": rating,
+                "review_count": 850 + (it.get("id", 1) * 39) % 5000,
+                "image_url": it.get("image_url") or "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80",
+            })
+            if len(matches) >= limit:
+                break
+    return matches
+
+
+@router.get("/recommend/accessories/{product_id}", tags=["Dense Recommendations"])
+@router.get("/recommend/bought-together/{product_id}", tags=["Dense Recommendations"])
+def get_accessories_products(product_id: int, limit: int = Query(5, ge=1, le=10)):
+    """
+    Retrieves complementary compatible accessories (e.g. laptop sleeves, mechanical keyboards,
+    USB-C hubs, mice, cases) engineered to pair with the viewed product.
     Strictly excludes the product itself and duplicate products of the same type.
     """
-    bought_together = recommender_service.get_bought_together_products(product_id=product_id, top_k=limit)
-    return bought_together
+    accessories = recommender_service.get_bought_together_products(product_id=product_id, top_k=limit)
+    return accessories
+
+
+@router.get("/categories", tags=["Enterprise Catalog"])
+def list_catalog_categories(db: Session = Depends(get_db)):
+    """Lists all distinct product categories with item counts and display labels."""
+    category_counts: Dict[str, int] = {}
+    items = db.query(Item).all()
+    pool = [it.to_dict() for it in items] if items else recommender_service.items
+
+    for it in pool:
+        cat = (it.get("category") or "general").strip()
+        category_counts[cat] = category_counts.get(cat, 0) + 1
+
+    result = []
+    for cat, count in sorted(category_counts.items(), key=lambda x: -x[1]):
+        result.append({
+            "slug": cat,
+            "title": cat.replace("-", " ").title(),
+            "count": count
+        })
+    return result
+
+
+@router.get("/categories/{category_name}/items", tags=["Enterprise Catalog"])
+def get_category_items(
+    category_name: str,
+    sort: Optional[str] = Query("featured", description="Sort order: featured, price_asc, price_desc, rating"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    """
+    Dedicated category items endpoint. Returns products belonging strictly to the requested category.
+    Supports sorting by price, rating, or featured ranking with pagination.
+    """
+    cat_norm = category_name.strip().lower()
+    
+    # Category aliases/groupings
+    aliases = {
+        "electronics": ["electronics", "laptops", "smartphones", "tablets", "mobile-accessories", "gaming", "gaming-peripherals"],
+        "audio": ["audio", "mobile-accessories"],
+        "wearables": ["wearables", "mens-watches", "womens-watches", "sports-accessories"],
+        "gaming": ["gaming", "gaming-peripherals", "gaming & peripherals"],
+    }
+    target_cats = aliases.get(cat_norm, [cat_norm])
+
+    items = db.query(Item).all()
+    pool = [it.to_dict() for it in items] if items else recommender_service.items
+
+    matched = []
+    for it in pool:
+        c = (it.get("category") or "").lower()
+        if c == cat_norm or c in target_cats or cat_norm in c:
+            usd_price = float(it.get("price", 0.0))
+            price_inr = round(usd_price * 83) if usd_price > 0 else 999
+            mrp_inr = round(price_inr * 1.35)
+            discount_pct = round((1 - (price_inr / mrp_inr)) * 100) if mrp_inr > price_inr else 25
+            rating = round(4.2 + (it.get("id", 1) % 7) * 0.1, 1)
+
+            matched.append({
+                "id": it.get("id"),
+                "title": it.get("title"),
+                "brand": it.get("brand") or (it.get("category") or "VORTEX").upper(),
+                "category": it.get("category"),
+                "description": it.get("description", ""),
+                "price": usd_price,
+                "price_inr": price_inr,
+                "mrp_inr": mrp_inr,
+                "discount_pct": discount_pct,
+                "rating": rating,
+                "review_count": 450 + (it.get("id", 1) * 37) % 3500,
+                "image_url": it.get("image_url") or "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80",
+            })
+
+    # Sort
+    if sort == "price_asc":
+        matched.sort(key=lambda x: x["price_inr"])
+    elif sort == "price_desc":
+        matched.sort(key=lambda x: -x["price_inr"])
+    elif sort == "rating":
+        matched.sort(key=lambda x: -x["rating"])
+
+    total = len(matched)
+    paginated = matched[offset : offset + limit]
+
+    return {
+        "category": category_name,
+        "title": category_name.replace("-", " ").title(),
+        "total_count": total,
+        "offset": offset,
+        "limit": limit,
+        "items": paginated,
+    }
 
 
 @router.get("/catalog/{item_id}", response_model=ProductItem, tags=["Enterprise Catalog"])

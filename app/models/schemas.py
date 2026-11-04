@@ -148,7 +148,8 @@ class VisualSearchResponse(BaseModel):
     detected_label: Optional[str] = None
     status_message: str
     cropped_image_base64: Optional[str] = None
-    recommendations: List[ProductItem]
+    recommendations: List[ProductItem] = Field(default_factory=list)
+    matches: List[ProductItem] = Field(default_factory=list)
 
 
 # ==============================================================================

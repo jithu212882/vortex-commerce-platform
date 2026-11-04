@@ -42,8 +42,14 @@
     editorialBlocks: document.getElementById("pdpEditorialBlocks"),
     specsContainer: document.getElementById("pdpSpecsContainer"),
 
-    // Bottom Shelves
+    // Bottom Shelves (Similar Products, Same Category, and Compatible Accessories)
     similarGrid: document.getElementById("pdpSimilarGrid"),
+    categoryGrid: document.getElementById("pdpCategoryGrid"),
+    categoryShelf: document.getElementById("pdpCategoryShelf"),
+    categoryShelfTitle: document.getElementById("pdpCategoryShelfTitle"),
+    categoryShelfSubtitle: document.getElementById("pdpCategoryShelfSubtitle"),
+    accessoriesGrid: document.getElementById("pdpAccessoriesGrid"),
+    accessoriesShelf: document.getElementById("pdpAccessoriesShelf"),
     boughtTogetherGrid: document.getElementById("pdpBoughtTogetherGrid"),
 
     // Cart Drawer
@@ -84,23 +90,28 @@
     const productId = getProductIdFromUrl();
 
     try {
-      // Concurrently fetch both single product details and similar products
-      const [prodRes, similarRes] = await Promise.all([
+      // Concurrently fetch single product details, similar products, same-category items, and compatible accessories
+      const [prodRes, similarRes, catRes, accRes] = await Promise.all([
         fetch(`/api/v1/product/${productId}`),
-        fetch(`/api/v1/recommend/similar/${productId}?limit=5`),
+        fetch(`/api/v1/recommend/similar/${productId}?limit=6`),
+        fetch(`/api/v1/recommend/category/${productId}?limit=6`),
+        fetch(`/api/v1/recommend/accessories/${productId}?limit=6`),
       ]);
 
       if (!prodRes.ok) throw new Error(`HTTP ${prodRes.status}`);
 
       productData = await prodRes.json();
       similarProducts = similarRes.ok ? await similarRes.json() : [];
+      const sameCategoryItems = catRes.ok ? await catRes.json() : [];
+      const accessoriesItems = accRes.ok ? await accRes.json() : [];
 
       renderProductShowcase(productData);
       renderBankOffers(productData.bank_offers || []);
       renderEditorialDescription(productData.detailed_description || []);
       renderSpecificationsTable(productData.specs_sections || {});
       renderSimilarShelf(similarProducts);
-      fetchAndRenderBoughtTogether(productId, productData.category);
+      renderCategoryShelf(sameCategoryItems, productData.category);
+      renderAccessoriesShelf(accessoriesItems);
 
     } catch (err) {
       console.error("Failed to load product details:", err);
@@ -364,84 +375,151 @@
     }
   }
 
-  async function fetchAndRenderBoughtTogether(currentId, category) {
-    if (!el.boughtTogetherGrid) return;
+  // ===========================================================================
+  // RENDER PRIMARY CATEGORY SHELF ("MORE IN THIS CATEGORY")
+  // ===========================================================================
 
-    try {
-      // Query dedicated complementary co-usage endpoint
-      const res = await fetch(`/api/v1/recommend/bought-together/${currentId}?limit=5`);
-      if (!res.ok) return;
-      const complementary = await res.json();
+  function renderCategoryShelf(items, category) {
+    if (!el.categoryGrid) return;
 
-      if (!complementary || complementary.length === 0) {
-        el.boughtTogetherGrid.innerHTML = `
-          <div style="grid-column: 1/-1; padding: 24px; color: #71717A;">No complementary accessories found.</div>`;
-        return;
-      }
+    if (!items || items.length === 0) {
+      if (el.categoryShelf) el.categoryShelf.style.display = "none";
+      return;
+    }
 
-      el.boughtTogetherGrid.innerHTML = complementary
-        .map((item) => {
-          const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
-          const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
-          const discountPct = item.discount_pct || 25;
+    if (el.categoryShelf) el.categoryShelf.style.display = "block";
+    if (el.categoryShelfTitle && category) {
+      const catTitle = category.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+      el.categoryShelfTitle.textContent = `More in ${catTitle}`;
+    }
 
-          return `
-            <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md">
-              <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3" onclick="window.location.href='/product/${item.id}';">
-                <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
-                <img 
-                  src="${item.image_url || '/static/images/placeholder.png'}" 
-                  alt="${item.title}" 
-                  loading="lazy"
-                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';"
-                  style="max-height: 125px; max-width: 85%; object-fit: contain;" 
-                  class="group-hover:scale-105 transition-transform duration-300"
-                />
+    el.categoryGrid.innerHTML = items
+      .map((item) => {
+        const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
+        const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
+        const rating = item.rating || 4.5;
+        const discountPct = item.discount_pct || 25;
+
+        return `
+          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${item.id}';">
+            <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3">
+              <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
+              <div class="card-rating-pill absolute top-2 right-2 bg-white/90 backdrop-blur text-[#111111] font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-black/5 flex items-center gap-1 z-10">
+                <span class="text-[#059669]">★</span> ${rating.toFixed(1)}
               </div>
-              <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'ACCESSORY'}</div>
-              <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
-              <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
-                <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
-                <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>
-                <span class="pdp-rec-discount font-mono text-[10px] font-bold text-[#FF3B00]">${discountPct}% off</span>
-              </div>
-              <button type="button" class="btn-pdp-quick-add w-full mt-2.5 bg-[#111111] hover:bg-[#FF3B00] text-white font-mono text-xs font-semibold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-item-id="${item.id}" data-item-title="${item.title}" data-item-price="${item.price}" data-item-img="${item.image_url}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <span>Add to Cart</span>
-              </button>
-            </div>`;
-        })
-        .join("");
+              <img 
+                src="${item.image_url || '/static/images/placeholder.png'}" 
+                alt="${item.title}" 
+                loading="lazy"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';"
+                style="max-height: 125px; max-width: 85%; object-fit: contain;" 
+                class="group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'VORTEX'}</div>
+            <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}">${item.title}</div>
+            <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
+              <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
+              <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>
+              <span class="pdp-rec-discount font-mono text-[10px] font-bold text-[#FF3B00]">${discountPct}% off</span>
+            </div>
+            <div class="pdp-rec-delivery-badge font-mono text-[10px] text-[#059669] mt-1 font-medium">Free Express Delivery</div>
+          </div>`;
+      })
+      .join("");
 
-      if (window.gsap) {
-        gsap.fromTo(el.boughtTogetherGrid.querySelectorAll(".pdp-rec-card"), 
-          { y: 10 }, 
-          { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", clearProps: "all" }
-        );
-      }
+    if (window.gsap) {
+      gsap.fromTo(el.categoryGrid.querySelectorAll(".pdp-rec-card"), 
+        { y: 10 }, 
+        { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", clearProps: "all" }
+      );
+    }
+  }
 
-      // Bind quick add buttons
-      el.boughtTogetherGrid.querySelectorAll(".btn-pdp-quick-add").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const id = parseInt(btn.getAttribute("data-item-id"), 10);
-          const title = btn.getAttribute("data-item-title");
-          const price = parseFloat(btn.getAttribute("data-item-price"));
-          const img = btn.getAttribute("data-item-img");
+  // ===========================================================================
+  // RENDER COMPLEMENTARY COMPATIBLE ACCESSORIES SHELF
+  // ===========================================================================
 
-          addItemToCart({ id, title, price, image_url: img });
+  function renderAccessoriesShelf(items) {
+    if (!el.accessoriesGrid) return;
 
-          btn.innerHTML = "<span>Added ✓</span>";
-          btn.style.background = "#059669";
-          setTimeout(() => {
-            btn.innerHTML = `
+    if (!items || items.length === 0) {
+      if (el.accessoriesShelf) el.accessoriesShelf.style.display = "none";
+      return;
+    }
+
+    if (el.accessoriesShelf) el.accessoriesShelf.style.display = "block";
+
+    el.accessoriesGrid.innerHTML = items
+      .map((item) => {
+        const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
+        const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
+        const discountPct = item.discount_pct || 25;
+
+        return `
+          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md">
+            <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3" onclick="window.location.href='/product/${item.id}';">
+              <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
+              <img 
+                src="${item.image_url || '/static/images/placeholder.png'}" 
+                alt="${item.title}" 
+                loading="lazy"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';"
+                style="max-height: 125px; max-width: 85%; object-fit: contain;" 
+                class="group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'ACCESSORY'}</div>
+            <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
+            <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
+              <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
+              <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>
+              <span class="pdp-rec-discount font-mono text-[10px] font-bold text-[#FF3B00]">${discountPct}% off</span>
+            </div>
+            <button type="button" class="btn-pdp-quick-add w-full mt-2.5 bg-[#111111] hover:bg-[#FF3B00] text-white font-mono text-xs font-semibold py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5" data-item-id="${item.id}" data-item-title="${item.title}" data-item-price="${item.price}" data-item-img="${item.image_url}">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Add to Cart</span>`;
-            btn.style.background = "#111111";
-          }, 1200);
-        });
+              <span>Add to Cart</span>
+            </button>
+          </div>`;
+      })
+      .join("");
+
+    if (window.gsap) {
+      gsap.fromTo(el.accessoriesGrid.querySelectorAll(".pdp-rec-card"), 
+        { y: 10 }, 
+        { y: 0, duration: 0.25, stagger: 0.02, ease: "power2.out", clearProps: "all" }
+      );
+    }
+
+    // Bind quick add buttons
+    el.accessoriesGrid.querySelectorAll(".btn-pdp-quick-add").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.getAttribute("data-item-id"), 10);
+        const title = btn.getAttribute("data-item-title");
+        const price = parseFloat(btn.getAttribute("data-item-price"));
+        const img = btn.getAttribute("data-item-img");
+
+        addItemToCart({ id, title, price, image_url: img });
+
+        btn.innerHTML = "<span>Added ✓</span>";
+        btn.style.background = "#059669";
+        setTimeout(() => {
+          btn.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add to Cart</span>`;
+          btn.style.background = "#111111";
+        }, 1200);
       });
-    } catch (e) {
+    });
+  }
+
+  // Backwards compatibility helper
+  async function fetchAndRenderBoughtTogether(currentId, category) {
+    if (el.boughtTogetherGrid) {
+      el.boughtTogetherGrid.style.display = "none";
+    }
+  }
       console.warn("Could not load complementary products:", e);
     }
   }

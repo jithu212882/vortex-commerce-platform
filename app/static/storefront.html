@@ -506,12 +506,15 @@
   </aside>
 
   <!-- =========================================================================
-       YOLOv8 VISUAL SEARCH MODAL
+       YOLOv8 VISUAL SEARCH MODAL (Camera, Gallery & Multi-Angle YOLO)
        ========================================================================= -->
   <div class="modal-backdrop-smooth" id="visualSearchModal">
     <div class="modal-content-smooth" style="max-width: 620px;">
       <div class="vx-modal-header">
-        <span class="vx-modal-title">Search by Photo</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <span class="vx-modal-title">Visual Search &amp; Multi-Angle Lens</span>
+        </div>
         <button type="button" class="vx-close-btn" id="btnCloseVisualModal" aria-label="Close modal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
@@ -519,20 +522,54 @@
 
       <div style="padding: 24px;">
         <p style="font-size: 13px; color: var(--ink-secondary); margin-bottom: 16px;">
-          Upload or drop an image to find visually matching products across our catalog.
+          Upload or capture a photo to find visually matching products with real-time multi-angle YOLOv8 detection.
         </p>
 
-        <div class="vx-dropzone" id="storefrontDropzone">
-          <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
+        <!-- Hidden file inputs for Camera and Gallery -->
+        <input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display: none;">
+        <input type="file" id="galleryFileInput" accept="image/*" style="display: none;">
+        <input type="file" id="storefrontFileInput" accept="image/*" style="display: none;">
+
+        <div class="vx-dropzone" id="storefrontDropzone" style="cursor: pointer; padding: 24px 18px; border: 2px dashed #CBD5E1; border-radius: 14px; text-align: center; background: #F8FAFC; transition: all 0.2s ease;">
           <svg style="width: 36px; height: 36px; color: #64748B; margin: 0 auto 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <div style="font-weight: 700; font-size: 13.5px; color: var(--ink-primary);">Drag &amp; drop product photo here</div>
-          <div style="font-size: 12px; color: var(--ink-muted); margin-top: 4px;">Supports JPG, PNG, and WEBP formats</div>
-          <button type="button" class="btn-card-add" id="btnTriggerBrowsePhoto" style="margin: 14px auto 0; height: 34px; padding: 0 16px; font-size: 12px; width: auto;">
-            Select from Device
-          </button>
+          <div style="font-weight: 700; font-size: 14px; color: var(--ink-primary);">Drag &amp; drop product photo here</div>
+          <div style="font-size: 12px; color: var(--ink-muted); margin-top: 4px;">Supports JPG, PNG, WEBP and rotated mobile camera shots</div>
+
+          <!-- Side-by-side Camera & Gallery buttons -->
+          <div style="display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap;">
+            <button type="button" class="btn-card-add" id="btnUseCamera" style="height: 38px; padding: 0 16px; font-size: 12.5px; width: auto; display: inline-flex; align-items: center; gap: 8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Use Camera</span>
+            </button>
+            <button type="button" class="btn-card-add" id="btnUploadGallery" style="height: 38px; padding: 0 16px; font-size: 12.5px; width: auto; display: inline-flex; align-items: center; gap: 8px; background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <span>Upload from Gallery</span>
+            </button>
+            <button type="button" id="btnTriggerBrowsePhoto" style="display: none;"></button>
+          </div>
         </div>
 
-        <!-- YOLOv8 Inference Output Preview -->
+        <!-- Immediate Image Preview Box upon Selection -->
+        <div id="visualSelectedPreviewBox" style="display: none; margin-top: 16px; padding: 12px 14px; background: #F1F5F9; border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img id="visualSelectedThumb" src="" alt="Selected image thumbnail" style="width: 58px; height: 58px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; background: #FFFFFF;">
+            <div style="flex: 1; min-width: 0;">
+              <div id="visualSelectedFileName" style="font-size: 13px; font-weight: 600; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">photo.jpg</div>
+              <div id="visualSelectedFileSize" style="font-size: 11.5px; color: #64748B; margin-top: 2px;">Image ready for AI detection</div>
+            </div>
+            <button type="button" id="btnRemoveSelectedImage" title="Remove image" style="background: none; border: none; color: #94A3B8; cursor: pointer; padding: 6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Explicit Search Execution Button -->
+        <button type="button" class="btn-card-add" id="executeVisualSearchBtn" disabled style="width: 100%; height: 42px; margin-top: 16px; font-size: 13px; font-weight: 600; justify-content: center; opacity: 0.5; cursor: not-allowed;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Find Matching Products</span>
+        </button>
+
+        <!-- YOLOv8 Inference Output Inspection -->
         <div id="visualInspectionBox" style="display: none; margin-top: 20px;">
           <div style="display: flex; gap: 14px; align-items: center; background-color: var(--bg-plinth); padding: 12px; border-radius: 12px; border: 1px solid var(--border-subtle);">
             <img id="visualPreviewImg" src="" alt="Cropped Preview" style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-subtle);" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80';">
@@ -543,9 +580,18 @@
           </div>
         </div>
 
+        <!-- Matches & Anti-Hallucination Empty State Container -->
         <div id="visualMatchesContainer" style="margin-top: 20px; display: none;">
-          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--ink-primary); text-transform: uppercase; letter-spacing: 0.05em;">Matching Products</div>
+          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 10px; color: var(--ink-primary); text-transform: uppercase; letter-spacing: 0.05em;" id="visualMatchesHeading">Matching Products</div>
           <div class="vx-product-grid" id="visualMatchesGrid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;"></div>
+          <!-- Clean empty state for no hallucination -->
+          <div id="visualEmptyNotice" style="display: none; text-align: center; padding: 24px 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0;">
+            <svg style="width: 34px; height: 34px; color: #94A3B8; margin: 0 auto 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            <div style="font-size: 13.5px; font-weight: 600; color: #0F172A;" id="visualEmptyTitle">No Confident Matches Found</div>
+            <div style="font-size: 12px; color: #64748B; margin-top: 4px; max-width: 360px; margin-left: auto; margin-right: auto;" id="visualEmptyText">
+              No confident objects or catalog matches were detected. Please try another angle or a well-lit photo.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -648,6 +694,6 @@
     </div>
   </footer>
 
-  <script src="/static/storefront.js?v=11.0"></script>
+  <script src="/static/storefront.js?v=16.0"></script>
 </body>
 </html>
