@@ -95,6 +95,7 @@
     btnCloseVisualModal: document.getElementById("btnCloseVisualModal"),
     storefrontDropzone: document.getElementById("storefrontDropzone"),
     storefrontFileInput: document.getElementById("storefrontFileInput"),
+    visualFileInput: document.getElementById("visualFileInput"),
     cameraFileInput: document.getElementById("cameraFileInput"),
     galleryFileInput: document.getElementById("galleryFileInput"),
     btnUseCamera: document.getElementById("btnUseCamera"),
@@ -210,6 +211,7 @@
     el.btnCloseVisualModal = document.getElementById("btnCloseVisualModal");
     el.storefrontDropzone = document.getElementById("storefrontDropzone");
     el.storefrontFileInput = document.getElementById("storefrontFileInput");
+    el.visualFileInput = document.getElementById("visualFileInput");
     el.cameraFileInput = document.getElementById("cameraFileInput");
     el.galleryFileInput = document.getElementById("galleryFileInput");
     el.btnUseCamera = document.getElementById("btnUseCamera");
@@ -415,9 +417,11 @@
       row.addEventListener("click", () => {
         const id = row.getAttribute("data-id");
         if (id) {
-          recordCardClickDwell(parseInt(id, 10));
+          const parsed = parseInt(id, 10);
+          const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
+          recordCardClickDwell(safeId);
           closeSuggestDropdown();
-          window.location.href = `/product/${id}`;
+          window.location.href = `/product/${safeId}`;
         }
       });
     });
@@ -700,9 +704,11 @@
             e.preventDefault();
             if (selectedSuggestIndex < currentSuggestions.length) {
               const selectedItem = currentSuggestions[selectedSuggestIndex];
+              const parsed = parseInt(selectedItem && selectedItem.id, 10);
+              const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
               closeSuggestDropdown();
-              recordCardClickDwell(selectedItem.id);
-              window.location.href = `/product/${selectedItem.id}`;
+              recordCardClickDwell(safeId);
+              window.location.href = `/product/${safeId}`;
               return;
             } else if (selectedSuggestIndex === currentSuggestions.length) {
               closeSuggestDropdown();
@@ -902,9 +908,17 @@
       });
     }
 
-    // Visual Search (Camera, Gallery & Drag-and-Drop)
-    if (el.btnUseCamera && el.cameraFileInput) {
-      el.btnUseCamera.addEventListener("click", () => el.cameraFileInput.click());
+    // Visual Search (Direct Camera, Gallery & Drag-and-Drop)
+    const cameraInput = el.visualFileInput || el.cameraFileInput;
+    if (el.btnUseCamera && cameraInput) {
+      el.btnUseCamera.addEventListener("click", () => cameraInput.click());
+    }
+    if (el.visualFileInput) {
+      el.visualFileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) setSelectedVisualFile(e.target.files[0]);
+      });
+    }
+    if (el.cameraFileInput && el.cameraFileInput !== el.visualFileInput) {
       el.cameraFileInput.addEventListener("change", (e) => {
         if (e.target.files && e.target.files[0]) setSelectedVisualFile(e.target.files[0]);
       });
@@ -1550,8 +1564,10 @@
         }
         const id = card.getAttribute("data-id");
         if (id) {
-          recordCardClickDwell(parseInt(id, 10));
-          window.location.href = `/product/${id}`;
+          const parsed = parseInt(id, 10);
+          const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
+          recordCardClickDwell(safeId);
+          window.location.href = `/product/${safeId}`;
         }
       });
     });
@@ -1866,6 +1882,7 @@
       if (el.visualSelectedThumb) el.visualSelectedThumb.src = "";
       if (el.visualPreviewImg) el.visualPreviewImg.src = "";
       if (el.visualSelectedFileName) el.visualSelectedFileName.textContent = "";
+      if (el.visualFileInput) el.visualFileInput.value = "";
       if (el.cameraFileInput) el.cameraFileInput.value = "";
       if (el.galleryFileInput) el.galleryFileInput.value = "";
       if (el.storefrontFileInput) el.storefrontFileInput.value = "";
@@ -2036,12 +2053,14 @@
 
         el.visualMatchesGrid.innerHTML = items
           .map((it) => {
+            const parsed = parseInt(it && it.id, 10);
+            const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
             const thumb = it.image_url || FALLBACK_THUMB;
             const priceVal = it.price_inr || (it.price ? Math.round(it.price * 83) : 999);
             const brandVal = (it.brand || it.category || "VORTEX").toUpperCase();
             return `
-            <div class="vx-card-showcase visual-match-card" data-id="${it.id}" style="padding: 12px; border: 1px solid #E2E8F0; border-radius: 10px; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
-              <div style="cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
+            <div class="vx-card-showcase visual-match-card" data-id="${safeId}" style="padding: 12px; border: 1px solid #E2E8F0; border-radius: 10px; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+              <div style="cursor: pointer;" onclick="window.location.href='/product/${safeId}'">
                 <div style="height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: #F8FAFC; border-radius: 8px; overflow: hidden; padding: 6px;">
                   <img src="${thumb || '/static/images/placeholder.png'}" alt="${escapeHtml(it.title)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
                 </div>

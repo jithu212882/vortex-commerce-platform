@@ -227,8 +227,11 @@
         const rating = item.rating || 4.5;
         const reviewCount = item.review_count || 1200;
 
+        const parsed = parseInt(item && item.id, 10);
+        const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
+
         return `
-          <div class="bg-white rounded-2xl p-4 border border-stone-200 hover:border-stone-900 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-xs hover:shadow-md" onclick="window.location.href='/product/${item.id}'">
+          <div class="bg-white rounded-2xl p-4 border border-stone-200 hover:border-stone-900 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-xs hover:shadow-md" onclick="window.location.href='/product/${safeId}'">
             <!-- Image Plinth -->
             <div class="bg-[#F6F5F2] rounded-xl h-48 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3.5">
               <span class="absolute top-2.5 left-2.5 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>

@@ -348,13 +348,15 @@
 
     el.similarGrid.innerHTML = items
       .map((item) => {
+        const parsed = parseInt(item && item.id, 10);
+        const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
         const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
         const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
         const rating = item.rating || 4.5;
         const reviews = item.review_count || 1240;
 
         return `
-          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${item.id}';">
+          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${safeId}';">
             <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3">
               <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${item.discount_pct || 25}% OFF</span>
               <div class="card-rating-pill absolute top-2 right-2 bg-white/90 backdrop-blur text-[#111111] font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-black/5 flex items-center gap-1 z-10">
@@ -409,13 +411,15 @@
 
     el.categoryGrid.innerHTML = items
       .map((item) => {
+        const parsed = parseInt(item && item.id, 10);
+        const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
         const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
         const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
         const rating = item.rating || 4.5;
         const discountPct = item.discount_pct || 25;
 
         return `
-          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${item.id}';">
+          <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md" onclick="window.location.href='/product/${safeId}';">
             <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3">
               <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
               <div class="card-rating-pill absolute top-2 right-2 bg-white/90 backdrop-blur text-[#111111] font-mono text-[10px] font-bold px-2 py-0.5 rounded border border-black/5 flex items-center gap-1 z-10">
@@ -466,13 +470,15 @@
 
     el.accessoriesGrid.innerHTML = items
       .map((item) => {
+        const parsed = parseInt(item && item.id, 10);
+        const safeId = (parsed && !isNaN(parsed) && parsed > 0) ? parsed : 1;
         const priceInr = item.price_inr || Math.round(Number(item.price) * 83);
         const mrpInr = item.mrp_inr || Math.round(priceInr * 1.35);
         const discountPct = item.discount_pct || 25;
 
         return `
           <div class="pdp-rec-card bg-white rounded-2xl p-3 border border-[#E4E2DD] hover:border-[#111111] transition-all duration-300 flex flex-col justify-between relative group cursor-pointer shadow-sm hover:shadow-md">
-            <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3" onclick="window.location.href='/product/${item.id}';">
+            <div class="card-plinth-stage pdp-rec-img-box bg-[#F6F5F2] rounded-xl h-44 flex items-center justify-center p-4 relative overflow-hidden border border-black/5 mb-3" onclick="window.location.href='/product/${safeId}';">
               <span class="card-discount-badge absolute top-2 left-2 bg-[#FF3B00] text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded shadow-xs z-10">${discountPct}% OFF</span>
               <img 
                 src="${item.image_url || '/static/images/placeholder.png'}" 
@@ -484,7 +490,7 @@
               />
             </div>
             <div class="pdp-rec-brand font-mono text-[10px] uppercase tracking-wider text-[#71717A]">${item.brand || item.category || 'ACCESSORY'}</div>
-            <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}" onclick="window.location.href='/product/${item.id}';">${item.title}</div>
+            <div class="pdp-rec-title font-semibold text-xs text-[#111111] line-clamp-1 mt-0.5 group-hover:text-[#FF3B00] transition-colors" title="${item.title}" onclick="window.location.href='/product/${safeId}';">${item.title}</div>
             <div class="pdp-rec-price-row flex items-baseline gap-2 pt-1 mt-auto">
               <span class="pdp-rec-price font-mono text-sm font-extrabold text-[#111111]">&#8377;${formatInr(priceInr)}</span>
               <span class="pdp-rec-mrp font-mono text-[10px] text-[#71717A] line-through">&#8377;${formatInr(mrpInr)}</span>

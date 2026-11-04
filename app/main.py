@@ -107,7 +107,7 @@ def get_account_page():
     return FileResponse(settings.STATIC_DIR / "storefront.html")
 
 @app.get("/product/{item_id}", include_in_schema=False)
-def get_product_detail(item_id: int):
+def get_product_detail(item_id: str):
     """Serves high-craft product detail page."""
     product_file = settings.STATIC_DIR / "product.html"
     if product_file.exists():
