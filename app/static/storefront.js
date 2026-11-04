@@ -561,7 +561,9 @@
         } else if (cat === "audio") {
           return ['audio', 'mobile-accessories'].includes(itCat);
         } else if (cat === "wearables") {
-          return ['wearables', 'mens-watches', 'womens-watches', 'sports-accessories'].includes(itCat);
+          return ['wearables', 'mens-watches', 'womens-watches'].includes(itCat);
+        } else if (cat === "sports" || cat === "sports-accessories") {
+          return ['sports-accessories', 'sports', 'fitness'].includes(itCat);
         } else if (cat === "furniture") {
           return ['furniture', 'home-decoration', 'kitchen-accessories'].includes(itCat);
         } else if (cat === "beauty") {
@@ -1049,6 +1051,8 @@
     "laptops": { title: "Computing", slideIndex: 1 },
     "smartphones": { title: "Smartphones & Mobile", slideIndex: 1 },
     "wearables": { title: "Wearables", slideIndex: 0 },
+    "sports": { title: "Sports & Fitness", slideIndex: 0 },
+    "sports-accessories": { title: "Sports & Fitness", slideIndex: 0 },
     "gaming": { title: "Gaming & Peripherals", slideIndex: 2 },
     "gaming-peripherals": { title: "Gaming & Peripherals", slideIndex: 2 },
     "furniture": { title: "Home & Living", slideIndex: 3 },

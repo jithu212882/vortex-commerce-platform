@@ -27,6 +27,7 @@
     priceCurrent: document.getElementById("pdpPriceCurrent"),
     priceMrp: document.getElementById("pdpPriceMrp"),
     priceDiscount: document.getElementById("pdpPriceDiscount"),
+    smartTags: document.getElementById("pdpSmartTags"),
 
     // Offers & Delivery
     offersList: document.getElementById("pdpOffersList"),
@@ -170,6 +171,19 @@
     if (el.priceCurrent) el.priceCurrent.innerHTML = `&#8377;${formatInr(priceInr)}`;
     if (el.priceMrp) el.priceMrp.innerHTML = `&#8377;${formatInr(mrpInr)}`;
     if (el.priceDiscount) el.priceDiscount.textContent = `${discountPct}% off`;
+
+    // Gemini AI Smart Tags
+    if (el.smartTags) {
+      const tags = prod.smart_tags || [];
+      if (tags.length > 0) {
+        el.smartTags.innerHTML = tags
+          .map((t) => `<span style="display: inline-flex; align-items: center; background: #F1F5F9; color: #0F172A; border: 1px solid #E2E8F0; border-radius: 9999px; padding: 3px 10px; font-size: 11px; font-weight: 600; font-family: monospace;">${t}</span>`)
+          .join("");
+        el.smartTags.style.display = "flex";
+      } else {
+        el.smartTags.style.display = "none";
+      }
+    }
   }
 
   // ===========================================================================

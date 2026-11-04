@@ -73,6 +73,7 @@ class EnhancedProductResponse(BaseModel):
     bank_offers: List[str] = Field(default_factory=list)
     detailed_description: List[str] = Field(default_factory=list)
     specs_sections: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+    smart_tags: List[str] = Field(default_factory=list)
 
 
 class SearchResultItem(BaseModel):

@@ -177,34 +177,20 @@ def triage_return(state: AgentState) -> Dict[str, Any]:
     return_reason = state.get("return_reason") or (classify_return_reason(msg) if is_return else None)
 
     # Gemini LLM classification attempt if API key configured
-    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    if gemini_key and is_return:
+    if is_return:
         try:
-            from langchain_google_genai import ChatGoogleGenerativeAI
-            from langchain_core.messages import SystemMessage, HumanMessage
-
-            llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                google_api_key=gemini_key,
-                temperature=0.0,
-                max_output_tokens=150,
-            )
-            prompt = (
-                f"Analyze this e-commerce customer return request: '{msg}'. "
-                f"Return JSON strictly with keys: 'intent', 'order_id', 'amount', 'reason'. "
-                f"Reason must be one of: 'Defective item', 'Wrong size', 'Damaged box', 'Quality issue', 'Other'."
-            )
-            llm_res = llm.invoke([SystemMessage(content="You are an e-commerce triage agent. Respond only with JSON."), HumanMessage(content=prompt)])
-            parsed = json.loads(llm_res.content.replace("```json", "").replace("```", "").strip())
-            if parsed.get("order_id") and not order_id:
-                order_id = str(parsed["order_id"])
-            if parsed.get("amount") and not claimed_amount:
-                claimed_amount = float(parsed["amount"])
-            if parsed.get("reason"):
-                return_reason = str(parsed["reason"])
-            logger.info(f"[Gemini Triage] Parsed output: {parsed}")
+            from app.services.gemini_service import classify_support_intent
+            parsed = classify_support_intent(msg)
+            if parsed:
+                if parsed.get("order_id") and not order_id:
+                    order_id = str(parsed["order_id"])
+                if parsed.get("amount") and not claimed_amount:
+                    claimed_amount = float(parsed["amount"])
+                if parsed.get("reason"):
+                    return_reason = str(parsed["reason"])
+                logger.info(f"[Official Gemini Triage] Parsed output: {parsed}")
         except Exception as e:
-            logger.info(f"[Gemini Triage] Note on API call: {e}. Active heuristic triage applied.")
+            logger.info(f"[Official Gemini Triage] Fallback: {e}")
 
     intent = "return_refund" if is_return else ("catalog_query" if is_catalog else "general_inquiry")
     if claimed_amount is None and intent == "return_refund":

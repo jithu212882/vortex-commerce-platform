@@ -25,6 +25,7 @@ from app.models.schemas import (
     VisualSearchResponse,
 )
 from app.services.agent_workflow import agent_workflow_service
+from app.services.gemini_service import generate_smart_tags, get_gemini_client
 from app.services.recommender import recommender_service
 from app.services.vision_service import vision_service
 
@@ -132,7 +133,9 @@ def search_products(
     category_mappings = {
         "electronics": ["electronics", "laptops", "smartphones", "tablets", "mobile-accessories", "gaming", "gaming-peripherals"],
         "audio": ["audio", "mobile-accessories"],
-        "wearables": ["wearables", "mens-watches", "womens-watches", "sports-accessories"],
+        "wearables": ["wearables", "mens-watches", "womens-watches"],
+        "sports": ["sports-accessories", "sports", "sports gear", "fitness"],
+        "sports-accessories": ["sports-accessories", "sports", "sports gear", "fitness"],
         "gaming": ["gaming", "gaming-peripherals", "gaming & peripherals"],
         "gaming-peripherals": ["gaming", "gaming-peripherals", "gaming & peripherals"],
         "furniture": ["furniture", "home-decoration", "kitchen-accessories"],
@@ -544,6 +547,7 @@ def enrich_product_payload(it: Dict[str, Any]) -> Dict[str, Any]:
         "bank_offers": bank_offers,
         "detailed_description": detailed_description,
         "specs_sections": specs,
+        "smart_tags": generate_smart_tags(it),
     }
 
 
@@ -565,6 +569,25 @@ def get_product_details(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f"Product with id '{product_id}' not found.")
 
     return enrich_product_payload(raw_data)
+
+
+@router.get("/product/{product_id}/smart-tags", tags=["Enterprise Catalog"])
+def get_product_smart_tags(product_id: int, db: Session = Depends(get_db)):
+    """Retrieves AI-generated smart tags for the requested product using official Gemini AI with offline fallback."""
+    item = db.query(Item).filter(Item.id == product_id).first()
+    raw_data = item.to_dict() if item else next((p for p in recommender_service.items if p.get("id") == product_id), None)
+    if not raw_data:
+        raise HTTPException(status_code=404, detail=f"Product with id '{product_id}' not found.")
+
+    tags = generate_smart_tags(raw_data)
+    source = "gemini-ai" if get_gemini_client() is not None else "deterministic-fallback"
+    return {
+        "product_id": product_id,
+        "title": raw_data.get("title", ""),
+        "category": raw_data.get("category", ""),
+        "tags": tags,
+        "source": source,
+    }
 
 
 @router.get("/recommend/similar/{product_id}", tags=["Dense Recommendations"])
@@ -670,8 +693,15 @@ def get_category_items(
     aliases = {
         "electronics": ["electronics", "laptops", "smartphones", "tablets", "mobile-accessories", "gaming", "gaming-peripherals"],
         "audio": ["audio", "mobile-accessories"],
-        "wearables": ["wearables", "mens-watches", "womens-watches", "sports-accessories"],
+        "wearables": ["wearables", "mens-watches", "womens-watches"],
+        "sports": ["sports-accessories", "sports", "sports gear", "fitness"],
+        "sports-accessories": ["sports-accessories", "sports", "sports gear", "fitness"],
         "gaming": ["gaming", "gaming-peripherals", "gaming & peripherals"],
+        "furniture": ["furniture", "home-decoration", "kitchen-accessories"],
+        "beauty": ["beauty", "skin-care"],
+        "fragrances": ["fragrances"],
+        "groceries": ["groceries"],
+        "laptops": ["laptops"],
     }
     target_cats = aliases.get(cat_norm, [cat_norm])
 
@@ -924,10 +954,11 @@ async def visual_feature_search(
         if not content:
             raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
-        response = vision_service.search_by_image(
+        response = await vision_service.async_search_by_image(
             image_bytes=content,
             recommender_svc=recommender_service,
             top_k=top_k,
+            timeout_seconds=8.0,
         )
 
         # Record recent detection in buffer for Admin Visual Inspector

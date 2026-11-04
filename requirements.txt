@@ -4,6 +4,8 @@ gunicorn
 pydantic
 jinja2
 requests
+google-genai
+langgraph
 google-generativeai
 sqlalchemy
 numpy

@@ -1,4 +1,6 @@
+import asyncio
 import base64
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 import io
 import logging
 from typing import Any, Dict, List, Optional, Tuple
@@ -10,12 +12,15 @@ from app.models.schemas import BoundingBox, ProductItem, VisualSearchResponse
 
 logger = logging.getLogger(__name__)
 
+# Dedicated thread pool executor for CPU-intensive vision inference (4 workers)
+_vision_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="vx_vision_worker")
+
 # Lazy reference to YOLO model
 _yolo_model = None
 
 
 def get_yolo_model():
-    """Lazy loader for Ultralytics YOLOv8n."""
+    """Lazy loader for Ultralytics YOLOv8n to ensure fast, low-memory startup."""
     global _yolo_model
     if _yolo_model is None:
         try:
@@ -33,10 +38,31 @@ class VisionPreprocessingService:
     Visual Crop & Preprocessing Service using Ultralytics YOLOv8n.
     Detects primary candidate object in raw user uploads, removes background clutter,
     and produces normalized cropped bounding boxes ready for catalog alignment.
+    Optimized with thread-pooling and timeout fail-safes for non-blocking execution.
     """
 
     def __init__(self):
         self.min_confidence = 0.25
+
+    def _run_yolo_inference(self, yolo, image: Image.Image, min_confidence: float):
+        """Worker function for YOLO multi-angle detection."""
+        try:
+            # Configure Ultralytics YOLOv8 with augment=True, agnostic_nms=True, and conf=0.25
+            # for robust multi-angle detection of rotated or skewed product images.
+            return yolo(
+                image,
+                verbose=False,
+                augment=True,
+                agnostic_nms=True,
+                conf=min_confidence,
+            )
+        except Exception as e_aug:
+            logger.warning(f"YOLO augmented inference error, retrying standard: {e_aug}")
+            try:
+                return yolo(image, verbose=False, conf=min_confidence)
+            except Exception as e:
+                logger.warning(f"YOLO inference error: {e}")
+                return []
 
     def process_image_upload(
         self, image_bytes: bytes
@@ -60,23 +86,7 @@ class VisionPreprocessingService:
         detection_found = False
 
         if yolo is not None:
-            try:
-                # Configure Ultralytics YOLOv8 with augment=True, agnostic_nms=True, and conf=0.25
-                # for robust multi-angle detection of rotated or skewed product images.
-                results = yolo(
-                    image,
-                    verbose=False,
-                    augment=True,
-                    agnostic_nms=True,
-                    conf=self.min_confidence,
-                )
-            except Exception as e_aug:
-                logger.warning(f"YOLO augmented inference error, retrying standard: {e_aug}")
-                try:
-                    results = yolo(image, verbose=False, conf=self.min_confidence)
-                except Exception as e:
-                    logger.warning(f"YOLO inference error: {e}")
-                    results = []
+            results = self._run_yolo_inference(yolo, image, self.min_confidence)
 
             best_box = None
             max_area = 0.0
@@ -89,12 +99,12 @@ class VisionPreprocessingService:
                     conf = float(box.conf[0])
                     if conf < self.min_confidence:
                         continue
-                    
+
                     cls_id = int(box.cls[0])
                     cls_name = r.names.get(cls_id, "object")
                     coords = box.xyxy[0].tolist()
                     x1, y1, x2, y2 = coords
-                    
+
                     # Calculate area
                     w = max(0.0, x2 - x1)
                     h = max(0.0, y2 - y1)
@@ -149,7 +159,10 @@ class VisionPreprocessingService:
         return cropped_bytes, primary_box, detected_label, status_message
 
     def search_by_image(
-        self, image_bytes: bytes, recommender_svc, top_k: int = 5
+        self,
+        image_bytes: bytes,
+        recommender_svc,
+        top_k: int = 5,
     ) -> VisualSearchResponse:
         """
         Executes end-to-end visual search:
@@ -193,6 +206,40 @@ class VisionPreprocessingService:
             matches=matches,
         )
 
+    async def async_search_by_image(
+        self,
+        image_bytes: bytes,
+        recommender_svc,
+        top_k: int = 5,
+        timeout_seconds: float = 12.0,
+    ) -> VisualSearchResponse:
+        """
+        Non-blocking asynchronous visual search executed in thread pool
+        with strict timeout fail-safes.
+        """
+        loop = asyncio.get_running_loop()
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(
+                    _vision_executor,
+                    self.search_by_image,
+                    image_bytes,
+                    recommender_svc,
+                    top_k,
+                ),
+                timeout=timeout_seconds,
+            )
+        except (asyncio.TimeoutError, FuturesTimeoutError):
+            logger.warning(f"Async visual search pipeline timed out after {timeout_seconds}s fail-safe.")
+            return VisualSearchResponse(
+                detection_found=False,
+                bounding_box=None,
+                detected_label=None,
+                status_message="Visual search timed out while analyzing image. Please try another angle or a smaller photo.",
+                cropped_image_base64=None,
+                recommendations=[],
+                matches=[],
+            )
+
 
 vision_service = VisionPreprocessingService()
-
