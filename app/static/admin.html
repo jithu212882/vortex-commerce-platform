@@ -3,206 +3,407 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>MERIDIAN OPS &bull; Telemetry &amp; Escalation Cockpit</title>
-  <link rel="stylesheet" href="/styles.css">
+  <title>Vortex Operations Cockpit &bull; E-Commerce Management</title>
+  
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              500: '#64748B',
+              900: '#0F172A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #0F172A;
+      background-color: #0F172A;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #0F172A;
+    }
+  </style>
 </head>
-<body style="background-color: #F8FAFC;">
+<body class="min-h-screen bg-[#F8FAFC] text-[#0F172A] antialiased flex flex-col">
 
-  <!-- ADMIN COCKPIT HEADER -->
-  <header class="admin-header">
-    <div class="admin-branding">
-      <div class="brand-mark" style="background-color: #2563EB;">OPS</div>
-      <div>
-        <div class="admin-title">MERIDIAN OPERATIONS COCKPIT</div>
-        <div style="font-size: 10px; color: #94A3B8; font-family: var(--font-mono);">
-          High-Density Telemetry &bull; Dense Recommender &bull; LangGraph Policy Gate
+  <!-- =========================================================================
+       1. TOP COMMAND BAR & NAVIGATION
+       ========================================================================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Section Label -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2 group text-decoration-none">
+          <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-sm tracking-tight shadow-sm group-hover:bg-black transition-colors">
+            VX
+          </div>
+          <div>
+            <div class="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">
+              VORTEX <span class="text-rose-600 font-mono text-xs uppercase px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200/60 ml-1">Admin</span>
+            </div>
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              OPERATIONS COCKPIT
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Live Clock & Quick Actions -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs font-mono text-slate-600">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="liveClockText">Live Sync Active</span>
         </div>
-      </div>
-    </div>
 
-    <div class="admin-telemetry-cluster">
-      <div class="admin-chip chip-active">
-        <span class="indicator-dot status-ok"></span>
-        <span>STATUS: OPERATIONAL</span>
+        <button type="button" id="btnRefreshTelemetry" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold shadow-xs transition-colors cursor-pointer" title="Refresh Live Store Data">
+          <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span>Refresh</span>
+        </button>
+
+        <a href="/" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs transition-colors" title="View Customer Storefront">
+          <span>&larr; Storefront</span>
+        </a>
       </div>
-      <div class="admin-chip" id="kpiLatencyChip">P95: 14.2ms</div>
-      <div class="admin-chip" id="kpiYoloChip">YOLO: 32.5ms</div>
-      <a href="/" class="admin-chip" style="text-decoration: none; color: #FFFFFF; background-color: #334155;">
-        <span>&larr; Storefront</span>
-      </a>
+
     </div>
   </header>
 
-  <!-- ADMIN TWO-COLUMN COCKPIT -->
-  <main class="admin-container">
+  <!-- =========================================================================
+       2. MAIN OPERATIONS DASHBOARD
+       ========================================================================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
 
-    <!-- LEFT COLUMN (62%): TELEMETRY & RECENT USER INTERACTIONS -->
-    <section style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- Toast Notification Box -->
+    <div id="adminToastBox" class="hidden mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between shadow-xs transition-all">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span id="adminToastText">Operation successful</span>
+      </div>
+      <button type="button" onclick="document.getElementById('adminToastBox').classList.add('hidden')" class="text-emerald-600 hover:text-emerald-900 text-sm font-bold">&times;</button>
+    </div>
 
-      <!-- KPI METRICS SUMMARY -->
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <div class="admin-card-title">
-            <svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-            <span>Live System Telemetry &amp; Response Latency</span>
-          </div>
-          <button class="btn btn-secondary btn-xs" id="btnRefreshTelemetry">Refresh Telemetry</button>
+    <!-- 4-COLUMN TOP METRICS BAR -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" aria-label="System Metrics Summary">
+      
+      <!-- Card 1: System Status -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span>System Status</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="System Normal"></span>
         </div>
-
-        <div class="kpi-row">
-          <div class="kpi-box">
-            <div class="kpi-label">API Latency (p95)</div>
-            <div class="kpi-val" id="valApiLatency">14.2ms</div>
-          </div>
-          <div class="kpi-box">
-            <div class="kpi-label">Vector Retrieval</div>
-            <div class="kpi-val" id="valVectorSearch">6.8ms</div>
-          </div>
-          <div class="kpi-box">
-            <div class="kpi-label">YOLOv8 Inference</div>
-            <div class="kpi-val" id="valYoloInference">32.5ms</div>
-          </div>
-          <div class="kpi-box">
-            <div class="kpi-label">Active SKUs</div>
-            <div class="kpi-val" id="valCatalogCount">194</div>
-          </div>
+        <div class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+          <span>Operational</span>
         </div>
-
-        <div class="formula-banner">
-          <span class="formula-label">RECSYS SCORING FORMULA:</span>
-          <code>FinalScore(i) = &alpha;&middot;Cos(Query, Item_i) + &beta;&middot;&Sigma; [ min(dwell_j / 10s, 1.0) &times; Cos(Item_j, Item_i) ]</code>
+        <div class="text-[11px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>All microservices online</span>
         </div>
       </div>
 
-      <!-- RECENT SESSIONS DWELL-TIME TABLE -->
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <div class="admin-card-title">
-            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span>Real-Time User Dwell Telemetry Feed</span>
-          </div>
-          <span class="status-chip" id="activityCountChip">0 records</span>
+      <!-- Card 2: API Response Time -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span>API Response Time</span>
+          <span class="text-[10px] font-mono text-slate-400">p95</span>
         </div>
-
-        <div class="table-responsive">
-          <table class="admin-table" id="dwellTelemetryTable">
-            <thead>
-              <tr>
-                <th style="width: 50px;">REC #</th>
-                <th>SESSION / USER</th>
-                <th>PRODUCT</th>
-                <th>DWELL (SEC)</th>
-                <th>DWELL WEIGHT</th>
-                <th>QUERY INTENT</th>
-                <th>TIMESTAMP</th>
-              </tr>
-            </thead>
-            <tbody id="dwellTelemetryBody">
-              <tr>
-                <td colspan="7" class="text-muted text-center" style="padding: 24px;">
-                  Awaiting real-time user telemetry signals from the storefront...
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="text-2xl font-extrabold text-slate-900 font-mono tracking-tight" id="valApiLatency">
+          14.2 ms
+        </div>
+        <div class="text-[11px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
+          <span>&darr; 2.4 ms</span>
+          <span class="text-slate-400 font-normal">vs hourly baseline</span>
         </div>
       </div>
 
-      <!-- VISUAL DETECTION INSPECTOR -->
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <div class="admin-card-title">
-            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-            <span>YOLOv8 Visual Detection Inspector</span>
-          </div>
-          <span class="status-chip" id="yoloInspectorStatus">Awaiting uploads</span>
+      <!-- Card 3: Active SKUs -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span>Active Catalog SKUs</span>
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         </div>
-
-        <div id="inspectorEmptyNotice" class="text-muted text-center" style="padding: 20px;">
-          No customer photos uploaded in this session yet. Upload a photo on the Storefront to inspect bounding-box telemetry.
+        <div class="text-2xl font-extrabold text-slate-900 font-mono tracking-tight" id="valCatalogCount">
+          215 items
         </div>
+        <div class="text-[11px] text-slate-500 font-medium mt-1">
+          In-stock &amp; indexed across 8 categories
+        </div>
+      </div>
 
-        <div id="inspectorGrid" style="display: none; flex-direction: column; gap: 12px;"></div>
+      <!-- Card 4: Pending Approvals -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-slate-300 transition-colors">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+          <span>Pending Approvals</span>
+          <span id="pendingPulseDot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+        </div>
+        <div class="text-2xl font-extrabold text-slate-900 font-mono tracking-tight" id="valPendingCount">
+          0 claims
+        </div>
+        <div class="text-[11px] text-slate-500 font-medium mt-1" id="valPendingSub">
+          Supervisor review queue is clear
+        </div>
       </div>
 
     </section>
 
-    <!-- RIGHT COLUMN (38%): POLICY ESCALATION QUEUE & AUDIT CONSOLE -->
-    <aside style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- TWO-COLUMN OPERATIONAL LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- =====================================================================
+           LEFT COLUMN (8 cols): STORE ORDERS & ACTIVITY
+           ===================================================================== -->
+      <div class="lg:col-span-8 flex flex-col gap-6">
 
-      <!-- MANAGER APPROVAL QUEUE (LANGGRAPH GATE) -->
-      <div class="admin-card" style="border-color: #FDE68A; background-color: #FFFDF5;">
-        <div class="admin-card-head" style="border-color: #FDE68A;">
-          <div class="admin-card-title" style="color: #92400E;">
-            <svg class="icon" style="color: #B45309;" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            <span>Manager Approval Queue (Policy Gate)</span>
+        <!-- Store Activity & Order Overview -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="p-6 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 tracking-tight">Store Activity &amp; Orders</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Real-time customer transactions, fulfillment progress, and browsing dwell signals.</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/60 text-xs font-semibold text-slate-600">
+              <button type="button" id="tabBtnOrders" class="px-3.5 py-1.5 rounded-lg bg-white text-slate-900 shadow-xs transition-all cursor-pointer">
+                Recent Orders
+              </button>
+              <button type="button" id="tabBtnDwell" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+                Live Dwell Signals
+              </button>
+            </div>
           </div>
-          <span class="status-chip chip-warning" id="adminPendingBadge">[PENDING: 0]</span>
-        </div>
 
-        <div class="policy-note" style="margin-bottom: 14px;">
-          <strong>Human-in-the-Loop Gate:</strong> Refund claims exceeding <strong>$1,000.00</strong> automatically pause graph execution before the <code>manager_checkpoint</code> node. Approving or declining updates the state and resumes the LangGraph runner.
-        </div>
+          <!-- View 1: Customer Orders Table -->
+          <div id="viewOrdersContainer" class="overflow-x-auto custom-scroll">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50/70 border-b border-slate-200/80 text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                  <th class="py-3.5 px-5">Customer &amp; Order</th>
+                  <th class="py-3.5 px-4">Items</th>
+                  <th class="py-3.5 px-4">Total</th>
+                  <th class="py-3.5 px-4">Fulfillment Status</th>
+                  <th class="py-3.5 px-5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody" class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-slate-400">Loading order records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <div id="adminEscalationList">
-          <div class="text-muted text-center" style="padding: 20px; font-size: 12px;">
-            No support tickets awaiting manager review.
+          <!-- View 2: Live Dwell Signals Table (Initially Hidden) -->
+          <div id="viewDwellContainer" class="hidden overflow-x-auto custom-scroll">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50/70 border-b border-slate-200/80 text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                  <th class="py-3.5 px-5">Session / User</th>
+                  <th class="py-3.5 px-4">Product Inspected</th>
+                  <th class="py-3.5 px-4">Dwell Duration</th>
+                  <th class="py-3.5 px-4">Search Intent</th>
+                  <th class="py-3.5 px-5 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="dwellTelemetryBody" class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-slate-400">Awaiting live customer dwell signals from the storefront...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer -->
+          <div class="px-5 py-3.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span id="tableRecordCountText">Showing latest store records</span>
+            <span class="text-[11px] font-mono text-slate-400">Auto-polling every 6s</span>
           </div>
         </div>
-      </div>
 
-      <!-- MANUAL TEST TICKET DISPATCHER -->
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <div class="admin-card-title">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Simulate Customer Ticket</span>
-          </div>
-          <span class="status-chip" id="simThreadChip">thread_sim_01</span>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; gap: 6px;">
-            <button class="btn btn-secondary btn-xs btn-sim-ticket" data-msg="Requesting refund of $350 for unopened cosmetics.">
-              &le; $1K (Auto Approve)
+        <!-- Quick Store Controls Card -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 tracking-tight">Quick Store Operations</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Control live storefront behaviors, inventory cache, and delivery routing.</p>
+            </div>
+            <button type="button" id="btnSyncCatalog" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer" title="Refresh local embeddings and products cache">
+              <svg class="w-3.5 h-3.5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+              <span>Sync Catalog Cache</span>
             </button>
-            <button class="btn btn-secondary btn-xs btn-sim-ticket" data-msg="I demand an urgent refund of $1,850 for damaged studio monitors.">
-              &gt; $1K (Trips Policy Gate)
-            </button>
           </div>
 
-          <div style="display: flex; gap: 6px; margin-top: 4px;">
-            <input type="text" id="simChatInput" class="input-text input-sm" placeholder="Custom customer ticket message..." style="flex: 1;">
-            <button class="btn btn-primary btn-sm" id="btnSendSimTicket">Dispatch</button>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <!-- Control 1: Maintenance Mode -->
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-900">Maintenance Mode</div>
+                <div class="text-[11px] text-slate-500">Live store accessible</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggleMaintenance" class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+              </label>
+            </div>
+
+            <!-- Control 2: Featured Showcase -->
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-900">Hero Carousel</div>
+                <div class="text-[11px] text-slate-500">Autoplay 4 flagship slides</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggleCarousel" checked class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+              </label>
+            </div>
+
+            <!-- Control 3: Express Fulfillment -->
+            <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-900">Express PIN Routing</div>
+                <div class="text-[11px] text-slate-500">Marthandam hub (629165)</div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggleExpress" checked class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-slate-900"></div>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div id="simResponseBox" style="display: none; margin-top: 10px; background-color: var(--bg-surface-subtle); padding: 8px 10px; border-radius: 4px; font-size: 11.5px; border: 1px solid var(--border-subtle);">
-          <div style="font-weight: 600; font-family: var(--font-mono); font-size: 10px; margin-bottom: 2px;" id="simStatusLabel">RESULT</div>
-          <div id="simResponseText" style="line-height: 1.4;"></div>
-        </div>
       </div>
 
-      <!-- AUDIT LOG TERMINAL -->
-      <div class="admin-card">
-        <div class="admin-card-head">
-          <div class="admin-card-title">
-            <svg class="icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-            <span>Operations Audit Stream</span>
+      <!-- =====================================================================
+           RIGHT COLUMN (4 cols): APPROVAL QUEUE & TICKET SIMULATOR
+           ===================================================================== -->
+      <div class="lg:col-span-4 flex flex-col gap-6">
+
+        <!-- Manager Approval Queue Card -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6" id="cardManagerQueue">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Manager Approval Queue</h3>
+                <p class="text-[11px] text-slate-500">High-ticket refund authorizations (&gt; ₹1,000)</p>
+              </div>
+            </div>
+            <span id="adminPendingBadge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-100 text-slate-700">0</span>
           </div>
-          <button class="btn btn-secondary btn-xs" id="btnClearAdminLog">Clear</button>
+
+          <!-- Dynamic Escalation Items Container -->
+          <div id="adminEscalationList" class="flex flex-col gap-3">
+            <!-- Empty state default -->
+            <div class="py-8 text-center flex flex-col items-center justify-center text-slate-400">
+              <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-400 mb-3">
+                <svg class="w-6 h-6 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div class="text-xs font-bold text-slate-700">All caught up!</div>
+              <div class="text-[11px] text-slate-400 max-w-[200px] mt-0.5 leading-relaxed">
+                No pending refund claims awaiting review. Standard items &le; ₹1,000 are auto-approved.
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="audit-log-terminal" id="adminAuditStream">
-          <div class="audit-line">[BOOT] Meridian Operations Console mounted. Telemetry engine ready.</div>
+        <!-- Support Ticket Simulator Card -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+          <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-4">
+            <div class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Support Policy Simulator</h3>
+              <p class="text-[11px] text-slate-500">Test return rules and threshold escalations</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-3">
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Quick Presets</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" class="btn-sim-ticket text-left p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-900 text-xs font-semibold transition-colors cursor-pointer" data-msg="Requesting return for damaged face serum (₹350).">
+                <span class="block text-[11px] text-emerald-600 font-mono font-normal">&le; ₹1,000</span>
+                <span>Auto-Approve</span>
+              </button>
+              <button type="button" class="btn-sim-ticket text-left p-2.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-50 text-rose-900 text-xs font-semibold transition-colors cursor-pointer" data-msg="Defective hardware workstation return requested (₹26,990).">
+                <span class="block text-[11px] text-rose-600 font-mono font-normal">&gt; ₹1,000</span>
+                <span>Route to Review</span>
+              </button>
+            </div>
+
+            <div class="mt-2">
+              <label for="simChatInput" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Custom Test Message</label>
+              <div class="flex gap-2">
+                <input type="text" id="simChatInput" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-slate-900 transition-colors" placeholder="e.g., Damaged package, request refund..." autocomplete="off">
+                <button type="button" id="btnSendSimTicket" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold transition-colors cursor-pointer shadow-xs">
+                  Send
+                </button>
+              </div>
+            </div>
+
+            <!-- Simulation Result Box -->
+            <div id="simResponseBox" class="hidden mt-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <div class="flex items-center justify-between mb-1.5">
+                <span id="simStatusLabel" class="font-bold text-[11px] uppercase tracking-wider text-slate-900">DECISION</span>
+                <span class="text-[10px] font-mono text-slate-400" id="simThreadChip">thread_sim_01</span>
+              </div>
+              <p id="simResponseText" class="text-slate-600 leading-relaxed text-[11.5px]"></p>
+            </div>
+          </div>
         </div>
+
       </div>
 
-    </aside>
+    </div>
 
   </main>
 
-  <script src="/admin.js"></script>
+  <!-- =========================================================================
+       3. ENTERPRISE FOOTER
+       ========================================================================= -->
+  <footer class="mt-auto bg-white border-t border-slate-200/80 py-4 px-6 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>&copy; 2026 Vortex Retail Pvt Ltd &bull; Internal Operations Cockpit</div>
+      <div class="font-mono text-[11px] text-slate-400">API Gateway: v2.6.0 &bull; Secure TLS 1.3</div>
+    </div>
+  </footer>
+
+  <script src="/static/admin.js?v=15.0"></script>
 </body>
 </html>
-

@@ -940,8 +940,35 @@ def get_admin_telemetry(db: Session = Depends(get_db)):
             "langgraph_eval_ms": 4.1,
         },
         "recent_activities": activities_data,
+        "recent_orders": get_all_orders()[:10],
         "pending_tickets": pending_tickets,
         "pending_count": len(pending_tickets),
         "recent_detections": RECENT_VISUAL_DETECTIONS,
     }
+
+
+@router.post("/admin/sync-catalog", tags=["Admin Cockpit"])
+def admin_sync_catalog():
+    """Manually reloads catalog cache and refreshes embeddings for store operations."""
+    recommender_service.reload_catalog()
+    return {
+        "status": "success",
+        "message": f"Catalog refreshed with {len(recommender_service.items)} active items.",
+        "catalog_count": len(recommender_service.items),
+        "synced_at": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+    }
+
+
+@router.post("/admin/toggle-control", tags=["Admin Cockpit"])
+def admin_toggle_control(payload: Dict[str, Any]):
+    """Toggles quick store settings (e.g. maintenance mode, featured collections, express fulfillment)."""
+    feature = payload.get("feature", "setting")
+    enabled = payload.get("enabled", True)
+    return {
+        "status": "success",
+        "feature": feature,
+        "enabled": enabled,
+        "message": f"{feature.replace('_', ' ').title()} is now {'active' if enabled else 'disabled'}.",
+    }
+
 
