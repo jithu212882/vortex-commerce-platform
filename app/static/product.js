@@ -520,9 +520,6 @@
       el.boughtTogetherGrid.style.display = "none";
     }
   }
-      console.warn("Could not load complementary products:", e);
-    }
-  }
 
   // ===========================================================================
   // CART ACTIONS & SYNCHRONIZATION

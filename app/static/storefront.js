@@ -143,10 +143,107 @@
   }
 
   // ============================================================================
+  // REFRESH DOM ELEMENTS (DEFENSIVE EXISTENCE CHECK)
+  // ============================================================================
+
+  function refreshElements() {
+    el.shelfSearchResults = document.getElementById("shelfSearchResults");
+    el.searchResultsTitle = document.getElementById("searchResultsTitle");
+    el.btnClearSearch = document.getElementById("btnClearSearch");
+    el.storeCatalogGrid = document.getElementById("storeCatalogGrid");
+    el.catalogCountNote = document.getElementById("catalogCountNote");
+    el.shelfRecommended = document.getElementById("shelf-recommended");
+    el.recommendedGrid = document.getElementById("recommendedGrid");
+    el.recsFreshIndicator = document.getElementById("recsFreshIndicator");
+    el.shelfTech = document.getElementById("shelf-tech");
+    el.gridTech = document.getElementById("gridTech");
+    el.shelfJewellery = document.getElementById("shelf-jewellery");
+    el.gridJewellery = document.getElementById("gridJewellery");
+    el.shelfHome = document.getElementById("shelf-home");
+    el.gridHome = document.getElementById("gridHome");
+    el.shelfCare = document.getElementById("shelf-care");
+    el.gridCare = document.getElementById("gridCare");
+    el.globalSearchInput = document.getElementById("globalSearchInput") || document.getElementById("storeSearchInput");
+    el.storeSearchInput = document.getElementById("globalSearchInput") || document.getElementById("storeSearchInput");
+    el.btnSearchSubmit = document.getElementById("btnSearchSubmit");
+    el.categorySelectDropdown = document.getElementById("categorySelectDropdown");
+    el.searchSuggestDropdown = document.getElementById("searchSuggestDropdown");
+    el.searchSuggestList = document.getElementById("searchSuggestList");
+    el.searchSuggestSeeAll = document.getElementById("searchSuggestSeeAll");
+    el.suggestSeeAllText = document.getElementById("suggestSeeAllText");
+    el.searchResultsSort = document.getElementById("searchResultsSort");
+    el.searchFilterPillsRow = document.getElementById("searchFilterPillsRow");
+    el.vxBrandLogo = document.getElementById("vxBrandLogo") || document.querySelector(".vx-logo-cluster");
+    el.btnSearchPhotoTrigger = document.getElementById("btnSearchPhotoTrigger");
+    el.btnTriggerHeroVisualSearch = document.getElementById("btnTriggerHeroVisualSearch");
+    el.btnExploreCollection = document.getElementById("btnExploreCollection");
+    el.heroCarousel = document.getElementById("heroCarousel");
+    el.carouselTrack = document.getElementById("carouselTrack");
+    el.btnCarouselPrev = document.getElementById("btnCarouselPrev");
+    el.btnCarouselNext = document.getElementById("btnCarouselNext");
+    el.carouselDots = document.querySelectorAll(".hero-dot, .vx-carousel-dot");
+    el.cartDrawer = document.getElementById("cartDrawer");
+    el.btnCartTrigger = document.getElementById("btnCartTrigger");
+    el.btnCloseCartDrawer = document.getElementById("btnCloseCartDrawer");
+    el.cartItemsStream = document.getElementById("cartItemsStream");
+    el.cartSubtotalVal = document.getElementById("cartSubtotalVal");
+    el.cartCountBadge = document.getElementById("cartCountBadge");
+    el.btnCheckoutCart = document.getElementById("btnCheckoutCart");
+    el.quickViewModal = document.getElementById("quickViewModal");
+    el.btnCloseQuickView = document.getElementById("btnCloseQuickView");
+    el.btnDismissModal = document.getElementById("btnDismissModal");
+    el.modalImg = document.getElementById("modalImg");
+    el.modalBrand = document.getElementById("modalBrand");
+    el.modalTitle = document.getElementById("modalTitle");
+    el.modalPrice = document.getElementById("modalPrice");
+    el.modalMrp = document.getElementById("modalMrp");
+    el.modalDiscount = document.getElementById("modalDiscount");
+    el.modalDesc = document.getElementById("modalDesc");
+    el.btnAddToCartModal = document.getElementById("btnAddToCartModal");
+    el.visualSearchModal = document.getElementById("visualSearchModal");
+    el.btnCloseVisualModal = document.getElementById("btnCloseVisualModal");
+    el.storefrontDropzone = document.getElementById("storefrontDropzone");
+    el.storefrontFileInput = document.getElementById("storefrontFileInput");
+    el.cameraFileInput = document.getElementById("cameraFileInput");
+    el.galleryFileInput = document.getElementById("galleryFileInput");
+    el.btnUseCamera = document.getElementById("btnUseCamera");
+    el.btnUploadGallery = document.getElementById("btnUploadGallery");
+    el.visualSelectedPreviewBox = document.getElementById("visualSelectedPreviewBox");
+    el.visualSelectedThumb = document.getElementById("visualSelectedThumb");
+    el.visualSelectedFileName = document.getElementById("visualSelectedFileName");
+    el.visualSelectedFileSize = document.getElementById("visualSelectedFileSize");
+    el.btnRemoveSelectedImage = document.getElementById("btnRemoveSelectedImage");
+    el.executeVisualSearchBtn = document.getElementById("executeVisualSearchBtn");
+    el.btnTriggerBrowsePhoto = document.getElementById("btnTriggerBrowsePhoto");
+    el.visualInspectionBox = document.getElementById("visualInspectionBox");
+    el.visualPreviewImg = document.getElementById("visualPreviewImg");
+    el.visualLabelNotice = document.getElementById("visualLabelNotice");
+    el.visualStatusNotice = document.getElementById("visualStatusNotice");
+    el.visualMatchesContainer = document.getElementById("visualMatchesContainer");
+    el.visualMatchesGrid = document.getElementById("visualMatchesGrid");
+    el.visualMatchesHeading = document.getElementById("visualMatchesHeading");
+    el.visualEmptyNotice = document.getElementById("visualEmptyNotice");
+    el.supportDrawer = document.getElementById("supportDrawer");
+    el.btnOpenSupportDrawer = document.getElementById("btnOpenSupportDrawer");
+    el.btnCloseSupportDrawer = document.getElementById("btnCloseSupportDrawer");
+    el.drawerChatStream = document.getElementById("drawerChatStream");
+    el.drawerChatForm = document.getElementById("drawerChatForm");
+    el.drawerChatInput = document.getElementById("drawerChatInput");
+    el.chipTrackOrder = document.getElementById("chipTrackOrder");
+    el.chipRefundPrompt = document.getElementById("chipRefundPrompt");
+    el.chipCheckStock = document.getElementById("chipCheckStock");
+    el.navOrdersBtn = document.getElementById("navOrdersBtn");
+    el.footerTrackOrders = document.getElementById("footerTrackOrders");
+    el.footerReturnsHelp = document.getElementById("footerReturnsHelp");
+    el.footerCustomerCare = document.getElementById("footerCustomerCare");
+  }
+
+  // ============================================================================
   // INITIALIZATION
   // ============================================================================
 
   function init() {
+    refreshElements();
     bindEvents();
     initCarousel();
     fetchCatalog();
@@ -685,105 +782,80 @@
       });
     }
 
-    // Category strip pills (Direct Anchor Navigation to Curated Sector Shelves)
+    // Category strip pills (Synchronizes Hero Carousel & Primary Product Grid)
     document.querySelectorAll(".vx-cat-pill").forEach((pill) => {
-      pill.addEventListener("click", () => {
+      pill.addEventListener("click", (e) => {
+        e.preventDefault();
         const cat = pill.getAttribute("data-cat") || "";
-        const target = pill.getAttribute("data-target");
-        state.activeCategory = cat;
-        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
-        updateCategoryStripActive(cat);
-
-        if (target) {
-          setViewMode("home");
-          smoothScrollTo(target);
-        } else {
-          // "All Curated Collections": Reset any search, scroll to top recommended
-          clearSearch();
-        }
+        selectCategoryTab(cat);
       });
     });
 
-    // Bento Card quick jump to sector shelves
+    // Bento Card quick jump to synchronized category view
     document.querySelectorAll(".bento-filter-trigger").forEach((card) => {
-      card.addEventListener("click", () => {
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
         const cat = card.getAttribute("data-cat") || "";
-        let target = "#shelf-recommended";
-        if (cat === "audio" || cat === "electronics" || cat === "wearables") {
-          target = "#shelf-tech";
-        } else if (cat === "gaming" || cat === "gaming-peripherals" || cat === "fragrances") {
-          target = "#shelf-jewellery";
-        } else if (cat === "furniture") {
-          target = "#shelf-home";
-        } else if (cat === "beauty") {
-          target = "#shelf-care";
-        }
-        updateCategoryStripActive(cat);
-        smoothScrollTo(target);
+        selectCategoryTab(cat);
       });
     });
 
-    // Sector Shelf Action Buttons ("Explore Tech →", "Shop Home →", etc.) -> Navigate to Dedicated Category Page
+    // Sector Shelf Action Buttons ("Explore Tech →", "Shop Home →", etc.) -> Synchronized Filter View
     document.querySelectorAll(".btn-shelf-explore").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         const cat = btn.getAttribute("data-cat") || "";
-        if (cat) {
-          window.location.href = `/categories/${encodeURIComponent(cat)}`;
-        }
+        selectCategoryTab(cat);
       });
     });
 
-    // Footer category links -> Navigate to Dedicated Category Page
+    // Footer category links -> Synchronized Filter View
     document.querySelectorAll(".footer-cat-link").forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
         const cat = link.getAttribute("data-cat") || "";
-        if (cat) {
-          window.location.href = `/categories/${encodeURIComponent(cat)}`;
-        }
-      });
-    });
-        const cat = link.getAttribute("data-cat") || "";
-        state.activeCategory = cat;
-        if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
-        updateCategoryStripActive(cat);
-        let target = "#shelf-recommended";
-        if (cat === "audio" || cat === "electronics" || cat === "wearables") target = "#shelf-tech";
-        else if (cat === "gaming" || cat === "gaming-peripherals" || cat === "fragrances") target = "#shelf-jewellery";
-        else if (cat === "furniture") target = "#shelf-home";
-        else if (cat === "beauty") target = "#shelf-care";
-        smoothScrollTo(target);
+        selectCategoryTab(cat);
       });
     });
 
     // Cart Drawer Toggle
-    el.btnCartTrigger.addEventListener("click", () => el.cartDrawer.classList.add("open"));
-    el.btnCloseCartDrawer.addEventListener("click", () => el.cartDrawer.classList.remove("open"));
+    if (el.btnCartTrigger && el.cartDrawer) {
+      el.btnCartTrigger.addEventListener("click", () => el.cartDrawer.classList.add("open"));
+    }
+    if (el.btnCloseCartDrawer && el.cartDrawer) {
+      el.btnCloseCartDrawer.addEventListener("click", () => el.cartDrawer.classList.remove("open"));
+    }
 
-    el.btnCheckoutCart.addEventListener("click", () => {
-      if (state.cartItems.length === 0) {
-        alert("Your cart is empty. Please add items before proceeding.");
-        return;
-      }
-      alert("Proceeding to Secure Checkout. Thank you!");
-    });
+    if (el.btnCheckoutCart) {
+      el.btnCheckoutCart.addEventListener("click", () => {
+        if (state.cartItems.length === 0) {
+          alert("Your cart is empty. Please add items before proceeding.");
+          return;
+        }
+        alert("Proceeding to Secure Checkout. Thank you!");
+      });
+    }
 
     // Quick View Modal
-    el.btnCloseQuickView.addEventListener("click", closeQuickViewAndTrackDwell);
-    el.btnDismissModal.addEventListener("click", closeQuickViewAndTrackDwell);
-    el.quickViewModal.addEventListener("click", (e) => {
-      if (e.target === el.quickViewModal) closeQuickViewAndTrackDwell();
-    });
+    if (el.btnCloseQuickView) el.btnCloseQuickView.addEventListener("click", closeQuickViewAndTrackDwell);
+    if (el.btnDismissModal) el.btnDismissModal.addEventListener("click", closeQuickViewAndTrackDwell);
+    if (el.quickViewModal) {
+      el.quickViewModal.addEventListener("click", (e) => {
+        if (e.target === el.quickViewModal) closeQuickViewAndTrackDwell();
+      });
+    }
 
-    el.btnAddToCartModal.addEventListener("click", () => {
-      if (state.currentQuickViewProduct) {
-        addToCart(state.currentQuickViewProduct);
-        el.btnAddToCartModal.textContent = "Added to Cart ✓";
-        setTimeout(() => {
-          el.btnAddToCartModal.textContent = "Add to Cart";
-        }, 1200);
-      }
-    });
+    if (el.btnAddToCartModal) {
+      el.btnAddToCartModal.addEventListener("click", () => {
+        if (state.currentQuickViewProduct) {
+          addToCart(state.currentQuickViewProduct);
+          el.btnAddToCartModal.textContent = "Added to Cart ✓";
+          setTimeout(() => {
+            if (el.btnAddToCartModal) el.btnAddToCartModal.textContent = "Add to Cart";
+          }, 1200);
+        }
+      });
+    }
 
     // Visual Search Modal (YOLOv8)
     const openVisualModal = () => {
@@ -805,19 +877,17 @@
     document.querySelectorAll(".btn-trigger-specs").forEach((btn) => {
       btn.addEventListener("click", () => {
         const cat = btn.getAttribute("data-cat") || "";
-        if (cat) {
-          state.activeCategory = cat;
-          if (el.categorySelectDropdown) el.categorySelectDropdown.value = cat;
-          updateCategoryStripActive(cat);
-          fetchCatalog();
-        }
-        smoothScrollTo("#shelfSearchResults");
+        selectCategoryTab(cat);
       });
     });
-    el.btnCloseVisualModal.addEventListener("click", () => el.visualSearchModal.classList.remove("open"));
-    el.visualSearchModal.addEventListener("click", (e) => {
-      if (e.target === el.visualSearchModal) el.visualSearchModal.classList.remove("open");
-    });
+    if (el.btnCloseVisualModal && el.visualSearchModal) {
+      el.btnCloseVisualModal.addEventListener("click", () => el.visualSearchModal.classList.remove("open"));
+    }
+    if (el.visualSearchModal) {
+      el.visualSearchModal.addEventListener("click", (e) => {
+        if (e.target === el.visualSearchModal) el.visualSearchModal.classList.remove("open");
+      });
+    }
 
     // Visual Search (Camera, Gallery & Drag-and-Drop)
     if (el.btnUseCamera && el.cameraFileInput) {
@@ -871,32 +941,42 @@
 
     // Support Drawer
     const openSupportDrawer = () => {
-      el.supportDrawer.classList.add("open");
-      el.drawerChatInput.focus();
+      if (el.supportDrawer) el.supportDrawer.classList.add("open");
+      if (el.drawerChatInput) el.drawerChatInput.focus();
     };
-    el.btnOpenSupportDrawer.addEventListener("click", openSupportDrawer);
+    if (el.btnOpenSupportDrawer) el.btnOpenSupportDrawer.addEventListener("click", openSupportDrawer);
     if (el.navOrdersBtn) el.navOrdersBtn.addEventListener("click", openSupportDrawer);
     if (el.footerCustomerCare) el.footerCustomerCare.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
     if (el.footerTrackOrders) el.footerTrackOrders.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
     if (el.footerReturnsHelp) el.footerReturnsHelp.addEventListener("click", (e) => { e.preventDefault(); openSupportDrawer(); });
-    el.btnCloseSupportDrawer.addEventListener("click", () => el.supportDrawer.classList.remove("open"));
+    if (el.btnCloseSupportDrawer && el.supportDrawer) {
+      el.btnCloseSupportDrawer.addEventListener("click", () => el.supportDrawer.classList.remove("open"));
+    }
 
     // Support Form Submission
-    el.drawerChatForm.addEventListener("submit", handleSupportChatSubmit);
+    if (el.drawerChatForm) {
+      el.drawerChatForm.addEventListener("submit", handleSupportChatSubmit);
+    }
 
     // Support Quick Chips
-    el.chipTrackOrder.addEventListener("click", () => {
-      el.drawerChatInput.value = "Where is my package #ORD-98214?";
-      el.drawerChatForm.dispatchEvent(new Event("submit"));
-    });
-    el.chipRefundPrompt.addEventListener("click", () => {
-      el.drawerChatInput.value = "I would like to request a refund of ₹450 for my recent order.";
-      el.drawerChatInput.focus();
-    });
-    el.chipCheckStock.addEventListener("click", () => {
-      el.drawerChatInput.value = "Can you check stock availability for laptops and wireless headphones?";
-      el.drawerChatForm.dispatchEvent(new Event("submit"));
-    });
+    if (el.chipTrackOrder && el.drawerChatInput && el.drawerChatForm) {
+      el.chipTrackOrder.addEventListener("click", () => {
+        el.drawerChatInput.value = "Where is my package #ORD-98214?";
+        el.drawerChatForm.dispatchEvent(new Event("submit"));
+      });
+    }
+    if (el.chipRefundPrompt && el.drawerChatInput) {
+      el.chipRefundPrompt.addEventListener("click", () => {
+        el.drawerChatInput.value = "I would like to request a refund of ₹450 for my recent order.";
+        el.drawerChatInput.focus();
+      });
+    }
+    if (el.chipCheckStock && el.drawerChatInput && el.drawerChatForm) {
+      el.chipCheckStock.addEventListener("click", () => {
+        el.drawerChatInput.value = "Can you check stock availability for laptops and wireless headphones?";
+        el.drawerChatForm.dispatchEvent(new Event("submit"));
+      });
+    }
 
     // Global Keyboard Shortcut: ⌘K or / to focus search input
     window.addEventListener("keydown", (e) => {
@@ -957,6 +1037,179 @@
       target.scrollIntoView({ behavior: "smooth" });
     }
   }
+
+  // ============================================================================
+  // SYNCHRONIZED CATEGORY TABS & HERO CAROUSEL ENGINE
+  // ============================================================================
+
+  const CATEGORY_TAB_CONFIG = {
+    "": { title: "All Curated", slideIndex: 0 },
+    "audio": { title: "Audio & Studio", slideIndex: 0 },
+    "electronics": { title: "Computing", slideIndex: 1 },
+    "laptops": { title: "Computing", slideIndex: 1 },
+    "smartphones": { title: "Smartphones & Mobile", slideIndex: 1 },
+    "wearables": { title: "Wearables", slideIndex: 0 },
+    "gaming": { title: "Gaming & Peripherals", slideIndex: 2 },
+    "gaming-peripherals": { title: "Gaming & Peripherals", slideIndex: 2 },
+    "furniture": { title: "Home & Living", slideIndex: 3 },
+    "home-living": { title: "Home & Living", slideIndex: 3 },
+    "beauty": { title: "Daily Care", slideIndex: 3 },
+    "daily-care": { title: "Daily Care", slideIndex: 3 },
+    "fragrances": { title: "Fragrances", slideIndex: 3 },
+    "groceries": { title: "Groceries", slideIndex: 3 },
+  };
+
+  function renderCleanCategoryEmptyState(categoryTitle) {
+    if (!el.storeCatalogGrid) return;
+    el.storeCatalogGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 64px 24px; background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 16px; margin: 12px 0;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: #F1F5F9; color: var(--ink-secondary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--ink-primary); margin-bottom: 8px;">No items currently available in ${categoryTitle}</h3>
+        <p style="font-size: 13.5px; color: var(--ink-secondary); max-width: 420px; margin: 0 auto 20px; line-height: 1.5;">
+          We are continuously expanding our catalog. Explore our curated collections across other categories.
+        </p>
+        <button type="button" class="btn-reset-category" style="background: var(--ink-primary); color: #FFFFFF; border: none; padding: 10px 22px; border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: opacity 0.2s ease;">
+          Browse All Curated Collections
+        </button>
+      </div>
+    `;
+    const resetBtn = el.storeCatalogGrid.querySelector(".btn-reset-category");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        selectCategoryTab("");
+      });
+    }
+  }
+
+  async function selectCategoryTab(categoryName) {
+    const normCat = (categoryName || "").trim().toLowerCase();
+    state.activeCategory = normCat;
+
+    // 1. Synchronize category pill active state & sliding indicator
+    updateCategoryStripActive(normCat);
+
+    if (el.categorySelectDropdown) {
+      el.categorySelectDropdown.value = normCat;
+    }
+
+    // 2. Synchronize hero banner carousel to matching slide
+    const config = CATEGORY_TAB_CONFIG[normCat] || {
+      title: normCat ? normCat.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase()) : "All Curated",
+      slideIndex: 0,
+    };
+
+    if (typeof goToSlide === "function") {
+      goToSlide(config.slideIndex);
+      restartAutoplay();
+    }
+
+    const homeShelves = [
+      document.getElementById("shelf-recommended"),
+      document.getElementById("shelf-tech"),
+      document.getElementById("shelf-jewellery"),
+      document.getElementById("shelf-home"),
+      document.getElementById("shelf-care"),
+    ];
+
+    // 3. If "All Curated" ("") is selected: restore multi-shelves
+    if (!normCat) {
+      if (el.shelfSearchResults) el.shelfSearchResults.style.display = "none";
+      homeShelves.forEach((shelf) => {
+        if (shelf) shelf.style.display = "";
+      });
+      fetchCatalog();
+      return;
+    }
+
+    // 4. Non-empty category selected: isolate and display dedicated product grid
+    homeShelves.forEach((shelf) => {
+      if (shelf) shelf.style.display = "none";
+    });
+
+    if (el.shelfSearchResults) {
+      el.shelfSearchResults.style.display = "block";
+    }
+    if (el.searchResultsTitle) {
+      el.searchResultsTitle.textContent = config.title;
+    }
+    if (el.catalogCountNote) {
+      el.catalogCountNote.textContent = `Fetching ${config.title} products...`;
+    }
+
+    // Loading indicator
+    if (el.storeCatalogGrid) {
+      el.storeCatalogGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 64px 20px; color: var(--ink-secondary);">
+          <div class="vx-spinner" style="margin: 0 auto 12px; width: 32px; height: 32px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--ink-primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <div style="font-size: 14px; font-weight: 600;">Loading ${config.title}...</div>
+        </div>
+      `;
+    }
+
+    try {
+      const res = await fetch(`/api/v1/categories/${encodeURIComponent(normCat)}/items?limit=60`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const items = (data && data.items) ? data.items : [];
+
+      if (!items || items.length === 0) {
+        if (el.catalogCountNote) el.catalogCountNote.textContent = "0 items found";
+        renderCleanCategoryEmptyState(config.title);
+      } else {
+        // Cache items into state.catalog so PDP and Add to Cart work reliably
+        items.forEach((it) => {
+          if (!state.catalog.some((p) => p.id === it.id)) {
+            state.catalog.push(it);
+          }
+        });
+
+        if (el.catalogCountNote) {
+          el.catalogCountNote.textContent = `Showing ${items.length} products in ${config.title}`;
+        }
+        if (el.storeCatalogGrid) {
+          el.storeCatalogGrid.innerHTML = items
+            .map((item, idx) => renderProductCard(item, idx))
+            .join("");
+          bindCardInteractions(el.storeCatalogGrid);
+        }
+      }
+      smoothScrollTo("#shelfSearchResults");
+    } catch (err) {
+      console.warn("Failed to fetch category items from API, falling back to client-side catalog:", err);
+      const fallbackItems = (state.catalog || []).filter((it) => {
+        const c = (it.category || "").toLowerCase();
+        return c === normCat || c.includes(normCat) || normCat.includes(c);
+      });
+
+      if (!fallbackItems || fallbackItems.length === 0) {
+        if (el.catalogCountNote) el.catalogCountNote.textContent = "0 items found";
+        renderCleanCategoryEmptyState(config.title);
+      } else {
+        if (el.catalogCountNote) {
+          el.catalogCountNote.textContent = `Showing ${fallbackItems.length} products in ${config.title}`;
+        }
+        if (el.storeCatalogGrid) {
+          el.storeCatalogGrid.innerHTML = fallbackItems
+            .map((item, idx) => renderProductCard(item, idx))
+            .join("");
+          bindCardInteractions(el.storeCatalogGrid);
+        }
+      }
+      smoothScrollTo("#shelfSearchResults");
+    }
+  }
+
+  // Expose global controller
+  window.vxStore = {
+    selectCategoryTab,
+    clearCategoryFilter: () => selectCategoryTab(""),
+  };
 
   // ============================================================================
   // HERO CAROUSEL ENGINE (EMIL KOWALSKI FLUID TRANSITIONS & AUTOPLAY)
@@ -1085,6 +1338,7 @@
   // ============================================================================
 
   function addToCart(product) {
+    if (!product) return;
     const existing = state.cartItems.find((item) => item.id === product.id);
     if (existing) {
       existing.quantity += 1;
@@ -1099,87 +1353,93 @@
     }
 
     updateCartUI();
-    el.cartDrawer.classList.add("open");
+    if (el.cartDrawer) el.cartDrawer.classList.add("open");
   }
 
   function updateCartUI() {
     const totalCount = state.cartItems.reduce((acc, it) => acc + it.quantity, 0);
-    el.cartCountBadge.textContent = totalCount;
+    if (el.cartCountBadge) el.cartCountBadge.textContent = totalCount;
 
     if (state.cartItems.length === 0) {
-      el.cartItemsStream.innerHTML = `
-        <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
-          Your cart is empty.
-        </div>`;
-      el.cartSubtotalVal.textContent = "₹0";
+      if (el.cartItemsStream) {
+        el.cartItemsStream.innerHTML = `
+          <div style="text-align: center; padding: 48px 16px; color: var(--vx-text-muted);">
+            Your cart is empty.
+          </div>`;
+      }
+      if (el.cartSubtotalVal) el.cartSubtotalVal.textContent = "₹0";
       return;
     }
 
     let subtotalInr = 0;
-    el.cartItemsStream.innerHTML = state.cartItems
-      .map((item) => {
-        const itemInr = Math.round(Number(item.price) * 83 * item.quantity);
-        subtotalInr += itemInr;
+    if (el.cartItemsStream) {
+      el.cartItemsStream.innerHTML = state.cartItems
+        .map((item) => {
+          const itemInr = Math.round(Number(item.price) * 83 * item.quantity);
+          subtotalInr += itemInr;
 
-        return `
-        <div class="vx-cart-item-card">
-          <img src="${item.image_url || '/static/images/placeholder.png'}" alt="${item.title}" class="vx-cart-item-thumb" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
-          <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-            <div style="font-size: 13px; font-weight: 600; color: var(--vx-text); line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-              ${item.title}
-            </div>
-            <div style="font-size: 13.5px; font-weight: 700; color: var(--vx-text);">
-              &#8377;${itemInr.toLocaleString('en-IN')}
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
-              <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--vx-border); border-radius: 4px; padding: 2px 6px;">
-                <button type="button" class="btn-qty-minus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&minus;</button>
-                <span style="font-size: 12px; font-weight: 600;">${item.quantity}</span>
-                <button type="button" class="btn-qty-plus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&plus;</button>
+          return `
+          <div class="vx-cart-item-card">
+            <img src="${item.image_url || '/static/images/placeholder.png'}" alt="${item.title}" class="vx-cart-item-thumb" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+              <div style="font-size: 13px; font-weight: 600; color: var(--vx-text); line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${item.title}
               </div>
-              <button type="button" class="btn-remove-item" data-id="${item.id}" style="font-size: 11px; color: var(--vx-coral); font-weight: 600;">Remove</button>
+              <div style="font-size: 13.5px; font-weight: 700; color: var(--vx-text);">
+                &#8377;${itemInr.toLocaleString('en-IN')}
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--vx-border); border-radius: 4px; padding: 2px 6px;">
+                  <button type="button" class="btn-qty-minus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&minus;</button>
+                  <span style="font-size: 12px; font-weight: 600;">${item.quantity}</span>
+                  <button type="button" class="btn-qty-plus" data-id="${item.id}" style="font-weight: 700; font-size: 14px; color: var(--vx-text);">&plus;</button>
+                </div>
+                <button type="button" class="btn-remove-item" data-id="${item.id}" style="font-size: 11px; color: var(--vx-coral); font-weight: 600;">Remove</button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-      })
-      .join("");
+        `;
+        })
+        .join("");
 
-    el.cartSubtotalVal.textContent = `₹${subtotalInr.toLocaleString('en-IN')}`;
-
-    // Bind Cart Item Buttons
-    el.cartItemsStream.querySelectorAll(".btn-qty-minus").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = parseInt(btn.getAttribute("data-id"), 10);
-        const item = state.cartItems.find((i) => i.id === id);
-        if (item) {
-          item.quantity -= 1;
-          if (item.quantity <= 0) {
-            state.cartItems = state.cartItems.filter((i) => i.id !== id);
+      // Bind Cart Item Buttons
+      el.cartItemsStream.querySelectorAll(".btn-qty-minus").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = parseInt(btn.getAttribute("data-id"), 10);
+          const item = state.cartItems.find((i) => i.id === id);
+          if (item) {
+            item.quantity -= 1;
+            if (item.quantity <= 0) {
+              state.cartItems = state.cartItems.filter((i) => i.id !== id);
+            }
+            updateCartUI();
           }
-          updateCartUI();
-        }
+        });
       });
-    });
 
-    el.cartItemsStream.querySelectorAll(".btn-qty-plus").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = parseInt(btn.getAttribute("data-id"), 10);
-        const item = state.cartItems.find((i) => i.id === id);
-        if (item) {
-          item.quantity += 1;
-          updateCartUI();
-        }
+      el.cartItemsStream.querySelectorAll(".btn-qty-plus").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = parseInt(btn.getAttribute("data-id"), 10);
+          const item = state.cartItems.find((i) => i.id === id);
+          if (item) {
+            item.quantity += 1;
+            updateCartUI();
+          }
+        });
       });
-    });
 
-    el.cartItemsStream.querySelectorAll(".btn-remove-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = parseInt(btn.getAttribute("data-id"), 10);
-        state.cartItems = state.cartItems.filter((i) => i.id !== id);
-        updateCartUI();
+      el.cartItemsStream.querySelectorAll(".btn-remove-item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = parseInt(btn.getAttribute("data-id"), 10);
+          state.cartItems = state.cartItems.filter((i) => i.id !== id);
+          updateCartUI();
+        });
       });
-    });
+    }
+
+    if (el.cartSubtotalVal) {
+      el.cartSubtotalVal.textContent = `₹${subtotalInr.toLocaleString('en-IN')}`;
+    }
   }
 
   // ============================================================================
@@ -1765,5 +2025,9 @@
     if (b) b.remove();
   }
 
-  window.addEventListener("DOMContentLoaded", init);
+  if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
