@@ -102,22 +102,28 @@ def call_gemini_rest_api(image_bytes: bytes) -> Dict[str, Any]:
         ]
     }
 
-    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
+    models = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-2.5-flash",
+        "gemini-3.8-flash",
+        "gemini-1.5-flash",
+    ]
     last_error = ""
 
     for model in models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         try:
-            with httpx.Client(timeout=22.0) as client:
+            with httpx.Client(timeout=12.0) as client:
                 resp = client.post(
                     url,
                     json=payload,
                     headers={"Content-Type": "application/json"}
                 )
 
-            if resp.status_code == 404:
-                logger.warning(f"Gemini model '{model}' returned 404 Not Found. Falling back to alternative model...")
-                last_error = f"{model} returned 404 Not Found"
+            if resp.status_code in (404, 503):
+                logger.warning(f"Gemini model '{model}' returned HTTP {resp.status_code}. Falling back to alternative model...")
+                last_error = f"{model} returned HTTP {resp.status_code}"
                 continue
 
             if resp.status_code != 200:
