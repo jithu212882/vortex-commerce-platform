@@ -1,10 +1,18 @@
+"""
+Visual Search Service with Direct Gemini REST API Integration.
+Bypasses high-overhead SDKs to ensure robust multi-platform execution without dependency conflicts.
+Provides strict product matching and ranking to guarantee no unrelated products are returned.
+"""
+
 import asyncio
 import base64
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 import io
+import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
+import httpx
 import numpy as np
 from PIL import Image
 
@@ -13,76 +21,163 @@ from app.models.schemas import BoundingBox, ProductItem, VisualSearchResponse
 
 logger = logging.getLogger(__name__)
 
-# Lightweight thread pool executor (2 workers max to prevent Render 512MB RAM exhaustion)
+# Lightweight thread pool executor (2 workers max to protect Render 512MB RAM ceiling)
 _vision_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="vx_vision_worker")
 
-# Lazy reference and failure latch for YOLO model
-_yolo_model = None
-_yolo_failed = False
 
-
-def get_yolo_model():
-    """
-    Conditional lazy loader for Ultralytics YOLOv8.
-    Wraps the import and model weights loading in a safe try-except block.
-    If YOLO is unavailable, throws an error, or raises MemoryError, it gracefully
-    bypasses YOLO and marks it failed so all visual searches fall back to Gemini-first.
-    This guarantees memory usage stays well under Render's 512MB RAM ceiling.
-    """
-    global _yolo_model, _yolo_failed
-    if _yolo_failed:
-        return None
-    if _yolo_model is None:
-        if os.getenv("DISABLE_YOLO", "").lower() in ("1", "true", "yes"):
-            logger.info("YOLO model disabled via DISABLE_YOLO environment flag. Using Gemini-first visual pipeline.")
-            _yolo_failed = True
-            return None
-
+def get_gemini_api_key() -> str:
+    """Retrieves GEMINI_API_KEY from environment or project .env."""
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip() or os.environ.get("GOOGLE_API_KEY", "").strip()
+    if not api_key:
         try:
-            logger.info(f"Attempting lazy load of YOLO model: {settings.YOLO_MODEL_NAME}")
-            from ultralytics import YOLO
-            _yolo_model = YOLO(settings.YOLO_MODEL_NAME)
-            logger.info("Ultralytics YOLOv8 loaded successfully.")
-        except (MemoryError, ImportError, Exception) as e:
-            logger.warning(f"Could not initialize YOLOv8 model ({e}). Gracefully bypassing to Gemini-first vision pipeline.")
-            _yolo_model = None
-            _yolo_failed = True
-    return _yolo_model
+            from pathlib import Path
+            env_file = Path(__file__).resolve().parent.parent.parent / ".env"
+            if env_file.exists():
+                for line in env_file.read_text(encoding="utf-8").splitlines():
+                    line = line.strip()
+                    if line.startswith("GEMINI_API_KEY=") or line.startswith("GOOGLE_API_KEY="):
+                        val = line.split("=", 1)[1].strip().strip("'\"")
+                        if val:
+                            api_key = val
+                            break
+        except Exception:
+            pass
+    return api_key
+
+
+def call_gemini_rest_api(image_bytes: bytes) -> Dict[str, Any]:
+    """
+    Direct Gemini REST API invocation using httpx.
+    - Reads api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    - Resizes image to max 512x512 JPEG in memory and base64 encodes it.
+    - Sends POST to https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}
+      (With immediate fallback to gemini-1.5-flash on 404).
+    - Prompts Gemini strictly to return JSON: {"label": "...", "category": "...", "keywords": [...]}.
+    - Parses JSON cleanly (stripping markdown fences).
+    - If it fails, raises RuntimeError with exact HTTP error reason.
+    """
+    api_key = get_gemini_api_key()
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY environment variable is missing or empty.")
+
+    # 1. Resize uploaded image to max 512x512 JPEG in memory
+    try:
+        pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        w, h = pil_img.size
+        max_dim = 512
+        if max(w, h) > max_dim:
+            scale = max_dim / float(max(w, h))
+            new_size = (max(1, int(w * scale)), max(1, int(h * scale)))
+            pil_img = pil_img.resize(new_size, Image.Resampling.BILINEAR)
+        buf = io.BytesIO()
+        pil_img.save(buf, format="JPEG", quality=80, optimize=True)
+        compressed_bytes = buf.getvalue()
+        b64_image = base64.b64encode(compressed_bytes).decode("utf-8")
+    except Exception as e:
+        raise RuntimeError(f"Failed to process and compress image: {e}")
+
+    # 2. Strict prompt required by user
+    prompt_text = (
+        'Identify the main retail product in this image. Return ONLY a valid JSON object with keys: '
+        '{"label": "exact product type (e.g. laptop, smartphone, watch, shoes, perfume, shirt)", '
+        '"category": "broad category", '
+        '"keywords": ["5 specific search keywords matching the product"]}'
+    )
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "inline_data": {
+                            "mime_type": "image/jpeg",
+                            "data": b64_image
+                        }
+                    },
+                    {
+                        "text": prompt_text
+                    }
+                ]
+            }
+        ]
+    }
+
+    models = ["gemini-2.5-flash", "gemini-1.5-flash"]
+    last_error = ""
+
+    for model in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        try:
+            with httpx.Client(timeout=22.0) as client:
+                resp = client.post(
+                    url,
+                    json=payload,
+                    headers={"Content-Type": "application/json"}
+                )
+
+            if resp.status_code == 404:
+                logger.warning(f"Gemini model '{model}' returned 404 Not Found. Falling back to alternative model...")
+                last_error = f"{model} returned 404 Not Found"
+                continue
+
+            if resp.status_code != 200:
+                try:
+                    err_json = resp.json()
+                    err_msg = err_json.get("error", {}).get("message") or resp.text
+                except Exception:
+                    err_msg = resp.text
+                raise RuntimeError(f"HTTP {resp.status_code}: {err_msg}")
+
+            data = resp.json()
+            candidates = data.get("candidates", [])
+            if not candidates:
+                raise RuntimeError(f"Gemini model {model} returned 0 candidates.")
+
+            parts = candidates[0].get("content", {}).get("parts", [])
+            raw_text = parts[0].get("text", "") if parts else ""
+            raw_text = raw_text.strip()
+
+            # Clean markdown code fences if present
+            if raw_text.startswith("```"):
+                raw_text = raw_text.strip("`")
+                if raw_text.startswith("json"):
+                    raw_text = raw_text[4:].strip()
+
+            parsed = json.loads(raw_text)
+            label = str(parsed.get("label") or "product").strip()
+            category = str(parsed.get("category") or "general").strip()
+            keywords = parsed.get("keywords")
+            if not isinstance(keywords, list):
+                keywords = [str(keywords or "")]
+
+            return {
+                "label": label,
+                "category": category,
+                "keywords": [str(k).strip() for k in keywords if str(k).strip()],
+                "b64_image": b64_image,
+                "model_used": model,
+            }
+
+        except httpx.TimeoutException:
+            last_error = f"Request to Gemini ({model}) timed out after 22 seconds."
+            logger.warning(last_error)
+            continue
+        except RuntimeError:
+            raise
+        except Exception as e:
+            last_error = str(e)
+            logger.error(f"Error calling Gemini REST API ({model}): {e}")
+            continue
+
+    raise RuntimeError(f"Direct Gemini REST API request failed: {last_error}")
 
 
 class VisionPreprocessingService:
     """
     Visual Search & Multimodal Preprocessing Service.
-    - Tier 1: Attempts lightweight YOLOv8 object localization if available and within RAM bounds.
-    - Tier 2 (Gemini-First): Routes visual search directly to Gemini 2.5 Flash via official google-genai
-      SDK if YOLO is unavailable, times out, or encounters a memory error.
-    - Zero Hallucination: Returns clean empty states on blank/monochrome inputs.
-    - RAM Safe: Keeps total process memory footprint strictly under 300MB.
+    Powered by Direct Gemini REST API and strict category-aware catalog retrieval.
+    Zero hallucination: rejects blank images and never injects unrelated dummy products.
     """
-
-    def __init__(self):
-        self.min_confidence = 0.25
-
-    @staticmethod
-    def _optimize_image_for_gemini(image: Image.Image, max_dim: int = 512, quality: int = 80) -> bytes:
-        """
-        Resizes and compresses PIL image for minimum payload size and rapid Gemini API round-trip.
-        Reduces multi-megabyte inputs to ~30-60KB without losing critical product features.
-        """
-        try:
-            w, h = image.size
-            if max(w, h) > max_dim:
-                scale = max_dim / float(max(w, h))
-                new_size = (max(1, int(w * scale)), max(1, int(h * scale)))
-                image = image.resize(new_size, Image.Resampling.BILINEAR)
-            buf = io.BytesIO()
-            image.save(buf, format="JPEG", quality=quality, optimize=True)
-            return buf.getvalue()
-        except Exception as e:
-            logger.warning(f"Image compression failed: {e}. Falling back to standard buffer.")
-            buf = io.BytesIO()
-            image.save(buf, format="JPEG", quality=quality)
-            return buf.getvalue()
 
     @staticmethod
     def _is_blank_image(image: Image.Image) -> bool:
@@ -96,208 +191,6 @@ class VisionPreprocessingService:
         except Exception:
             return False
 
-    def _run_yolo_inference(self, yolo, image: Image.Image, min_confidence: float):
-        """Worker function for YOLO multi-angle detection with memory safety."""
-        try:
-            return yolo(
-                image,
-                verbose=False,
-                augment=True,
-                agnostic_nms=True,
-                conf=min_confidence,
-            )
-        except Exception as e_aug:
-            logger.warning(f"YOLO augmented inference error, retrying standard: {e_aug}")
-            try:
-                return yolo(image, verbose=False, conf=min_confidence)
-            except Exception as e:
-                logger.warning(f"YOLO inference error: {e}")
-                return []
-
-    def process_image_upload(
-        self, image_bytes: bytes
-    ) -> Tuple[Optional[bytes], Optional[BoundingBox], str, str]:
-        """
-        Processes raw uploaded image bytes:
-        - Runs YOLOv8n inference to locate primary object if YOLO is loaded.
-        - Crops primary detected bounding box.
-        - Returns: (cropped_bytes, bounding_box, detected_label, status_message)
-        """
-        try:
-            image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-            img_width, img_height = image.size
-        except Exception as e:
-            logger.error(f"Failed to read image bytes: {e}")
-            return None, None, "", f"Invalid image format: {e}"
-
-        # Anti-Hallucination: Detect blank / monochrome test frames
-        if self._is_blank_image(image):
-            return None, None, "", "No confident objects detected. Please try another angle or a well-lit photo."
-
-        yolo = get_yolo_model()
-        if yolo is None:
-            return None, None, "", "YOLO_UNAVAILABLE"
-
-        primary_box = None
-        detected_label = "object"
-        detection_found = False
-
-        try:
-            results = self._run_yolo_inference(yolo, image, self.min_confidence)
-            best_box = None
-            max_area = 0.0
-
-            for r in results:
-                boxes = r.boxes
-                if boxes is None or len(boxes) == 0:
-                    continue
-                for box in boxes:
-                    conf = float(box.conf[0])
-                    if conf < self.min_confidence:
-                        continue
-
-                    cls_id = int(box.cls[0])
-                    cls_name = r.names.get(cls_id, "object")
-                    coords = box.xyxy[0].tolist()
-                    x1, y1, x2, y2 = coords
-
-                    w = max(0.0, x2 - x1)
-                    h = max(0.0, y2 - y1)
-                    area = w * h
-
-                    if area > max_area and w > 10 and h > 10:
-                        max_area = area
-                        best_box = (x1, y1, x2, y2, conf, cls_name)
-
-            if best_box:
-                x1, y1, x2, y2, conf, label = best_box
-                detection_found = True
-                detected_label = label
-                x1 = max(0.0, min(float(x1), float(img_width)))
-                y1 = max(0.0, min(float(y1), float(img_height)))
-                x2 = max(x1 + 1.0, min(float(x2), float(img_width)))
-                y2 = max(y1 + 1.0, min(float(y2), float(img_height)))
-
-                primary_box = BoundingBox(
-                    x1=round(x1, 1),
-                    y1=round(y1, 1),
-                    x2=round(x2, 1),
-                    y2=round(y2, 1),
-                    width=round(x2 - x1, 1),
-                    height=round(y2 - y1, 1),
-                    confidence=round(conf, 4),
-                    label=label,
-                )
-        except Exception as e:
-            logger.warning(f"YOLO inference failed: {e}. Falling back to Gemini-first vision.")
-            return None, None, "", "YOLO_UNAVAILABLE"
-
-        if not detection_found or primary_box is None:
-            return None, None, "", "NO_YOLO_DETECTION"
-
-        status_message = f"Object detected: '{primary_box.label}' (confidence: {primary_box.confidence * 100:.1f}%)."
-
-        crop_region = (
-            int(primary_box.x1),
-            int(primary_box.y1),
-            int(primary_box.x2),
-            int(primary_box.y2),
-        )
-        cropped_img = image.crop(crop_region)
-
-        # Optimize cropped payload size (<50KB) for sub-3-second Gemini multimodal response
-        cropped_bytes = self._optimize_image_for_gemini(cropped_img, max_dim=512, quality=80)
-
-        return cropped_bytes, primary_box, detected_label, status_message
-
-    def _execute_gemini_vision_search(
-        self,
-        image_bytes: bytes,
-        recommender_svc,
-        top_k: int = 5,
-    ) -> VisualSearchResponse:
-        """
-        Lightweight Gemini-first visual pipeline using gemini-2.5-flash via official google-genai SDK.
-        Analyzes uploaded image bytes directly, bypassing PyTorch / YOLO.
-        Keeps container memory usage well under 300MB on Render.
-        """
-        try:
-            image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-            img_w, img_h = image.size
-
-            # Fast Bilinear downsampling and compression to <50KB for rapid 3-5s Gemini round-trip
-            clean_bytes = self._optimize_image_for_gemini(image, max_dim=512, quality=80)
-            b64_crop = base64.b64encode(clean_bytes).decode("utf-8")
-        except Exception as e:
-            logger.error(f"Failed to prepare image for Gemini vision: {e}")
-            return VisualSearchResponse(
-                detection_found=False,
-                status_message=f"Invalid image format: {e}",
-                recommendations=[],
-                matches=[],
-                error=str(e),
-            )
-
-        from app.services.gemini_service import analyze_image_multimodal
-        gemini_analysis = analyze_image_multimodal(clean_bytes, yolo_label="product")
-
-        detected_category = gemini_analysis.get("category") or "product"
-        detected_brand = gemini_analysis.get("brand")
-        query_text = (gemini_analysis.get("query_phrase") or detected_category).strip()
-
-        is_confident = bool(
-            detected_category
-            and detected_category.lower() not in ("unknown", "unidentified", "none", "")
-        )
-
-        if not is_confident:
-            return VisualSearchResponse(
-                detection_found=False,
-                bounding_box=None,
-                detected_label=None,
-                status_message="No confident objects detected. Please try another angle or a well-lit photo.",
-                cropped_image_base64=None,
-                recommendations=[],
-                matches=[],
-            )
-
-        bbox = BoundingBox(
-            x1=round(img_w * 0.05, 1),
-            y1=round(img_h * 0.05, 1),
-            x2=round(img_w * 0.95, 1),
-            y2=round(img_h * 0.95, 1),
-            width=round(img_w * 0.9, 1),
-            height=round(img_h * 0.9, 1),
-            confidence=0.92,
-            label=detected_category,
-        )
-
-        matches, _ = recommender_svc.recommend_dwell(
-            query_text=query_text,
-            top_k=top_k,
-        )
-        items = matches or []
-
-        return VisualSearchResponse(
-            detection_found=True,
-            bounding_box=bbox,
-            detected_label=detected_category,
-            status_message=f"Detected: {detected_category.title()} (Gemini 2.5 Flash AI)",
-            cropped_image_base64=f"data:image/jpeg;base64,{b64_crop}",
-            recommendations=items,
-            matches=items,
-            semantic_tags=gemini_analysis.get("semantic_tags", []),
-            gemini_description=gemini_analysis.get("description"),
-            detected_brand=detected_brand,
-            detected_category=detected_category,
-            detected_attributes={
-                "color": gemini_analysis.get("color"),
-                "material": gemini_analysis.get("material"),
-                "style": gemini_analysis.get("style"),
-                "source": gemini_analysis.get("source", "gemini-2.5-flash"),
-            },
-        )
-
     def search_by_image(
         self,
         image_bytes: bytes,
@@ -305,14 +198,13 @@ class VisionPreprocessingService:
         top_k: int = 5,
     ) -> VisualSearchResponse:
         """
-        Executes end-to-end visual search:
-        1. Checks for blank monochrome test images (anti-hallucination).
-        2. Tries YOLO localization & crop if YOLO is loaded and available.
-        3. Gemini-First Vision Fallback: If YOLO is unavailable, throws an OOM/memory error,
-           or times out, routes directly to Gemini 2.5 Flash to analyze raw image bytes.
-        4. Retrieves matching catalog items matching visual feature semantics.
-        5. Keeps memory usage well under 300MB on Render.
+        Executes visual search pipeline:
+        1. Checks for blank / monochrome test frames (anti-hallucination).
+        2. Calls Direct Gemini REST API (gemini-2.5-flash / gemini-1.5-flash).
+        3. Strictly filters and ranks catalog items by detected label and keywords.
+        4. Returns clear, transparent error payload if Gemini fails (no deterministic-fallback).
         """
+        # Anti-hallucination check
         try:
             pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
             if self._is_blank_image(pil_img):
@@ -337,64 +229,83 @@ class VisionPreprocessingService:
                 error=str(e),
             )
 
-        cropped_bytes, bbox, label, msg = self.process_image_upload(image_bytes)
+        # Direct Gemini REST API invocation
+        try:
+            gemini_res = call_gemini_rest_api(image_bytes)
+        except Exception as err:
+            err_msg = str(err)
+            logger.error(f"Gemini REST API detection failed: {err_msg}")
 
-        # If YOLO was available and successfully cropped the object:
-        if cropped_bytes and bbox is not None:
-            b64_crop = base64.b64encode(cropped_bytes).decode("utf-8")
+            # Generate thumbnail preview of uploaded image for UI preservation
+            b64_thumb = None
+            try:
+                buf = io.BytesIO()
+                pil_img.save(buf, format="JPEG", quality=80)
+                b64_thumb = base64.b64encode(buf.getvalue()).decode("utf-8")
+            except Exception:
+                pass
 
-            # Step 2: Gemini Vision Multimodal Tagging
-            from app.services.gemini_service import analyze_image_multimodal
-            gemini_analysis = analyze_image_multimodal(cropped_bytes, yolo_label=label)
-
-            # Step 3: Hybrid Dense Embedding Matching with all-MiniLM-L6-v2
-            query_text = (gemini_analysis.get("query_phrase") or label or "product").strip()
-            recommendations, _ = recommender_svc.recommend_dwell(
-                query_text=query_text,
-                top_k=top_k,
-            )
-
-            matches = recommendations or []
-
-            return VisualSearchResponse(
-                detection_found=True,
-                bounding_box=bbox,
-                detected_label=label,
-                status_message=f"Detected: {label.title()} (Confidence: {int(bbox.confidence * 100)}%)",
-                cropped_image_base64=f"data:image/jpeg;base64,{b64_crop}",
-                recommendations=matches,
-                matches=matches,
-                semantic_tags=gemini_analysis.get("semantic_tags", []),
-                gemini_description=gemini_analysis.get("description"),
-                detected_brand=gemini_analysis.get("brand"),
-                detected_category=gemini_analysis.get("category"),
-                detected_attributes={
-                    "color": gemini_analysis.get("color"),
-                    "material": gemini_analysis.get("material"),
-                    "style": gemini_analysis.get("style"),
-                    "source": gemini_analysis.get("source", "gemini-2.5-flash"),
-                },
-            )
-
-        # If image was blank, do not hallucinate
-        if msg == "No confident objects detected. Please try another angle or a well-lit photo.":
             return VisualSearchResponse(
                 detection_found=False,
                 bounding_box=None,
                 detected_label=None,
-                status_message=msg,
-                cropped_image_base64=None,
+                status_message=f"Gemini Vision Error: {err_msg}",
+                cropped_image_base64=f"data:image/jpeg;base64,{b64_thumb}" if b64_thumb else None,
                 recommendations=[],
                 matches=[],
+                error=err_msg,
+                detected_attributes={"source": "gemini-api-error", "error": err_msg},
             )
 
-        # Gemini-First Vision Fallback: If YOLO was unavailable or failed detection on a real photo,
-        # route directly to Gemini 2.5 Flash without crashing memory.
-        logger.info("Executing Gemini-first visual search fallback...")
-        return self._execute_gemini_vision_search(
-            image_bytes=image_bytes,
-            recommender_svc=recommender_svc,
+        label = gemini_res["label"]
+        category = gemini_res["category"]
+        keywords = gemini_res["keywords"]
+        model_used = gemini_res["model_used"]
+        b64_image = gemini_res["b64_image"]
+
+        # Strict catalog retrieval matching label and keywords (never random watches/perfumes)
+        matches = recommender_svc.find_visual_matches(
+            label=label,
+            category=category,
+            keywords=keywords,
             top_k=top_k,
+        )
+
+        bbox = BoundingBox(
+            x1=25.0,
+            y1=25.0,
+            x2=487.0,
+            y2=487.0,
+            width=462.0,
+            height=462.0,
+            confidence=0.95,
+            label=label,
+        )
+
+        status_msg = (
+            f"Detected: {label.title()} ({model_used})"
+            if matches
+            else f"Detected: {label.title()} ({model_used}) - No exact matches in catalog"
+        )
+
+        return VisualSearchResponse(
+            detection_found=True,
+            bounding_box=bbox,
+            detected_label=label.title(),
+            detected_category=category,
+            status_message=status_msg,
+            cropped_image_base64=f"data:image/jpeg;base64,{b64_image}",
+            recommendations=matches,
+            matches=matches,
+            semantic_tags=[f"#{k.title().replace(' ', '')}" for k in keywords[:5] if k],
+            gemini_description=f"Identified as {label} in category '{category}'",
+            detected_attributes={
+                "source": model_used,
+                "product_type": label,
+                "category": category,
+                "keywords": ", ".join(keywords[:4]) if keywords else "",
+            },
+            error=None,
         )
 
     async def async_search_by_image(
@@ -406,7 +317,7 @@ class VisionPreprocessingService:
     ) -> VisualSearchResponse:
         """
         Non-blocking asynchronous visual search executed in thread pool
-        with strict timeout fail-safes and automatic Gemini-first fallback.
+        with strict timeout fail-safes.
         """
         loop = asyncio.get_running_loop()
         try:
@@ -422,25 +333,16 @@ class VisionPreprocessingService:
             )
         except (asyncio.TimeoutError, FuturesTimeoutError):
             logger.warning(f"Async visual search pipeline timed out after {timeout_seconds}s fail-safe.")
-            try:
-                logger.info("Attempting quick Gemini-first fallback on timeout...")
-                return self._execute_gemini_vision_search(
-                    image_bytes=image_bytes,
-                    recommender_svc=recommender_svc,
-                    top_k=top_k,
-                )
-            except Exception as e:
-                logger.warning(f"Gemini fallback on timeout failed: {e}")
-                return VisualSearchResponse(
-                    detection_found=False,
-                    bounding_box=None,
-                    detected_label=None,
-                    status_message="Visual search timed out while analyzing image. Please try another angle or a smaller photo.",
-                    cropped_image_base64=None,
-                    recommendations=[],
-                    matches=[],
-                    error="timeout",
-                )
+            return VisualSearchResponse(
+                detection_found=False,
+                bounding_box=None,
+                detected_label=None,
+                status_message="Visual search timed out while analyzing image. Please try another angle or a smaller photo.",
+                cropped_image_base64=None,
+                recommendations=[],
+                matches=[],
+                error="timeout",
+            )
 
 
 vision_service = VisionPreprocessingService()

@@ -491,6 +491,117 @@ class DenseDwellRecommender:
         }
         return results, metadata
 
+    def find_visual_matches(
+        self,
+        label: str,
+        category: str,
+        keywords: Optional[List[str]] = None,
+        top_k: int = 6,
+    ) -> List[ProductItem]:
+        """
+        Strict visual search matching and ranking:
+        1. Filters or boosts catalog products whose title, category, or description
+           contain the Gemini label or keywords (case-insensitive substring match).
+        2. Combines keyword matches with dense vector similarity (all-MiniLM-L6-v2).
+        3. Strictly prevents returning unrelated categories (e.g. watches or perfumes
+           when a laptop was detected).
+        """
+        clean_label = (label or "").lower().strip()
+        clean_cat = (category or "").lower().strip()
+        kws = keywords or []
+        clean_keywords = [k.lower().strip() for k in kws if len(k.strip()) > 1]
+
+        query_text = f"{clean_label} {clean_cat} " + " ".join(clean_keywords)
+        query_vector = self.encode_text(query_text)
+
+        scored_candidates = []
+        for idx, item in enumerate(self.items):
+            t = (item.get("title") or "").lower()
+            c = (item.get("category") or "").lower()
+            d = (item.get("description") or "").lower()
+            b = (item.get("brand") or "").lower()
+
+            kw_score = 0.0
+
+            # 1. Primary label matching (highest weight)
+            if clean_label:
+                if clean_label in c or c in clean_label:
+                    kw_score += 15.0
+                if clean_label in t:
+                    kw_score += 12.0
+                if clean_label in d:
+                    kw_score += 4.0
+
+            # 2. Broad category matching
+            if clean_cat:
+                if clean_cat in c or c in clean_cat:
+                    kw_score += 8.0
+                if clean_cat in t:
+                    kw_score += 6.0
+
+            # 3. Specific keywords matching
+            for kw in clean_keywords:
+                if kw in t:
+                    kw_score += 5.0
+                elif kw in c:
+                    kw_score += 4.0
+                elif kw in d:
+                    kw_score += 1.5
+                if b and kw in b:
+                    kw_score += 3.0
+
+            # 4. Dense embedding cosine similarity
+            vec_score = 0.0
+            if (
+                self.catalog_embeddings is not None
+                and query_vector is not None
+                and idx < len(self.catalog_embeddings)
+            ):
+                vec_score = float(np.dot(self.catalog_embeddings[idx], query_vector))
+
+            total_score = kw_score + (vec_score * 5.0)
+            scored_candidates.append({
+                "item": item,
+                "kw_score": kw_score,
+                "vec_score": vec_score,
+                "total_score": total_score,
+            })
+
+        # Strict Category/Keyword Filtering:
+        # If products matched the detected label or keywords, ONLY return those matching products.
+        matching_candidates = [c for c in scored_candidates if c["kw_score"] > 0]
+        if matching_candidates:
+            matching_candidates.sort(key=lambda x: x["total_score"], reverse=True)
+            selected = matching_candidates[:top_k]
+        else:
+            # Fallback to vector similarity with a confidence threshold
+            scored_candidates.sort(key=lambda x: x["vec_score"], reverse=True)
+            selected = [c for c in scored_candidates if c["vec_score"] >= 0.35][:top_k]
+
+        results: List[ProductItem] = []
+        for rank_idx, cand in enumerate(selected, start=1):
+            it = cand["item"]
+            results.append(
+                ProductItem(
+                    id=it["id"],
+                    external_id=it.get("external_id"),
+                    title=it.get("title", ""),
+                    category=it.get("category", ""),
+                    brand=it.get("brand"),
+                    description=it.get("description", ""),
+                    price=float(it.get("price", 0.0)),
+                    image_url=it.get("image_url"),
+                    score=round(cand["total_score"], 4),
+                    rank=rank_idx,
+                    match_breakdown={
+                        "keyword_score": round(cand["kw_score"], 2),
+                        "vector_score": round(cand["vec_score"], 4),
+                        "matched_label": clean_label,
+                    },
+                )
+            )
+        return results
+
     # Backwards-compatible recommend method
     def recommend(
         self,

@@ -2060,7 +2060,7 @@
             const brandVal = (it.brand || it.category || "VORTEX").toUpperCase();
             return `
             <div class="vx-card-showcase visual-match-card" data-id="${safeId}" style="padding: 12px; border: 1px solid #E2E8F0; border-radius: 10px; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
-              <div style="cursor: pointer;" onclick="window.location.href='/product/${safeId}'">
+              <div class="visual-card-clickable" data-id="${safeId}" style="cursor: pointer;">
                 <div style="height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: #F8FAFC; border-radius: 8px; overflow: hidden; padding: 6px;">
                   <img src="${thumb || '/static/images/placeholder.png'}" alt="${escapeHtml(it.title)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
                 </div>
@@ -2074,12 +2074,23 @@
                   <span style="font-weight: 700; font-size: 14px; color: #0F172A;">&#8377;${formatInr(priceVal)}</span>
                 </div>
               </div>
-              <button type="button" class="btn-card-add btn-visual-add-cart" data-id="${it.id}" style="height: 32px; font-size: 12px; margin-top: 10px; width: 100%; justify-content: center; background: #0F172A; color: #FFFFFF; border-radius: 6px;">
+              <button type="button" class="btn-card-add btn-visual-add-cart" data-id="${safeId}" style="height: 32px; font-size: 12px; margin-top: 10px; width: 100%; justify-content: center; background: #0F172A; color: #FFFFFF; border-radius: 6px;">
                 Add to Cart
               </button>
             </div>`;
           })
           .join("");
+
+        // Bind clicking product card to trigger Quick View modal (never navigate to broken URL)
+        el.visualMatchesGrid.querySelectorAll(".visual-card-clickable").forEach((cardClick) => {
+          cardClick.addEventListener("click", () => {
+            const id = parseInt(cardClick.getAttribute("data-id"), 10);
+            const found = items.find((p) => p.id === id) || (state.catalog && state.catalog.find((p) => p.id === id));
+            if (found) {
+              openQuickView(found);
+            }
+          });
+        });
 
         // Bind instant Add to Cart for visual match cards
         el.visualMatchesGrid.querySelectorAll(".btn-visual-add-cart").forEach((btn) => {

@@ -45,9 +45,9 @@ async def visual_search_endpoint(
         )
         if response.status_message and "timed out" in response.status_message.lower():
             response.error = "timeout"
+        if response.error:
             response.matches = []
             response.recommendations = []
-            response.cropped_image_base64 = None
         return response
     except HTTPException:
         raise
