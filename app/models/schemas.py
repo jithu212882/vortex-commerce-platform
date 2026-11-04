@@ -151,6 +151,11 @@ class VisualSearchResponse(BaseModel):
     cropped_image_base64: Optional[str] = None
     recommendations: List[ProductItem] = Field(default_factory=list)
     matches: List[ProductItem] = Field(default_factory=list)
+    semantic_tags: List[str] = Field(default_factory=list)
+    gemini_description: Optional[str] = None
+    detected_brand: Optional[str] = None
+    detected_category: Optional[str] = None
+    detected_attributes: Dict[str, Any] = Field(default_factory=dict)
 
 
 # ==============================================================================

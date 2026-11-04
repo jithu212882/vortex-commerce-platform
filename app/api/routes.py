@@ -958,7 +958,7 @@ async def visual_feature_search(
             image_bytes=content,
             recommender_svc=recommender_service,
             top_k=top_k,
-            timeout_seconds=8.0,
+            timeout_seconds=12.0,
         )
 
         # Record recent detection in buffer for Admin Visual Inspector

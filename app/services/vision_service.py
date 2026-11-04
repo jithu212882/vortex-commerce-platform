@@ -187,8 +187,12 @@ class VisionPreprocessingService:
         # Base64 string for preview
         b64_crop = base64.b64encode(cropped_bytes).decode("utf-8")
 
-        # Map detected label to catalog query
-        query_text = label if label else "product"
+        # Step 2: Gemini Vision Multimodal Tagging
+        from app.services.gemini_service import analyze_image_multimodal
+        gemini_analysis = analyze_image_multimodal(cropped_bytes, yolo_label=label)
+
+        # Step 3: Hybrid Dense Embedding Matching with all-MiniLM-L6-v2
+        query_text = (gemini_analysis.get("query_phrase") or label or "product").strip()
         recommendations, _ = recommender_svc.recommend_dwell(
             query_text=query_text,
             top_k=top_k,
@@ -200,10 +204,20 @@ class VisionPreprocessingService:
             detection_found=True,
             bounding_box=bbox,
             detected_label=label,
-            status_message=msg,
+            status_message=f"Detected: {label.title()} (Confidence: {int(bbox.confidence * 100)}%)",
             cropped_image_base64=f"data:image/jpeg;base64,{b64_crop}",
             recommendations=matches,
             matches=matches,
+            semantic_tags=gemini_analysis.get("semantic_tags", []),
+            gemini_description=gemini_analysis.get("description"),
+            detected_brand=gemini_analysis.get("brand"),
+            detected_category=gemini_analysis.get("category"),
+            detected_attributes={
+                "color": gemini_analysis.get("color"),
+                "material": gemini_analysis.get("material"),
+                "style": gemini_analysis.get("style"),
+                "source": gemini_analysis.get("source", "gemini-2.5-flash"),
+            },
         )
 
     async def async_search_by_image(

@@ -105,10 +105,15 @@
     btnRemoveSelectedImage: document.getElementById("btnRemoveSelectedImage"),
     executeVisualSearchBtn: document.getElementById("executeVisualSearchBtn"),
     btnTriggerBrowsePhoto: document.getElementById("btnTriggerBrowsePhoto"),
+    visualUploadSection: document.getElementById("visualUploadSection"),
     visualInspectionBox: document.getElementById("visualInspectionBox"),
     visualPreviewImg: document.getElementById("visualPreviewImg"),
     visualLabelNotice: document.getElementById("visualLabelNotice"),
     visualStatusNotice: document.getElementById("visualStatusNotice"),
+    visualConfidencePill: document.getElementById("visualConfidencePill"),
+    visualGeminiTags: document.getElementById("visualGeminiTags"),
+    visualAttributesPills: document.getElementById("visualAttributesPills"),
+    btnScanAnotherPhoto: document.getElementById("btnScanAnotherPhoto"),
     visualMatchesContainer: document.getElementById("visualMatchesContainer"),
     visualMatchesGrid: document.getElementById("visualMatchesGrid"),
     visualMatchesHeading: document.getElementById("visualMatchesHeading"),
@@ -215,10 +220,15 @@
     el.btnRemoveSelectedImage = document.getElementById("btnRemoveSelectedImage");
     el.executeVisualSearchBtn = document.getElementById("executeVisualSearchBtn");
     el.btnTriggerBrowsePhoto = document.getElementById("btnTriggerBrowsePhoto");
+    el.visualUploadSection = document.getElementById("visualUploadSection");
     el.visualInspectionBox = document.getElementById("visualInspectionBox");
     el.visualPreviewImg = document.getElementById("visualPreviewImg");
     el.visualLabelNotice = document.getElementById("visualLabelNotice");
     el.visualStatusNotice = document.getElementById("visualStatusNotice");
+    el.visualConfidencePill = document.getElementById("visualConfidencePill");
+    el.visualGeminiTags = document.getElementById("visualGeminiTags");
+    el.visualAttributesPills = document.getElementById("visualAttributesPills");
+    el.btnScanAnotherPhoto = document.getElementById("btnScanAnotherPhoto");
     el.visualMatchesContainer = document.getElementById("visualMatchesContainer");
     el.visualMatchesGrid = document.getElementById("visualMatchesGrid");
     el.visualMatchesHeading = document.getElementById("visualMatchesHeading");
@@ -922,6 +932,14 @@
 
     if (el.executeVisualSearchBtn) {
       el.executeVisualSearchBtn.addEventListener("click", executeVisualSearch);
+    }
+
+    if (el.btnScanAnotherPhoto) {
+      el.btnScanAnotherPhoto.addEventListener("click", () => {
+        setSelectedVisualFile(null);
+        if (el.visualUploadSection) el.visualUploadSection.style.display = "block";
+        if (el.visualInspectionBox) el.visualInspectionBox.style.display = "none";
+      });
     }
 
     if (el.storefrontDropzone) {
@@ -1837,6 +1855,11 @@
     if (!file) {
       selectedVisualFile = null;
       if (el.visualSelectedPreviewBox) el.visualSelectedPreviewBox.style.display = "none";
+      if (el.visualSelectedThumb) el.visualSelectedThumb.src = "";
+      if (el.visualSelectedFileName) el.visualSelectedFileName.textContent = "";
+      if (el.cameraFileInput) el.cameraFileInput.value = "";
+      if (el.galleryFileInput) el.galleryFileInput.value = "";
+      if (el.storefrontFileInput) el.storefrontFileInput.value = "";
       if (el.executeVisualSearchBtn) {
         el.executeVisualSearchBtn.disabled = true;
         el.executeVisualSearchBtn.style.opacity = "0.5";
@@ -1858,6 +1881,7 @@
       const kb = Math.round(file.size / 1024);
       el.visualSelectedFileSize.textContent = `${kb} KB • Ready for multi-angle AI detection`;
     }
+    if (el.visualUploadSection) el.visualUploadSection.style.display = "block";
     if (el.visualSelectedPreviewBox) el.visualSelectedPreviewBox.style.display = "block";
     if (el.visualInspectionBox) el.visualInspectionBox.style.display = "none";
     if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "none";
@@ -1883,39 +1907,67 @@
       el.executeVisualSearchBtn.disabled = true;
       el.executeVisualSearchBtn.innerHTML = `
         <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
-        <span>Running Multi-Angle Detection...</span>
+        <span>Analyzing with YOLOv8 + Gemini AI...</span>
       `;
     }
 
-    if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Analyzing object features with YOLOv8...";
-    if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
-    if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "none";
-    if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "none";
+    if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Analyzing object features with YOLOv8 & Gemini 2.5 Flash...";
 
     const formData = new FormData();
     formData.append("file", selectedVisualFile);
     formData.append("top_k", "6");
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     try {
       const res = await fetch("/api/v1/search/visual", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
+      // Switch to Amazon-style Inspection & Results View
+      if (el.visualUploadSection) el.visualUploadSection.style.display = "none";
       if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
+
       if (el.visualPreviewImg && data.cropped_image_base64) {
         el.visualPreviewImg.src = data.cropped_image_base64;
       }
       if (el.visualLabelNotice) {
         el.visualLabelNotice.textContent = data.detection_found && data.detected_label
           ? `Detected: ${data.detected_label.toUpperCase()}`
-          : "Detection: No confident object";
+          : "Detected: Unidentified Product";
       }
       if (el.visualStatusNotice) {
-        el.visualStatusNotice.textContent = data.status_message || "Visual analysis complete.";
+        el.visualStatusNotice.textContent = data.gemini_description || data.status_message || "Visual analysis complete.";
+      }
+      if (el.visualConfidencePill) {
+        const conf = data.bounding_box && data.bounding_box.confidence
+          ? Math.round(data.bounding_box.confidence * 100)
+          : null;
+        el.visualConfidencePill.textContent = conf ? `${conf}% Match` : (data.detection_found ? "AI Verified" : "Low Confidence");
+      }
+
+      // Render Gemini Multimodal Semantic Tags (#hashtags)
+      if (el.visualGeminiTags) {
+        const tags = data.semantic_tags || [];
+        el.visualGeminiTags.innerHTML = tags
+          .map(tag => `<span style="font-size: 10.5px; font-weight: 600; background: #EEF2F6; color: #334155; padding: 2px 7px; border-radius: 6px; border: 1px solid #E2E8F0;">#${escapeHtml(tag)}</span>`)
+          .join("");
+      }
+
+      // Render Gemini Extracted Attributes (color, material, style, category)
+      if (el.visualAttributesPills) {
+        const attrs = data.detected_attributes || {};
+        const attrEntries = Object.entries(attrs).filter(([k, v]) => v && v !== "unknown");
+        el.visualAttributesPills.innerHTML = attrEntries
+          .map(([k, v]) => `<span style="font-size: 11px; font-weight: 500; background: #F1F5F9; color: #475569; padding: 2px 6px; border-radius: 4px; border: 1px solid #CBD5E1;"><strong style="text-transform: capitalize;">${escapeHtml(k)}:</strong> ${escapeHtml(v)}</span>`)
+          .join("");
       }
 
       const items = (data.matches && data.matches.length > 0) ? data.matches : (data.recommendations || []);
@@ -1931,18 +1983,49 @@
           .map((it) => {
             const thumb = it.image_url || FALLBACK_THUMB;
             const priceVal = it.price_inr || (it.price ? Math.round(it.price * 83) : 999);
+            const brandVal = (it.brand || it.category || "VORTEX").toUpperCase();
             return `
-            <div class="vx-card-showcase" style="padding: 10px; cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
-              <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
-                <img src="${thumb || '/static/images/placeholder.png'}" alt="${it.title}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
+            <div class="vx-card-showcase visual-match-card" data-id="${it.id}" style="padding: 12px; border: 1px solid #E2E8F0; border-radius: 10px; background: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+              <div style="cursor: pointer;" onclick="window.location.href='/product/${it.id}'">
+                <div style="height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; background: #F8FAFC; border-radius: 8px; overflow: hidden; padding: 6px;">
+                  <img src="${thumb || '/static/images/placeholder.png'}" alt="${escapeHtml(it.title)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='${FALLBACK_THUMB}';">
+                </div>
+                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.04em; margin-bottom: 2px;">
+                  ${escapeHtml(brandVal)}
+                </div>
+                <div style="font-size: 12px; font-weight: 600; line-height: 1.3; color: #0F172A; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                  ${escapeHtml(it.title)}
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                  <span style="font-weight: 700; font-size: 14px; color: #0F172A;">&#8377;${formatInr(priceVal)}</span>
+                </div>
               </div>
-              <div style="font-size: 11.5px; font-weight: 600; line-height: 1.25; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                ${it.title}
-              </div>
-              <div style="font-weight: 700; font-size: 13px;">&#8377;${formatInr(priceVal)}</div>
+              <button type="button" class="btn-card-add btn-visual-add-cart" data-id="${it.id}" style="height: 32px; font-size: 12px; margin-top: 10px; width: 100%; justify-content: center; background: #0F172A; color: #FFFFFF; border-radius: 6px;">
+                Add to Cart
+              </button>
             </div>`;
           })
           .join("");
+
+        // Bind instant Add to Cart for visual match cards
+        el.visualMatchesGrid.querySelectorAll(".btn-visual-add-cart").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = parseInt(btn.getAttribute("data-id"), 10);
+            const found = items.find((p) => p.id === id) || (state.catalog && state.catalog.find((p) => p.id === id));
+            if (found) {
+              addToCart(found);
+              btn.textContent = "Added ✓";
+              btn.style.background = "#059669";
+              setTimeout(() => {
+                if (btn) {
+                  btn.textContent = "Add to Cart";
+                  btn.style.background = "#0F172A";
+                }
+              }, 1200);
+            }
+          });
+        });
       } else {
         // Anti-Hallucination: No fake products!
         if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "none";
@@ -1950,7 +2033,15 @@
         if (el.visualEmptyNotice) el.visualEmptyNotice.style.display = "block";
       }
     } catch (err) {
-      if (el.visualStatusNotice) el.visualStatusNotice.textContent = "Unable to process photo: " + err.message;
+      clearTimeout(timeoutId);
+      const isTimeout = err.name === "AbortError";
+      if (el.visualStatusNotice) {
+        el.visualStatusNotice.textContent = isTimeout
+          ? "Visual search request timed out after 15 seconds. Please try again."
+          : "Unable to process photo: " + err.message;
+      }
+      if (el.visualUploadSection) el.visualUploadSection.style.display = "none";
+      if (el.visualInspectionBox) el.visualInspectionBox.style.display = "block";
       if (el.visualMatchesContainer) el.visualMatchesContainer.style.display = "block";
       if (el.visualMatchesHeading) el.visualMatchesHeading.style.display = "none";
       if (el.visualMatchesGrid) el.visualMatchesGrid.style.display = "none";

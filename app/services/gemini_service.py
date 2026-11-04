@@ -170,3 +170,103 @@ def classify_support_intent(message: str) -> Optional[Dict[str, Any]]:
         logger.info(f"Gemini intent classification fallback: {e}")
         return None
 
+
+def analyze_image_multimodal(image_bytes: bytes, yolo_label: str = "object") -> Dict[str, Any]:
+    """
+    Multimodal Visual Analysis powered by official Gemini 2.5 Flash SDK.
+    Takes crop/image bytes and YOLO detection label, extracting precise semantic attributes:
+    category, brand, primary color, material, style, and semantic hashtags.
+    Provides robust deterministic fallback for offline or unauthenticated environments.
+    """
+    client = get_gemini_client()
+    clean_yolo = (yolo_label or "product").strip().lower()
+
+    if client is not None and image_bytes:
+        try:
+            from google.genai import types
+
+            prompt = (
+                f"You are an expert e-commerce computer vision system. An object was detected by YOLO as '{clean_yolo}'. "
+                f"Examine this product crop carefully and extract precise retail product attributes strictly as JSON:\n"
+                f"- 'category': specific retail category (e.g. 'headphones', 'smartwatch', 'laptop', 'sneakers', 'sports-accessories', 'bag')\n"
+                f"- 'brand': recognizable brand name if clearly visible (e.g. 'Sony', 'Apple', 'Logitech', 'Nike', or null)\n"
+                f"- 'color': primary color (e.g. 'black', 'white', 'silver', 'blue')\n"
+                f"- 'material': prominent material (e.g. 'matte aluminum', 'leather', 'polycarbonate')\n"
+                f"- 'style': style description (e.g. 'over-ear wireless studio', 'casual athletic')\n"
+                f"- 'semantic_tags': list of 3-5 tags starting with '#' (e.g. ['#WirelessAudio', '#NoiseCancelling', '#OverEar'])\n"
+                f"- 'query_phrase': concise 3-6 word search query for catalog retrieval (e.g. 'Sony wireless noise cancelling headphones')\n"
+                f"- 'description': 1-sentence product summary\n"
+                f"Return ONLY valid raw JSON."
+            )
+
+            part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[part, prompt],
+            )
+            raw_text = (response.text or "").strip()
+            if raw_text.startswith("```"):
+                raw_text = raw_text.strip("`")
+                if raw_text.startswith("json"):
+                    raw_text = raw_text[4:].strip()
+
+            parsed = json.loads(raw_text)
+            if isinstance(parsed, dict):
+                tags = parsed.get("semantic_tags") or []
+                clean_tags = [str(t).strip() if str(t).startswith("#") else f"#{str(t).strip()}" for t in tags[:5]]
+                return {
+                    "category": parsed.get("category") or clean_yolo,
+                    "brand": parsed.get("brand"),
+                    "color": parsed.get("color"),
+                    "material": parsed.get("material"),
+                    "style": parsed.get("style"),
+                    "semantic_tags": clean_tags or [f"#{clean_yolo.title().replace(' ', '')}"],
+                    "query_phrase": parsed.get("query_phrase") or f"{clean_yolo} product",
+                    "description": parsed.get("description") or f"Visually matched {clean_yolo}",
+                    "source": "gemini-2.5-flash",
+                }
+        except Exception as e:
+            logger.info(f"Gemini multimodal vision note: {e}. Utilizing deterministic fallback tags.")
+
+    # High-quality deterministic fallback
+    category_map = {
+        "cell phone": ("smartphones", ["#SmartPhone", "#OLEDDisplay", "#FastCharging", "#MobileTech"], "smartphone mobile phone 5g"),
+        "laptop": ("laptops", ["#HighPerformance", "#UltraPortable", "#RetinaDisplay", "#Computing"], "laptop notebook computer"),
+        "clock": ("wearables", ["#SmartHealth", "#FitnessTracking", "#WaterResistant", "#AllDayWear"], "smart watch fitness tracker"),
+        "sports ball": ("sports-accessories", ["#ProAthletics", "#MatchReady", "#DurableGear", "#ActiveLifestyle"], "sports ball equipment fitness"),
+        "bottle": ("kitchen-accessories", ["#Hydration", "#BPAFree", "#StainlessSteel", "#EcoFriendly"], "water bottle hydration flask"),
+        "backpack": ("womens-bags", ["#EverydayCarry", "#WaterResistant", "#TravelGear", "#Ergonomic"], "backpack travel bag pack"),
+        "handbag": ("womens-bags", ["#LeatherCraft", "#LuxuryStyle", "#EverydayElegance", "#Fashion"], "handbag purse tote bag"),
+        "mouse": ("gaming-peripherals", ["#ProEsports", "#OpticalSensor", "#UltraLightweight", "#Ergonomic"], "gaming mouse wireless optical"),
+        "keyboard": ("gaming-peripherals", ["#MechanicalSwitches", "#RGBBacklit", "#TactileResponse", "#ProGaming"], "mechanical keyboard gaming"),
+        "tv": ("electronics", ["#4KUltraHD", "#SmartTV", "#HDRPrecision", "#HomeCinema"], "television 4k display smart"),
+        "chair": ("furniture", ["#ErgonomicDesign", "#LumbarSupport", "#ModernLiving", "#PremiumComfort"], "office chair ergonomic furniture"),
+        "couch": ("furniture", ["#ModernLiving", "#PlushComfort", "#DurableFabric", "#Minimalist"], "sofa couch living room"),
+        "bed": ("furniture", ["#SleepComfort", "#SolidFrame", "#ModernDesign", "#RestfulLiving"], "bed frame bedroom furniture"),
+    }
+
+    matched_entry = None
+    for k, v in category_map.items():
+        if k in clean_yolo or clean_yolo in k:
+            matched_entry = v
+            break
+
+    if matched_entry:
+        cat, tags, q_phrase = matched_entry
+    else:
+        cat = clean_yolo
+        tags = [f"#{clean_yolo.title().replace(' ', '')}", "#VerifiedQuality", "#CustomerFavorite"]
+        q_phrase = f"{clean_yolo} product"
+
+    return {
+        "category": cat,
+        "brand": None,
+        "color": None,
+        "material": None,
+        "style": None,
+        "semantic_tags": tags,
+        "query_phrase": q_phrase,
+        "description": f"Visually detected {clean_yolo} item",
+        "source": "deterministic-fallback",
+    }
+

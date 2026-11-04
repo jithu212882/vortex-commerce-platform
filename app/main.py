@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router as api_router
+from app.routers.search import router as search_router
 from app.core.config import settings
 from app.database import Item, SessionLocal, init_db, seed_catalog_database
 from app.services.recommender import recommender_service
@@ -66,6 +67,7 @@ app.add_middleware(
 )
 
 # API routes
+app.include_router(search_router, prefix=settings.API_V1_STR)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # Ensure static directory exists
